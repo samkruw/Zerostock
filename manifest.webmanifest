@@ -1,7 +1,7 @@
 {
   "name": "ZeroStock – QR Packing Inventory",
   "short_name": "ZeroStock",
-  "description": "Multiuser QR inventory and packing planner for cartons",
+  "description": "Production multiuser QR carton inventory and packing planner",
   "id": "./",
   "start_url": "./",
   "scope": "./",
@@ -26,30 +26,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "QR scannen",
-      "short_name": "Scan",
-      "url": "./?view=scan",
-      "icons": [
-        {
-          "src": "./icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "Packing Planner",
-      "short_name": "Planner",
-      "url": "./?view=planner",
-      "icons": [
-        {
-          "src": "./icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
     }
   ]
 }
