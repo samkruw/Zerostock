@@ -1,48 +1,92 @@
 <div align="center">
 
-<img src="./readme-assets/zerostock-hero.svg" alt="ZeroStock Dashboard" width="100%">
-
-<br>
+# ZeroStock
 
 ### PACKING MATERIAL CONTROL · LIVE
 
 **QR-basierte Kartonverwaltung, Packing Instructions und Multiuser-Planung als PWA für Desktop und Android.**
 
-`V3.5 LIVE` &nbsp; `FIREBASE` &nbsp; `DESKTOP + ANDROID` &nbsp; `DE / EN`
+`V3.5 LIVE` · `FIREBASE` · `DESKTOP + ANDROID` · `DE / EN`
 
 </div>
 
 ---
 
-## ZeroStock
-
 <table>
 <tr>
-<td width="25%"><b>📦 Kartons</b><br><sub>Bestand, Warnbestand, Mindestbestand und Lagerplatz.</sub></td>
-<td width="25%"><b>▣ QR Scan</b><br><sub>Schnelle Buchungen direkt am Regal.</sub></td>
-<td width="25%"><b>◆ Planner</b><br><sub>Kapazität, Fehlmengen und Engpässe.</sub></td>
-<td width="25%"><b>♙ Multiuser</b><br><sub>Admin, Mitarbeiter und Kundenrollen.</sub></td>
+<td align="center" width="25%"><b>📦 KARTONS</b><br><sub>Bestand · Lagerplatz · Warnung</sub></td>
+<td align="center" width="25%"><b>▣ QR SCAN</b><br><sub>Eingang · Abgang · Schwund</sub></td>
+<td align="center" width="25%"><b>◆ PLANNER</b><br><sub>Kapazität · Fehlmengen</sub></td>
+<td align="center" width="25%"><b>♙ MULTIUSER</b><br><sub>Admin · Mitarbeiter · Kunde</sub></td>
 </tr>
 </table>
 
-<img src="./readme-assets/zerostock-workflow.svg" alt="ZeroStock Workflow" width="100%">
+---
+
+## 🟢 Systemstatus
+
+| Bereich | Status |
+|---|---|
+| **Firebase Authentication** | 🟢 LIVE |
+| **Realtime Database** | 🟢 LIVE |
+| **Desktop PWA** | 🟢 READY |
+| **Android PWA** | 🟢 READY |
+| **QR Buchungen** | 🟢 READY |
+| **Packing Planner** | 🟢 READY |
 
 ---
 
 ## Dashboard
 
-ZeroStock verbindet **Lagerbestand**, **Packing Instructions** und **Benutzerverwaltung** in einer Oberfläche.
-
-| Status | Bedeutung |
-|---|---|
-| 🟢 **BESTAND OK** | Bestand oberhalb der Warnschwelle |
-| 🟡 **WARNUNG** | Bestand erreicht Warnbestand |
-| 🔴 **KRITISCH** | Bestand erreicht Mindestbestand |
-| 🟢 **LIVE** | Firebase Realtime Database verbunden |
+```text
+┌──────────────────────────────────────────────────────────────┐
+│ ZEROSTOCK · PACKING MATERIAL CONTROL             FIREBASE ● │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│   Kartons        Bestand OK        Warnung        Kritisch    │
+│      24              18               4              2        │
+│                                                              │
+├──────────────────────────────────┬───────────────────────────┤
+│ BESTÄNDE                         │ PACKING-KAPAZITÄT         │
+│                                  │                           │
+│ TINST282-A   A-02-04   46   OK   │ TINST 282          15    │
+│ TINST111-B   B-01-03   12   WARN │ TINST 111           6    │
+│ KT-430       C-03-01    3   KRIT │                           │
+│                                  │ Firebase            LIVE  │
+└──────────────────────────────────┴───────────────────────────┘
+```
 
 ---
 
-## Funktionen
+## Workflow
+
+```text
+┌────────────┐
+│ QR SCANNEN │
+└─────┬──────┘
+      ↓
+┌────────────┐
+│   BUCHEN   │
+│ IN/OUT/LOSS│
+└─────┬──────┘
+      ↓
+┌────────────┐
+│ FIREBASE   │
+│    LIVE    │
+└─────┬──────┘
+      ↓
+┌────────────┐
+│   TINST    │
+└─────┬──────┘
+      ↓
+┌────────────┐
+│  PLANNER   │
+└────────────┘
+```
+
+---
+
+# Funktionen
 
 <table>
 <tr>
@@ -81,7 +125,8 @@ ZeroStock verbindet **Lagerbestand**, **Packing Instructions** und **Benutzerver
 
 ### ≡ Packing Instructions / TINST
 
-- Name & Beschreibung
+- Name
+- Beschreibung
 - Version
 - Aktiv / Inaktiv
 - Kartonbedarf pro Packing
@@ -106,7 +151,28 @@ ZeroStock verbindet **Lagerbestand**, **Packing Instructions** und **Benutzerver
 
 ---
 
-## QR-Regalschilder
+# 📦 Kartonverwaltung
+
+| Feld | Bedeutung |
+|---|---|
+| **Artikel** | Artikelnummer |
+| **Bezeichnung** | Kartonbeschreibung |
+| **Lagerplatz** | Regal / Position |
+| **Bestand** | aktueller Bestand |
+| **Warnbestand** | Warnschwelle |
+| **Mindestbestand** | kritische Schwelle |
+
+### Statuslogik
+
+| Status | Darstellung |
+|---|---|
+| Bestand über Warnschwelle | 🟢 **OK** |
+| Bestand erreicht Warnbestand | 🟡 **WARNUNG** |
+| Bestand erreicht Mindestbestand | 🔴 **KRITISCH** |
+
+---
+
+# ▣ QR-Regalschilder
 
 ```text
 Karton anlegen
@@ -117,49 +183,141 @@ Regalschild drucken
       ↓
 am Lagerplatz befestigen
       ↓
-Smartphone scannt
+Smartphone scannen
       ↓
 Eingang / Abgang / Schwund
 ```
 
-Das Regalschild enthält **Artikelnummer, Bezeichnung, Lagerplatz und QR-Code**.
+Das Regalschild enthält:
+
+`ARTIKEL` · `BEZEICHNUNG` · `LAGERPLATZ` · `QR-CODE`
 
 ---
 
-## Benutzerverwaltung
+# Lagerbuchungen
 
-<div align="center">
-
-| | |
+| Buchung | Funktion |
 |---|---|
-| **+ Benutzer** | Name, E-Mail, Rolle und Sprache direkt in ZeroStock anlegen |
-| **Rollen** | Admin · Mitarbeiter · Kunde |
-| **Zugriff** | Aktivieren / Deaktivieren |
-| **Passwort** | Einrichtungs- oder Reset-Mail senden |
+| 🟢 **Eingang** | Bestand erhöhen |
+| 🔵 **Abgang** | Bestand reduzieren |
+| 🟠 **Schwund** | Verlust / Schaden / Differenz |
 
-</div>
+Jede Buchung speichert:
 
-### Automatischer Ablauf
+- Benutzer
+- Zeitpunkt
+- Artikel
+- Buchungsart
+- Menge
+- Bestand danach
+- Grund
+- Notiz
+
+---
+
+# Kartons löschen
+
+Admins können Kartons bzw. Artikel löschen.
 
 ```text
-Admin → + Benutzer
-        ↓
-Firebase Auth Account
-        ↓
-UID automatisch
-        ↓
-/users/<UID>
-        ↓
-Rolle + Sprache
-        ↓
-Passwort-E-Mail
+KARTON LÖSCHEN
+      ↓
+TINST-PRÜFUNG
+      ↓
+┌───────────────────┬────────────────────┐
+│ NICHT VERWENDET   │ NOCH VERWENDET     │
+│        ↓          │        ↓           │
+│     LÖSCHEN       │ LÖSCHEN BLOCKIERT  │
+└───────────────────┴────────────────────┘
 ```
 
-Der Admin bleibt dabei angemeldet.
+Die Bewegungs-Historie bleibt erhalten.
 
 ---
 
-## Rollen
+# ≡ Packing Instructions / TINST
+
+Beispiel:
+
+```text
+TINST 4711
+
+├── Karton A × 2
+├── Karton B × 1
+└── Karton C × 4
+```
+
+Pro TINST können definiert werden:
+
+- Name
+- Beschreibung
+- Version
+- Status
+- benötigte Kartons
+- Menge pro Packing
+
+---
+
+# ◆ Packing Planner
+
+```text
+AKTUELLER BESTAND
+        +
+PACKING INSTRUCTION
+        +
+GEPLANTE MENGE
+        ↓
+┌─────────────────────┐
+│   PACKING PLANNER   │
+└─────────────────────┘
+        ↓
+MÖGLICH / FEHLMENGE
+```
+
+Berechnet werden:
+
+- maximal mögliche Packings
+- benötigte Kartons
+- verfügbare Kartons
+- Fehlmengen
+- Engpass
+- Auftrags-Erfüllbarkeit
+
+---
+
+# ♙ Benutzerverwaltung
+
+## Benutzer anlegen
+
+**Admin → Benutzer → + Benutzer**
+
+```text
+NAME
+E-MAIL
+ROLLE
+SPRACHE
+   ↓
+FIREBASE AUTH
+   ↓
+UID
+   ↓
+ZEROSTOCK-PROFIL
+   ↓
+PASSWORT-E-MAIL
+```
+
+Der bestehende Admin bleibt angemeldet.
+
+## Benutzer verwalten
+
+- Rolle ändern
+- Benutzer deaktivieren
+- Benutzer aktivieren
+- Passwort-Mail senden
+
+---
+
+# Rollen
 
 | Funktion | Admin | Mitarbeiter | Kunde |
 |---|:---:|:---:|:---:|
@@ -179,53 +337,41 @@ Der Admin bleibt dabei angemeldet.
 
 ---
 
-## Kartons löschen
-
-> **Sicherheitslogik:** Ein Karton kann nicht gelöscht werden, solange er noch in einer Packing Instruction / TINST verwendet wird.
-
-Bestehende Bewegungen bleiben als Historie erhalten.
-
----
-
-## Desktop & Android
-
-<table>
-<tr>
-<td width="50%" valign="top">
-
-### 🖥️ Desktop
+# 🖥️ Desktop
 
 Optimiert für:
 
-- Administration
-- Bestandskontrolle
-- TINST-Pflege
-- Planner
-- Benutzerverwaltung
+`Administration` · `Bestandskontrolle` · `TINST` · `Planner` · `Benutzerverwaltung`
 
-</td>
-<td width="50%" valign="top">
-
-### 📱 Android
-
-Optimiert für:
-
-- QR Scan
-- Eingang
-- Abgang
-- Schwund
-- schnelle Bestandskontrolle
-- Planner
-
-</td>
-</tr>
-</table>
-
-Beide Formfaktoren verwenden **dieselbe PWA und dieselbe LIVE-Datenbank**.
+```text
+┌──────────────┬──────────────────────────────┐
+│ Dashboard    │                              │
+│ QR Scan      │       ZERO STOCK             │
+│ Kartons      │       DASHBOARD              │
+│ Planner      │                              │
+│ TINST        │       FIREBASE LIVE          │
+│ Bewegungen   │                              │
+│ Benutzer     │                              │
+└──────────────┴──────────────────────────────┘
+```
 
 ---
 
-## PWA
+# 📱 Android
+
+Optimiert für:
+
+`QR Scan` · `Eingang` · `Abgang` · `Schwund` · `Bestandskontrolle`
+
+Mobile Navigation:
+
+```text
+HOME   SCAN   KARTONS   PLANNER   TINST
+```
+
+---
+
+# PWA
 
 ```text
 ZeroStock/
@@ -235,24 +381,26 @@ ZeroStock/
 ├── icon-192.png
 ├── icon-512.png
 ├── database.rules.json
-├── readme-assets/
-│   ├── zerostock-hero.svg
-│   └── zerostock-workflow.svg
 └── README.md
 ```
 
-ZeroStock benötigt **keinen Build-Prozess, kein Framework und keinen eigenen Server**.
+ZeroStock benötigt:
+
+- keinen Build-Prozess
+- kein Framework
+- keinen eigenen Server
+- keine Cloud Functions
 
 ---
 
-## Firebase
+# Firebase
 
-| Bereich | Konfiguration |
+| Bereich | Wert |
 |---|---|
 | **Project ID** | `zerostock-c5f5f` |
 | **Authentication** | E-Mail / Passwort |
 | **Database** | Firebase Realtime Database |
-| **Sync** | LIVE / Multiuser |
+| **Modus** | LIVE / Multiuser |
 
 ```text
 https://zerostock-c5f5f-default-rtdb.europe-west1.firebasedatabase.app
@@ -260,7 +408,7 @@ https://zerostock-c5f5f-default-rtdb.europe-west1.firebasedatabase.app
 
 ---
 
-## Datenstruktur
+# Datenstruktur
 
 ```text
 /
@@ -286,27 +434,29 @@ https://zerostock-c5f5f-default-rtdb.europe-west1.firebasedatabase.app
 
 ---
 
-## Firebase Rules
+# Firebase Rules
 
-`database.rules.json` gehört in:
+`database.rules.json` muss unter:
 
-**Firebase → Realtime Database → Rules → Veröffentlichen**
+**Firebase → Realtime Database → Rules**
 
-> Das Hochladen der Datei auf GitHub dient nur als Versions-Backup und aktiviert die Regeln nicht.
+eingefügt und veröffentlicht werden.
+
+Das Hochladen auf GitHub alleine aktiviert die Rules nicht.
 
 ---
 
-## GitHub Pages
+# GitHub Pages
 
 ```text
-GitHub Repository
-      ↓
+GitHub
+  ↓
 Settings
-      ↓
+  ↓
 Pages
-      ↓
+  ↓
 Deploy from a branch
-      ↓
+  ↓
 main / root
 ```
 
@@ -314,9 +464,9 @@ main / root
 
 <div align="center">
 
-### ZeroStock V3.5 LIVE
+## ZeroStock V3.5 LIVE
 
-**Packing Material Control**
+**PACKING MATERIAL CONTROL**
 
 `WHITE` · `TURQUOISE` · `GREEN` · `CORPORATE`
 
