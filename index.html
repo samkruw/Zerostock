@@ -439,7 +439,7 @@ label{
 <div class="authView active" id="authLoading"><h2>ZeroStock wird gestartet</h2><p>Firebase Authentication wird geladen …</p></div>
 <div class="authView" id="authLogin"><h2>Anmelden</h2><p>Bitte mit deinem ZeroStock-Benutzer einloggen.</p><div class="authForm"><label>E-Mail<input id="gateEmail" type="email" autocomplete="username" inputmode="email" placeholder="name@firma.ch"></label><label>Passwort<input id="gatePassword" type="password" autocomplete="current-password" placeholder="••••••••"></label><button class="btn primary" id="gateLogin">Einloggen</button><button class="authLink" id="gateReset">Passwort vergessen?</button></div><div class="authError" id="gateLoginError"></div></div>
 <div class="authView" id="authNoRole"><h2>Firebase-Rolle konnte nicht geladen werden</h2><p>Der Login funktioniert. Dieser Bildschirm erscheint jetzt nur noch, wenn der Rollenwert selbst nicht gelesen werden kann.</p><div class="dangerbox"><div class="note"><code>/users/&lt;UID&gt;/role</code> muss <b>admin</b>, <b>employee</b> oder <b>customer</b> sein.<br><br><b>Gelesener Rollenwert:</b> <code id="gateRoleValue">—</code><br><b>Prüfung:</b> <span id="gateRoleState">—</span><br><b>Quelle:</b> <span id="gateRoleSource">—</span><br><b>Datenbank:</b> <code id="gateRoleDb">—</code></div></div><div class="authForm" style="margin-top:14px"><button class="btn primary" id="gateRetryRole">Rolle erneut prüfen</button><button class="btn" id="gateLogoutRole">Abmelden</button></div><div class="authMeta"><span>UID</span><span id="gateUid">—</span></div></div>
-<div class="authMeta"><span>Firebase Project</span><span>zerostock-c5f5f</span></div><div class="authMeta"><span>Version</span><span>v3.0 Startup Fix</span></div>
+<div class="authMeta"><span>Firebase Project</span><span>zerostock-c5f5f</span></div><div class="authMeta"><span>Version</span><span>v3.2 Form Fix</span></div>
 </div></div>
 
 <div class="mobilehead"><b>ZeroStock</b><span id="mobileConn">● Login</span></div>
@@ -453,7 +453,7 @@ label{
 <button data-view="movements" data-internal><span data-i18n="movements">Bewegungen</span><span>↕</span></button>
 <button data-view="users" data-admin><span data-i18n="users">Benutzer</span><span>♙</span></button>
 <button data-view="settings" data-admin><span data-i18n="settings">Einstellungen</span><span>⚙</span></button></nav>
-<div class="sidefoot"><div><span class="dot off" id="connDot"></span><span id="connText">Firebase</span></div><br><span id="roleLabel">—</span><br><br><span>PWA v3.1 · Carton Fix</span></div></aside>
+<div class="sidefoot"><div><span class="dot off" id="connDot"></span><span id="connText">Firebase</span></div><br><span id="roleLabel">—</span><br><br><span>PWA v3.2 · Form Fix</span></div></aside>
 <main><div class="top"><div><div class="eyebrow">ZEROSTOCK · PACKING MATERIAL CONTROL</div><h1 id="pageTitle">Dashboard</h1></div><div class="toolbar"><div class="lang"><button data-lang="de" class="active">DE</button><button data-lang="en">EN</button></div><button class="btn primary" data-goto="scan" data-internal>▣ <span data-i18n="scan">QR scannen</span></button><button class="btn" id="logoutBtn">Logout</button></div></div>
 
 <section class="view active" id="dashboardView"><div id="onboarding" class="onboarding" style="display:none"></div><div class="cards"><div class="card"><small data-i18n="cartons">Kartons</small><strong id="kCartons">0</strong></div><div class="card"><small data-i18n="stockOk">Bestand OK</small><strong class="green" id="kOk">0</strong></div><div class="card"><small data-i18n="warning">Warnung</small><strong class="yellow" id="kWarn">0</strong></div><div class="card"><small data-i18n="critical">Kritisch</small><strong class="red" id="kCrit">0</strong></div></div><div class="grid"><div class="panel" id="inventoryPanel"><div class="ph"><div><h3 data-i18n="inventory">Bestände</h3><small data-i18n="liveStock">Aktueller Kartonbestand</small></div><input class="search" id="dashSearch" placeholder="Suchen…"></div><div class="tablewrap"><table><thead><tr><th data-i18n="article">Artikel</th><th data-i18n="location">Lagerplatz</th><th data-i18n="stock">Bestand</th><th data-i18n="status">Status</th><th></th></tr></thead><tbody id="dashRows"></tbody></table></div></div><div class="panel"><div class="ph"><div><h3 data-i18n="packingCapacity">Packing-Kapazität</h3><small data-i18n="basedOnStock">auf Basis des aktuellen Bestands</small></div></div><div id="capacityList"></div></div></div></section>
@@ -525,7 +525,31 @@ function authError(id,msg){const e=$(id);if(!e)return;e.textContent=msg||'';e.cl
 function currentView(){return document.querySelector('.view.active')?.id.replace('View','')||'dashboard'}
 function show(v){if(S.user?.role==='customer'&&['scan','cartons','movements','users','settings'].includes(v))v='planner';document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v+'View'));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));document.querySelectorAll('[data-mview]').forEach(b=>b.classList.toggle('active',b.dataset.mview===v));$('pageTitle').textContent={dashboard:t('dashboard'),scan:t('scan'),cartons:t('cartons'),instructions:'Packing Instructions',planner:t('planner'),movements:t('movements'),users:t('users'),settings:t('settings')}[v]||v}
 function applyRole(){const r=S.user?.role||'';document.querySelectorAll('[data-admin]').forEach(e=>e.style.display=isAdmin()?'':'none');document.querySelectorAll('[data-internal]').forEach(e=>e.style.display=r==='customer'?'none':'');document.querySelectorAll('[data-book]').forEach(e=>e.disabled=!canWrite());if($('inventoryPanel'))$('inventoryPanel').style.display=r==='customer'?'none':'';$('roleLabel').textContent=S.user?`${S.user.name} · ${S.user.role}`:'—';$('currentUserName').textContent=S.user?.name||'—';$('currentUserEmail').textContent=S.firebase?.auth?.currentUser?.email||'—';$('currentUserRole').textContent=S.user?.role||'—'}
-function applyLang(){document.documentElement.lang=lang;document.querySelectorAll('[data-i18n]').forEach(e=>{if(D[lang][e.dataset.i18n])e.textContent=D[lang][e.dataset.i18n]});document.querySelectorAll('[data-lang]').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));render()}
+function setI18nText(el,text){
+  if(!el)return;
+  // Simple text-only element: normal replacement is safe.
+  if(el.children.length===0){
+    el.textContent=text;
+    return;
+  }
+  // IMPORTANT: labels/buttons may contain <input>, <select>, <textarea> or spans.
+  // Only replace/create the direct text node so child controls stay in the DOM.
+  let node=[...el.childNodes].find(n=>n.nodeType===Node.TEXT_NODE && n.textContent.trim().length);
+  if(node){
+    node.textContent=text;
+  }else{
+    el.insertBefore(document.createTextNode(text),el.firstChild);
+  }
+}
+function applyLang(){
+  document.documentElement.lang=lang;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const text=D[lang]?.[el.dataset.i18n];
+    if(text)setI18nText(el,text);
+  });
+  document.querySelectorAll('[data-lang]').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
+  render();
+}
 function renderOnboarding(){const b=$('onboarding');if(!S.user||S.user.role==='customer'){b.style.display='none';return}const c=S.cartons.length>0,i=S.instructions.length>0;b.style.display='block';if(c&&i){b.innerHTML=`<h2>✓ ${t('ready')}</h2><p class="note">${t('setupComplete')}</p><div class="steps"><div class="step done"><b>${t('stepCartons')}</b><small>${S.cartons.length} ${t('cartons')}</small></div><div class="step done"><b>${t('stepInstructions')}</b><small>${S.instructions.length}</small></div><div class="step done"><b>${t('stepPlanner')}</b><small>${t('ready')}</small></div></div>`;return}b.innerHTML=`<h2>${t('startZero')}</h2><p class="note">${t('startZeroText')}</p><div class="steps"><div class="step ${c?'done':'active'}"><b>${t('stepCartons')}</b><small>${c?S.cartons.length:t('noCartons')}</small></div><div class="step ${c&&!i?'active':i?'done':''}"><b>${t('stepInstructions')}</b><small>${i?S.instructions.length:t('noInstructions')}</small></div><div class="step"><b>${t('stepPlanner')}</b><small>${i?t('ready'):'—'}</small></div></div><div class="actions" style="margin-top:14px">${!c&&isAdmin()?`<button type="button" class="btn primary" id="firstC">+ ${t('addFirstCarton')}</button>`:c&&!i&&isAdmin()?`<button class="btn primary" id="firstI">+ ${t('addFirstInstruction')}</button>`:''}</div>`;$('firstC')?.addEventListener('click',()=>openCarton());$('firstI')?.addEventListener('click',()=>openInstruction())}
 function render(){
 if(!S.user)return;
@@ -750,7 +774,7 @@ document.addEventListener('click',e=>{
 
 // UI events
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>show(b.dataset.view));document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>show(b.dataset.goto));document.querySelectorAll('[data-mview]').forEach(b=>b.onclick=()=>show(b.dataset.mview));document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{lang=b.dataset.lang;localStorage.setItem('zs-lang',lang);applyLang()});document.querySelectorAll('.closeModal').forEach(b=>b.onclick=closeAll);
-$('dashSearch').oninput=renderCartons;$('cartonSearch').oninput=renderCartons;if($('addCarton'))$('addCarton').onclick=e=>{e.preventDefault();openCarton()};if($('saveCarton'))$('saveCarton').onclick=e=>{e.preventDefault();saveCarton()};$('addInstruction').onclick=()=>openInstruction();$('saveInstruction').onclick=saveInstruction;$('addMaterialRow').onclick=()=>{$('materialRows').append(matRow());instructionLive()};$('calculatePlan').onclick=calcPlan;$('planQty').oninput=calcPlan;$('planInstruction').onchange=calcPlan;$('planRef').oninput=calcPlan;$('cStock').oninput=cartonLive;$('cWarn').oninput=cartonLive;$('cMin').oninput=cartonLive;$('bookType').onchange=bookPreview;$('bookQty').oninput=bookPreview;$('confirmBook').onclick=confirmBook;$('startScan').onclick=startScanner;$('manualScan').onclick=manualCode;$('stopScan').onclick=closeAll;$('printLabel').onclick=()=>window.print();$('logoutBtn').onclick=()=>S.firebase?.signOut(S.firebase.auth);$('fabScan').onclick=()=>show('scan');
+$('dashSearch').oninput=renderCartons;$('cartonSearch').oninput=renderCartons;if($('addCarton'))$('addCarton').onclick=e=>{e.preventDefault();openCarton()};if($('saveCarton'))$('saveCarton').onclick=e=>{e.preventDefault();saveCarton()};$('addInstruction').onclick=()=>openInstruction();$('saveInstruction').onclick=saveInstruction;$('addMaterialRow').onclick=()=>{$('materialRows').append(matRow());instructionLive()};$('calculatePlan').onclick=calcPlan;if($('planQty'))$('planQty').oninput=calcPlan;if($('planInstruction'))$('planInstruction').onchange=calcPlan;if($('planRef'))$('planRef').oninput=calcPlan;if($('cStock'))$('cStock').oninput=cartonLive;if($('cWarn'))$('cWarn').oninput=cartonLive;if($('cMin'))$('cMin').oninput=cartonLive;if($('bookType'))$('bookType').onchange=bookPreview;if($('bookQty'))$('bookQty').oninput=bookPreview;$('confirmBook').onclick=confirmBook;$('startScan').onclick=startScanner;$('manualScan').onclick=manualCode;$('stopScan').onclick=closeAll;$('printLabel').onclick=()=>window.print();$('logoutBtn').onclick=()=>S.firebase?.signOut(S.firebase.auth);$('fabScan').onclick=()=>show('scan');
 $('gateLogin').onclick=login;$('gateReset').onclick=resetPassword;
 $('gateRetryRole').onclick=async()=>{const u=S.firebase?.auth?.currentUser;if(u){$('gateRoleState').textContent='erneute Prüfung…';$('gateRoleValue').textContent='—';$('gateRoleSource').textContent='—';$('gateRoleDb').textContent=FIREBASE_BASE_CONFIG.databaseURL;await connectDb(u)}};
 $('gateLogoutRole').onclick=()=>S.firebase?.signOut(S.firebase.auth);$('gatePassword').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
