@@ -1,27 +1,25 @@
-# ZeroStock V2.9 – Role Recovery
+# ZeroStock V3.0 – Startup Fix
 
-## Rollen-Fix
-ZeroStock liest `/users/<UID>/role` zuerst über Firebase SDK.
-Falls dort kein Wert zurückkommt, erfolgt automatisch ein zweiter Abruf über die
-authentifizierte Realtime-Database-REST-API mit dem Firebase ID Token.
+## Behobener Fehler
+`Cannot set properties of null (setting 'disabled')`
 
-Die Fehleransicht zeigt:
-- gelesenen Rollenwert
-- Quelle (SDK / REST)
-- konkrete Database URL
-- Firebase/REST-Fehler
+Der Fehler entstand während der UI-Initialisierung des Packing Planners.
+Dadurch wurde ein bereits erfolgreicher Firebase-Rollenlogin fälschlich als
+Rollenfehler dargestellt.
 
-## Produktive Database
-https://zerostock-c5f5f-default-rtdb.europe-west1.firebasedatabase.app
+## Änderungen
+- Planner-Start ist null-sicher.
+- `renderPlanSelect()` prüft alle DOM-Elemente vor Zugriff.
+- `calcPlan()` prüft alle Planner-Elemente.
+- Dashboard-Renderfunktionen laufen isoliert, damit ein einzelner UI-Fehler nicht die App blockiert.
+- Nach erfolgreich geladener Firebase-Rolle kann ein UI-Fehler nicht mehr den Rollenfehler-Screen auslösen.
+- Firebase SDK + REST Rollen-Fallback aus V2.9 bleibt erhalten.
+- Professionelles ZeroStock PWA Logo bleibt enthalten.
+- Firebase Database URL bleibt fest eingebaut.
+- Desktop + Android PWA bleiben unterstützt.
 
-## Neues PWA Logo
-Das professionelle ZeroStock-Symbol ist jetzt als:
-- icon-192.png
-- icon-512.png
-- Login-Logo
-- Sidebar-Logo
-integriert.
+## Erwarteter Ablauf
+Login → Firebase Rolle `admin` → Dashboard.
 
-## Wichtig
-`database.rules.json` ist aktualisiert. Bitte diese Regeln in
-Firebase → Realtime Database → Rules veröffentlichen.
+Falls eine einzelne UI-Komponente fehlschlägt, bleibt ZeroStock geöffnet und schreibt den
+Fehler nur in die Browser-Konsole, statt den Benutzer aus dem Dashboard zu werfen.
