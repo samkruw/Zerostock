@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="760" viewBox="0 0 1600 760">
+<defs>
+  <linearGradient id="bg" x1="0" x2="1">
+    <stop offset="0" stop-color="#f4f8f8"/>
+    <stop offset="1" stop-color="#eef7f6"/>
+  </linearGradient>
+  <linearGradient id="brand" x1="0" x2="1">
+    <stop offset="0" stop-color="#00a99d"/>
+    <stop offset="1" stop-color="#118a84"/>
+  </linearGradient>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="10" stdDeviation="18" flood-color="#173239" flood-opacity=".10"/>
+  </filter>
+</defs>
+
+<rect width="1600" height="760" fill="url(#bg)"/>
+<rect x="42" y="34" width="1516" height="692" rx="28" fill="#ffffff" stroke="#d7e4e4" filter="url(#shadow)"/>
+
+<!-- Sidebar -->
+<rect x="42" y="34" width="270" height="692" rx="28" fill="#f9fcfc"/>
+<path d="M312 34v692" stroke="#dce8e8"/>
+<rect x="72" y="67" width="54" height="54" rx="14" fill="url(#brand)"/>
+<path d="M86 83h25l-18 22h22" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="141" y="91" font-size="25" font-weight="800" fill="#17262b" font-family="Inter,Segoe UI,Arial">ZeroStock</text>
+<text x="141" y="113" font-size="12" fill="#71878b" font-family="Inter,Segoe UI,Arial">Packing Material Control</text>
+
+<!-- nav -->
+<g font-family="Inter,Segoe UI,Arial" font-size="16" fill="#587176">
+<rect x="65" y="157" width="224" height="48" rx="12" fill="#e9f7f6"/>
+<circle cx="89" cy="181" r="6" fill="#00a99d"/>
+<text x="108" y="187" fill="#118a84" font-weight="700">Dashboard</text>
+<text x="108" y="236">QR scannen</text>
+<text x="108" y="285">Kartons</text>
+<text x="108" y="334">Packing Planner</text>
+<text x="108" y="383">TINST</text>
+<text x="108" y="432">Bewegungen</text>
+<text x="108" y="481">Benutzer</text>
+<text x="108" y="530">Einstellungen</text>
+</g>
+
+<circle cx="84" cy="675" r="6" fill="#32b67a"/>
+<text x="101" y="681" font-size="13" fill="#6d8287" font-family="Inter,Segoe UI,Arial">Firebase · LIVE</text>
+
+<!-- Main top -->
+<text x="354" y="81" font-size="12" font-weight="800" letter-spacing="2.4" fill="#00a99d" font-family="Inter,Segoe UI,Arial">ZEROSTOCK · PACKING MATERIAL CONTROL</text>
+<text x="354" y="121" font-size="34" font-weight="800" fill="#17262b" font-family="Inter,Segoe UI,Arial">Dashboard</text>
+
+<rect x="1320" y="73" width="103" height="38" rx="10" fill="#e9f7f6" stroke="#cce8e5"/>
+<text x="1371" y="98" text-anchor="middle" font-size="13" font-weight="700" fill="#118a84" font-family="Inter,Segoe UI,Arial">DE · EN</text>
+<rect x="1435" y="73" width="88" height="38" rx="10" fill="url(#brand)"/>
+<text x="1479" y="98" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="Inter,Segoe UI,Arial">QR Scan</text>
+
+<!-- KPI Cards -->
+<g font-family="Inter,Segoe UI,Arial">
+<g>
+<rect x="354" y="156" width="270" height="118" rx="18" fill="#fff" stroke="#dce8e8"/>
+<text x="378" y="190" font-size="14" fill="#73878b">Kartons</text>
+<text x="378" y="239" font-size="40" font-weight="800" fill="#17262b">24</text>
+</g>
+<g>
+<rect x="641" y="156" width="270" height="118" rx="18" fill="#fff" stroke="#dce8e8"/>
+<text x="665" y="190" font-size="14" fill="#73878b">Bestand OK</text>
+<text x="665" y="239" font-size="40" font-weight="800" fill="#2ca66f">18</text>
+</g>
+<g>
+<rect x="928" y="156" width="270" height="118" rx="18" fill="#fff" stroke="#dce8e8"/>
+<text x="952" y="190" font-size="14" fill="#73878b">Warnung</text>
+<text x="952" y="239" font-size="40" font-weight="800" fill="#d9a21b">4</text>
+</g>
+<g>
+<rect x="1215" y="156" width="308" height="118" rx="18" fill="#fff" stroke="#dce8e8"/>
+<text x="1239" y="190" font-size="14" fill="#73878b">Kritisch</text>
+<text x="1239" y="239" font-size="40" font-weight="800" fill="#d95f59">2</text>
+</g>
+</g>
+
+<!-- inventory panel -->
+<rect x="354" y="300" width="800" height="374" rx="20" fill="#fff" stroke="#dce8e8"/>
+<text x="380" y="338" font-size="18" font-weight="800" fill="#17262b" font-family="Inter,Segoe UI,Arial">Bestände</text>
+<text x="380" y="360" font-size="12" fill="#71878b" font-family="Inter,Segoe UI,Arial">Aktueller Kartonbestand</text>
+<rect x="887" y="322" width="236" height="42" rx="10" fill="#f7fbfb" stroke="#d6e6e5"/>
+<text x="906" y="348" font-size="13" fill="#8aa0a4" font-family="Inter,Segoe UI,Arial">Suchen…</text>
+
+<rect x="375" y="383" width="758" height="44" rx="8" fill="#f3f8f8"/>
+<g font-family="Inter,Segoe UI,Arial" font-size="12" font-weight="700" fill="#6c8186">
+<text x="394" y="410">ARTIKEL</text><text x="560" y="410">LAGERPLATZ</text><text x="735" y="410">BESTAND</text><text x="864" y="410">STATUS</text>
+</g>
+
+<g font-family="Inter,Segoe UI,Arial" font-size="14" fill="#24383d">
+<text x="394" y="460" font-weight="700">TINST282-A</text><text x="560" y="460">A-02-04</text><text x="735" y="460">46</text>
+<rect x="855" y="441" width="78" height="28" rx="14" fill="#e9f8f0"/><text x="894" y="460" text-anchor="middle" font-size="11" font-weight="800" fill="#23875a">OK</text>
+
+<text x="394" y="510" font-weight="700">TINST111-B</text><text x="560" y="510">B-01-03</text><text x="735" y="510">12</text>
+<rect x="855" y="491" width="90" height="28" rx="14" fill="#fff7df"/><text x="900" y="510" text-anchor="middle" font-size="11" font-weight="800" fill="#b98711">WARNUNG</text>
+
+<text x="394" y="560" font-weight="700">KT-430</text><text x="560" y="560">C-03-01</text><text x="735" y="560">3</text>
+<rect x="855" y="541" width="86" height="28" rx="14" fill="#fff0ef"/><text x="898" y="560" text-anchor="middle" font-size="11" font-weight="800" fill="#b84f49">KRITISCH</text>
+
+<text x="394" y="610" font-weight="700">KT-555</text><text x="560" y="610">A-01-07</text><text x="735" y="610">31</text>
+<rect x="855" y="591" width="78" height="28" rx="14" fill="#e9f8f0"/><text x="894" y="610" text-anchor="middle" font-size="11" font-weight="800" fill="#23875a">OK</text>
+</g>
+
+<!-- Capacity panel -->
+<rect x="1174" y="300" width="349" height="374" rx="20" fill="#fff" stroke="#dce8e8"/>
+<text x="1200" y="338" font-size="18" font-weight="800" fill="#17262b" font-family="Inter,Segoe UI,Arial">Packing-Kapazität</text>
+<text x="1200" y="360" font-size="12" fill="#71878b" font-family="Inter,Segoe UI,Arial">auf Basis des aktuellen Bestands</text>
+
+<g font-family="Inter,Segoe UI,Arial">
+<rect x="1200" y="391" width="297" height="72" rx="14" fill="#f7fbfb" stroke="#e1eceb"/>
+<text x="1218" y="419" font-size="13" font-weight="700" fill="#24383d">TINST 282</text>
+<text x="1218" y="444" font-size="12" fill="#71878b">max. Packings</text>
+<text x="1468" y="438" text-anchor="end" font-size="26" font-weight="800" fill="#2ca66f">15</text>
+
+<rect x="1200" y="477" width="297" height="72" rx="14" fill="#f7fbfb" stroke="#e1eceb"/>
+<text x="1218" y="505" font-size="13" font-weight="700" fill="#24383d">TINST 111</text>
+<text x="1218" y="530" font-size="12" fill="#71878b">max. Packings</text>
+<text x="1468" y="524" text-anchor="end" font-size="26" font-weight="800" fill="#d9a21b">6</text>
+
+<rect x="1200" y="563" width="297" height="72" rx="14" fill="#eef9f8" stroke="#cde7e5"/>
+<text x="1218" y="591" font-size="13" font-weight="700" fill="#24383d">Systemstatus</text>
+<text x="1218" y="616" font-size="12" fill="#71878b">Firebase Realtime Database</text>
+<circle cx="1460" cy="600" r="7" fill="#2ca66f"/>
+<text x="1480" y="605" font-size="12" font-weight="800" fill="#23875a">LIVE</text>
+</g>
+</svg>

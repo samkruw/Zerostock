@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="390" viewBox="0 0 1600 390">
+<rect width="1600" height="390" rx="28" fill="#f4f8f8"/>
+<text x="70" y="74" font-size="28" font-weight="800" fill="#17262b" font-family="Inter,Segoe UI,Arial">ZeroStock Workflow</text>
+<text x="70" y="104" font-size="14" fill="#71878b" font-family="Inter,Segoe UI,Arial">Vom Regalschild bis zum Packing Planner</text>
+
+<g font-family="Inter,Segoe UI,Arial">
+<g>
+<rect x="70" y="150" width="250" height="150" rx="20" fill="#fff" stroke="#d7e4e4"/>
+<circle cx="109" cy="188" r="18" fill="#e8f7f6"/><text x="109" y="194" text-anchor="middle" font-size="17" font-weight="800" fill="#00a99d">1</text>
+<text x="95" y="235" font-size="18" font-weight="800" fill="#17262b">QR scannen</text>
+<text x="95" y="263" font-size="13" fill="#71878b">Karton am Lagerplatz</text>
+</g>
+<g>
+<rect x="375" y="150" width="250" height="150" rx="20" fill="#fff" stroke="#d7e4e4"/>
+<circle cx="414" cy="188" r="18" fill="#e8f7f6"/><text x="414" y="194" text-anchor="middle" font-size="17" font-weight="800" fill="#00a99d">2</text>
+<text x="400" y="235" font-size="18" font-weight="800" fill="#17262b">Buchen</text>
+<text x="400" y="263" font-size="13" fill="#71878b">Eingang · Abgang · Schwund</text>
+</g>
+<g>
+<rect x="680" y="150" width="250" height="150" rx="20" fill="#fff" stroke="#d7e4e4"/>
+<circle cx="719" cy="188" r="18" fill="#e8f7f6"/><text x="719" y="194" text-anchor="middle" font-size="17" font-weight="800" fill="#00a99d">3</text>
+<text x="705" y="235" font-size="18" font-weight="800" fill="#17262b">Firebase LIVE</text>
+<text x="705" y="263" font-size="13" fill="#71878b">Bestand synchronisieren</text>
+</g>
+<g>
+<rect x="985" y="150" width="250" height="150" rx="20" fill="#fff" stroke="#d7e4e4"/>
+<circle cx="1024" cy="188" r="18" fill="#e8f7f6"/><text x="1024" y="194" text-anchor="middle" font-size="17" font-weight="800" fill="#00a99d">4</text>
+<text x="1010" y="235" font-size="18" font-weight="800" fill="#17262b">TINST</text>
+<text x="1010" y="263" font-size="13" fill="#71878b">Materialbedarf definieren</text>
+</g>
+<g>
+<rect x="1290" y="150" width="240" height="150" rx="20" fill="#eef9f8" stroke="#bfe4df"/>
+<circle cx="1329" cy="188" r="18" fill="#00a99d"/><text x="1329" y="194" text-anchor="middle" font-size="17" font-weight="800" fill="#fff">5</text>
+<text x="1315" y="235" font-size="18" font-weight="800" fill="#17262b">Planner</text>
+<text x="1315" y="263" font-size="13" fill="#71878b">Kapazität & Fehlmengen</text>
+</g>
+
+<path d="M320 225h50M625 225h50M930 225h50M1235 225h50" stroke="#9bcfca" stroke-width="3" stroke-linecap="round"/>
+<path d="M359 216l12 9-12 9M664 216l12 9-12 9M969 216l12 9-12 9M1274 216l12 9-12 9" fill="none" stroke="#00a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</svg>
