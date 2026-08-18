@@ -1,5 +1,5 @@
 {
-  "name": "ZeroStock – QR Packing Inventory",
+  "name": "ZeroStock – Packing Material Control",
   "short_name": "ZeroStock",
   "description": "Production multiuser QR carton inventory and packing planner",
   "id": "./",
@@ -7,8 +7,8 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#050a11",
-  "theme_color": "#06101c",
+  "background_color": "#f4f8f8",
+  "theme_color": "#00a99d",
   "lang": "de",
   "categories": [
     "business",

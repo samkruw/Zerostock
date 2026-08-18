@@ -417,6 +417,10 @@ label{
 *::-webkit-scrollbar-thumb{background:#b5d5d2;border-radius:10px;border:2px solid #eff5f5}
 
 /* Print label stays clean white */
+
+.authLogo,.logo{overflow:hidden;padding:0!important;background:#fff!important}
+.authLogo img,.logo img{width:100%;height:100%;display:block;object-fit:cover}
+
 @media print{
   html,body{background:#fff !important}
   .modal{background:#fff !important}
@@ -427,16 +431,16 @@ label{
 </head>
 <body>
 <div class="authGate" id="authGate"><div class="authCard">
-<div class="authBrand"><div class="authLogo">Z</div><div><h1>ZeroStock</h1><small>QR Packing Inventory · LIVE</small></div></div>
+<div class="authBrand"><div class="authLogo"><img src="./icon-192.png" alt="ZeroStock"></div><div><h1>ZeroStock</h1><small>QR Packing Inventory · LIVE</small></div></div>
 <div class="authView active" id="authLoading"><h2>ZeroStock wird gestartet</h2><p>Firebase Authentication wird geladen …</p></div>
 <div class="authView" id="authLogin"><h2>Anmelden</h2><p>Bitte mit deinem ZeroStock-Benutzer einloggen.</p><div class="authForm"><label>E-Mail<input id="gateEmail" type="email" autocomplete="username" inputmode="email" placeholder="name@firma.ch"></label><label>Passwort<input id="gatePassword" type="password" autocomplete="current-password" placeholder="••••••••"></label><button class="btn primary" id="gateLogin">Einloggen</button><button class="authLink" id="gateReset">Passwort vergessen?</button></div><div class="authError" id="gateLoginError"></div></div>
-<div class="authView" id="authNoRole"><h2>ZeroStock-Rolle konnte nicht geladen werden</h2><p>Der Firebase-Login funktioniert. ZeroStock prüft jetzt den Rollenpfad direkt.</p><div class="dangerbox"><div class="note"><code>/users/&lt;UID&gt;/role</code> muss <b>admin</b>, <b>employee</b> oder <b>customer</b> sein.<br><br><b>Gelesener Rollenwert:</b> <code id="gateRoleValue">—</code><br><b>Prüfung:</b> <span id="gateRoleState">—</span></div></div><div class="authForm" style="margin-top:14px"><button class="btn primary" id="gateRetryRole">Rolle erneut prüfen</button><button class="btn" id="gateLogoutRole">Abmelden</button></div><div class="authMeta"><span>UID</span><span id="gateUid">—</span></div></div>
+<div class="authView" id="authNoRole"><h2>ZeroStock-Rolle konnte nicht geladen werden</h2><p>Der Firebase-Login funktioniert. ZeroStock prüft jetzt den Rollenpfad direkt.</p><div class="dangerbox"><div class="note"><code>/users/&lt;UID&gt;/role</code> muss <b>admin</b>, <b>employee</b> oder <b>customer</b> sein.<br><br><b>Gelesener Rollenwert:</b> <code id="gateRoleValue">—</code><br><b>Prüfung:</b> <span id="gateRoleState">—</span><br><b>Quelle:</b> <span id="gateRoleSource">—</span><br><b>Datenbank:</b> <code id="gateRoleDb">—</code></div></div><div class="authForm" style="margin-top:14px"><button class="btn primary" id="gateRetryRole">Rolle erneut prüfen</button><button class="btn" id="gateLogoutRole">Abmelden</button></div><div class="authMeta"><span>UID</span><span id="gateUid">—</span></div></div>
 <div class="authMeta"><span>Firebase Project</span><span>zerostock-c5f5f</span></div>
 </div></div>
 
 <div class="mobilehead"><b>ZeroStock</b><span id="mobileConn">● Login</span></div>
 <div class="app locked" id="appShell">
-<aside><div class="brand"><div class="logo">Z</div><div><b>ZeroStock</b><small>QR Packing Inventory</small></div></div><nav id="nav">
+<aside><div class="brand"><div class="logo"><img src="./icon-192.png" alt="ZeroStock"></div><div><b>ZeroStock</b><small>QR Packing Inventory</small></div></div><nav id="nav">
 <button data-view="dashboard" class="active"><span data-i18n="dashboard">Dashboard</span><span>⌂</span></button>
 <button data-view="scan" data-internal><span data-i18n="scan">QR scannen</span><span>▣</span></button>
 <button data-view="cartons" data-internal><span data-i18n="cartons">Kartons</span><span>▦</span></button>
@@ -445,7 +449,7 @@ label{
 <button data-view="movements" data-internal><span data-i18n="movements">Bewegungen</span><span>↕</span></button>
 <button data-view="users" data-admin><span data-i18n="users">Benutzer</span><span>♙</span></button>
 <button data-view="settings" data-admin><span data-i18n="settings">Einstellungen</span><span>⚙</span></button></nav>
-<div class="sidefoot"><div><span class="dot off" id="connDot"></span><span id="connText">Firebase</span></div><br><span id="roleLabel">—</span><br><br><span>PWA v2.8 · Role Fix</span></div></aside>
+<div class="sidefoot"><div><span class="dot off" id="connDot"></span><span id="connText">Firebase</span></div><br><span id="roleLabel">—</span><br><br><span>PWA v2.9 · Role Recovery</span></div></aside>
 <main><div class="top"><div><div class="eyebrow">ZEROSTOCK · PACKING MATERIAL CONTROL</div><h1 id="pageTitle">Dashboard</h1></div><div class="toolbar"><div class="lang"><button data-lang="de" class="active">DE</button><button data-lang="en">EN</button></div><button class="btn primary" data-goto="scan" data-internal>▣ <span data-i18n="scan">QR scannen</span></button><button class="btn" id="logoutBtn">Logout</button></div></div>
 
 <section class="view active" id="dashboardView"><div id="onboarding" class="onboarding" style="display:none"></div><div class="cards"><div class="card"><small data-i18n="cartons">Kartons</small><strong id="kCartons">0</strong></div><div class="card"><small data-i18n="stockOk">Bestand OK</small><strong class="green" id="kOk">0</strong></div><div class="card"><small data-i18n="warning">Warnung</small><strong class="yellow" id="kWarn">0</strong></div><div class="card"><small data-i18n="critical">Kritisch</small><strong class="red" id="kCrit">0</strong></div></div><div class="grid"><div class="panel" id="inventoryPanel"><div class="ph"><div><h3 data-i18n="inventory">Bestände</h3><small data-i18n="liveStock">Aktueller Kartonbestand</small></div><input class="search" id="dashSearch" placeholder="Suchen…"></div><div class="tablewrap"><table><thead><tr><th data-i18n="article">Artikel</th><th data-i18n="location">Lagerplatz</th><th data-i18n="stock">Bestand</th><th data-i18n="status">Status</th><th></th></tr></thead><tbody id="dashRows"></tbody></table></div></div><div class="panel"><div class="ph"><div><h3 data-i18n="packingCapacity">Packing-Kapazität</h3><small data-i18n="basedOnStock">auf Basis des aktuellen Bestands</small></div></div><div id="capacityList"></div></div></div></section>
@@ -546,24 +550,63 @@ function handleScan(v){stopScanner();$('scanModal').classList.remove('open');let
 function scheduleSummary(){if(!canWrite())return;clearTimeout(S.summaryTimer);S.summaryTimer=setTimeout(publishSummary,300)}
 async function publishSummary(){if(!canWrite()||!S.db)return;const sum={};for(const i of S.instructions.filter(x=>x.active)){const c=capacity(i);sum[i.id]={name:i.name,description:i.description||'',version:i.version||'',capacity:c.max,updatedAt:Date.now()}}const h=JSON.stringify(sum);if(h===S.lastSummary)return;S.lastSummary=h;await S.firebase.set(S.firebase.ref(S.db,'customerSummary'),sum)}
 async function firebaseBook(id,type,q,reason,note){const F=S.firebase,r=F.ref(S.db,`cartons/${id}`);const out=await F.runTransaction(r,c=>{if(!c)return c;const cur=+c.stock||0;if(type!=='in'&&q>cur)return;c.stock=Math.max(0,cur+(type==='in'?q:-q));c.updatedAt=Date.now();return c});if(!out.committed)throw Error(lang==='de'?'Buchung konnte nicht ausgeführt werden.':'Transaction could not be completed.');const c=out.snapshot.val(),key=F.push(F.ref(S.db,'movements')).key;await F.set(F.ref(S.db,`movements/${key}`),{ts:F.serverTimestamp(),userId:S.user.uid,userName:S.user.name,cartonId:id,article:c.article,type,qty:q,reason,note,stockAfter:c.stock});scheduleSummary()}
+async function readRoleViaRest(user){
+  const token=await user.getIdToken(true);
+  const url=`${FIREBASE_BASE_CONFIG.databaseURL}/users/${encodeURIComponent(user.uid)}/role.json?auth=${encodeURIComponent(token)}`;
+  const res=await fetch(url,{cache:'no-store',headers:{'Accept':'application/json'}});
+  const text=await res.text();
+  if(!res.ok)throw new Error(`REST ${res.status}: ${text}`);
+  let value=null;
+  try{value=JSON.parse(text)}catch{value=text}
+  return value;
+}
+async function readProfileViaRest(user){
+  const token=await user.getIdToken();
+  const url=`${FIREBASE_BASE_CONFIG.databaseURL}/users/${encodeURIComponent(user.uid)}.json?auth=${encodeURIComponent(token)}`;
+  const res=await fetch(url,{cache:'no-store',headers:{'Accept':'application/json'}});
+  if(!res.ok)return null;
+  return await res.json();
+}
 async function connectDb(user){try{
 S.db=S.firebase.getDatabase(S.firebase.app,FIREBASE_BASE_CONFIG.databaseURL);
 S.firebase.onValue(S.firebase.ref(S.db,'.info/connected'),x=>{S.connected=!!x.val();if(S.user)render()});
 
 const rolePath=`users/${user.uid}/role`;
-let roleSnap=null,role='';
+let role='',rawRole=null,source='Firebase SDK';
+
+// First: SDK read, up to 3 attempts
 for(let attempt=1;attempt<=3;attempt++){
-  roleSnap=await S.firebase.get(S.firebase.ref(S.db,rolePath));
-  role=String(roleSnap.val()??'').trim().toLowerCase();
+  try{
+    const roleSnap=await S.firebase.get(S.firebase.ref(S.db,rolePath));
+    rawRole=roleSnap.val();
+    role=String(rawRole??'').trim().toLowerCase();
+  }catch(e){
+    console.warn('Role SDK attempt',attempt,e);
+  }
   if(['admin','employee','customer'].includes(role))break;
-  if(attempt<3)await sleep(600);
+  if(attempt<3)await sleep(500);
+}
+
+// Second: authenticated REST fallback
+if(!['admin','employee','customer'].includes(role)){
+  try{
+    rawRole=await readRoleViaRest(user);
+    role=String(rawRole??'').trim().toLowerCase();
+    source='Realtime Database REST';
+  }catch(e){
+    source='REST Fehler';
+    if($('gateRoleState'))$('gateRoleState').textContent=e.message;
+    console.error('Role REST fallback:',e);
+  }
 }
 
 if(!['admin','employee','customer'].includes(role)){
   S.user=null;
   $('gateUid').textContent=user.uid;
-  if($('gateRoleValue'))$('gateRoleValue').textContent=roleSnap?.exists()?JSON.stringify(roleSnap.val()):'(nicht vorhanden)';
-  if($('gateRoleState'))$('gateRoleState').textContent=roleSnap?.exists()?'Wert ungültig':'Pfad nicht gefunden / leer';
+  if($('gateRoleValue'))$('gateRoleValue').textContent=rawRole===null||rawRole===undefined?'(nicht vorhanden)':JSON.stringify(rawRole);
+  if($('gateRoleState')&&!$('gateRoleState').textContent)$('gateRoleState').textContent='Pfad nicht gefunden / leer';
+  if($('gateRoleSource'))$('gateRoleSource').textContent=source;
+  if($('gateRoleDb'))$('gateRoleDb').textContent=FIREBASE_BASE_CONFIG.databaseURL;
   authView('authNoRole');
   return;
 }
@@ -572,7 +615,10 @@ let profile={};
 try{
   const profileSnap=await S.firebase.get(S.firebase.ref(S.db,`users/${user.uid}`));
   profile=profileSnap.val()||{};
-}catch(e){console.warn('ZeroStock profile read:',e)}
+}catch(e){
+  console.warn('Profile SDK read failed:',e);
+  try{profile=await readProfileViaRest(user)||{}}catch{}
+}
 
 S.user={uid:user.uid,name:String(profile.name||user.email||'User'),role};
 subscribe();unlock();
@@ -582,11 +628,13 @@ if(deep&&S.user.role!=='customer')setTimeout(()=>handleScan(deep),120);
 else show(S.user.role==='customer'?'planner':'dashboard');
 render()
 }catch(e){
-console.error('ZeroStock role/database error:',e);
+console.error('ZeroStock database/role error:',e);
 S.user=null;
 $('gateUid').textContent=user.uid;
 if($('gateRoleValue'))$('gateRoleValue').textContent='FEHLER';
 if($('gateRoleState'))$('gateRoleState').textContent=e?.code||e?.message||String(e);
+if($('gateRoleSource'))$('gateRoleSource').textContent='connectDb';
+if($('gateRoleDb'))$('gateRoleDb').textContent=FIREBASE_BASE_CONFIG.databaseURL;
 authView('authNoRole')
 }}
 function clearSubs(){S.unsubs.forEach(u=>{try{u()}catch{}});S.unsubs=[]}
@@ -599,7 +647,7 @@ async function resetPassword(){authError('gateLoginError','');const e=$('gateEma
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>show(b.dataset.view));document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>show(b.dataset.goto));document.querySelectorAll('[data-mview]').forEach(b=>b.onclick=()=>show(b.dataset.mview));document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{lang=b.dataset.lang;localStorage.setItem('zs-lang',lang);applyLang()});document.querySelectorAll('.closeModal').forEach(b=>b.onclick=closeAll);
 $('dashSearch').oninput=renderCartons;$('cartonSearch').oninput=renderCartons;$('addCarton').onclick=()=>openCarton();$('saveCarton').onclick=saveCarton;$('addInstruction').onclick=()=>openInstruction();$('saveInstruction').onclick=saveInstruction;$('addMaterialRow').onclick=()=>{$('materialRows').append(matRow());instructionLive()};$('calculatePlan').onclick=calcPlan;$('planQty').oninput=calcPlan;$('planInstruction').onchange=calcPlan;$('planRef').oninput=calcPlan;$('cStock').oninput=cartonLive;$('cWarn').oninput=cartonLive;$('cMin').oninput=cartonLive;$('bookType').onchange=bookPreview;$('bookQty').oninput=bookPreview;$('confirmBook').onclick=confirmBook;$('startScan').onclick=startScanner;$('manualScan').onclick=manualCode;$('stopScan').onclick=closeAll;$('printLabel').onclick=()=>window.print();$('logoutBtn').onclick=()=>S.firebase?.signOut(S.firebase.auth);$('fabScan').onclick=()=>show('scan');
 $('gateLogin').onclick=login;$('gateReset').onclick=resetPassword;
-$('gateRetryRole').onclick=async()=>{const u=S.firebase?.auth?.currentUser;if(u){$('gateRoleState').textContent='erneute Prüfung…';await connectDb(u)}};
+$('gateRetryRole').onclick=async()=>{const u=S.firebase?.auth?.currentUser;if(u){$('gateRoleState').textContent='erneute Prüfung…';$('gateRoleValue').textContent='—';$('gateRoleSource').textContent='—';$('gateRoleDb').textContent=FIREBASE_BASE_CONFIG.databaseURL;await connectDb(u)}};
 $('gateLogoutRole').onclick=()=>S.firebase?.signOut(S.firebase.auth);$('gatePassword').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;$('installBar').classList.add('show')});$('installBtn').onclick=async()=>{if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice}catch{}deferredInstallPrompt=null;$('installBar').classList.remove('show')};$('installDismiss').onclick=()=>$('installBar').classList.remove('show');window.addEventListener('appinstalled',()=>$('installBar').classList.remove('show'));
 
