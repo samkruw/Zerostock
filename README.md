@@ -8,7 +8,7 @@
 
 **QR-basierte Kartonverwaltung, Packing Instructions und Multiuser-Planung als PWA für Desktop und Android.**
 
-`V3.5 LIVE` &nbsp; `FIREBASE` &nbsp; `DESKTOP + ANDROID` &nbsp; `DE / EN`
+`V3.5.2 LIVE` &nbsp; `FIREBASE` &nbsp; `DESKTOP + ANDROID` &nbsp; `DE / EN`
 
 </div>
 
@@ -329,7 +329,7 @@ main / root
 
 <div align="center">
 
-### ZeroStock V3.5 LIVE
+### ZeroStock V3.5.2 LIVE
 
 **Packing Material Control**
 
