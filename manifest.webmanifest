@@ -1,0 +1,31 @@
+{
+  "name": "ZeroStock – Packing Material Control",
+  "short_name": "ZeroStock",
+  "description": "Production multiuser QR carton inventory and packing planner",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f8f8",
+  "theme_color": "#00a99d",
+  "lang": "de",
+  "categories": [
+    "business",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
