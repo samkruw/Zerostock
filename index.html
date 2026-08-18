@@ -439,7 +439,7 @@ label{
 <div class="authView active" id="authLoading"><h2>ZeroStock wird gestartet</h2><p>Firebase Authentication wird geladen …</p></div>
 <div class="authView" id="authLogin"><h2>Anmelden</h2><p>Bitte mit deinem ZeroStock-Benutzer einloggen.</p><div class="authForm"><label>E-Mail<input id="gateEmail" type="email" autocomplete="username" inputmode="email" placeholder="name@firma.ch"></label><label>Passwort<input id="gatePassword" type="password" autocomplete="current-password" placeholder="••••••••"></label><button class="btn primary" id="gateLogin">Einloggen</button><button class="authLink" id="gateReset">Passwort vergessen?</button></div><div class="authError" id="gateLoginError"></div></div>
 <div class="authView" id="authNoRole"><h2>Firebase-Rolle konnte nicht geladen werden</h2><p>Der Login funktioniert. Dieser Bildschirm erscheint jetzt nur noch, wenn der Rollenwert selbst nicht gelesen werden kann.</p><div class="dangerbox"><div class="note"><code>/users/&lt;UID&gt;/role</code> muss <b>admin</b>, <b>employee</b> oder <b>customer</b> sein.<br><br><b>Gelesener Rollenwert:</b> <code id="gateRoleValue">—</code><br><b>Prüfung:</b> <span id="gateRoleState">—</span><br><b>Quelle:</b> <span id="gateRoleSource">—</span><br><b>Datenbank:</b> <code id="gateRoleDb">—</code></div></div><div class="authForm" style="margin-top:14px"><button class="btn primary" id="gateRetryRole">Rolle erneut prüfen</button><button class="btn" id="gateLogoutRole">Abmelden</button></div><div class="authMeta"><span>UID</span><span id="gateUid">—</span></div></div>
-<div class="authMeta"><span>Firebase Project</span><span>zerostock-c5f5f</span></div><div class="authMeta"><span>Version</span><span>v3.2 Form Fix</span></div>
+<div class="authMeta"><span>Firebase Project</span><span>zerostock-c5f5f</span></div><div class="authMeta"><span>Version</span><span>v3.4 Delete Cartons</span></div>
 </div></div>
 
 <div class="mobilehead"><b>ZeroStock</b><span id="mobileConn">● Login</span></div>
@@ -453,7 +453,7 @@ label{
 <button data-view="movements" data-internal><span data-i18n="movements">Bewegungen</span><span>↕</span></button>
 <button data-view="users" data-admin><span data-i18n="users">Benutzer</span><span>♙</span></button>
 <button data-view="settings" data-admin><span data-i18n="settings">Einstellungen</span><span>⚙</span></button></nav>
-<div class="sidefoot"><div><span class="dot off" id="connDot"></span><span id="connText">Firebase</span></div><br><span id="roleLabel">—</span><br><br><span>PWA v3.2 · Form Fix</span></div></aside>
+<div class="sidefoot"><div><span class="dot off" id="connDot"></span><span id="connText">Firebase</span></div><br><span id="roleLabel">—</span><br><br><span>PWA v3.4 · Delete Cartons</span></div></aside>
 <main><div class="top"><div><div class="eyebrow">ZEROSTOCK · PACKING MATERIAL CONTROL</div><h1 id="pageTitle">Dashboard</h1></div><div class="toolbar"><div class="lang"><button data-lang="de" class="active">DE</button><button data-lang="en">EN</button></div><button class="btn primary" data-goto="scan" data-internal>▣ <span data-i18n="scan">QR scannen</span></button><button class="btn" id="logoutBtn">Logout</button></div></div>
 
 <section class="view active" id="dashboardView"><div id="onboarding" class="onboarding" style="display:none"></div><div class="cards"><div class="card"><small data-i18n="cartons">Kartons</small><strong id="kCartons">0</strong></div><div class="card"><small data-i18n="stockOk">Bestand OK</small><strong class="green" id="kOk">0</strong></div><div class="card"><small data-i18n="warning">Warnung</small><strong class="yellow" id="kWarn">0</strong></div><div class="card"><small data-i18n="critical">Kritisch</small><strong class="red" id="kCrit">0</strong></div></div><div class="grid"><div class="panel" id="inventoryPanel"><div class="ph"><div><h3 data-i18n="inventory">Bestände</h3><small data-i18n="liveStock">Aktueller Kartonbestand</small></div><input class="search" id="dashSearch" placeholder="Suchen…"></div><div class="tablewrap"><table><thead><tr><th data-i18n="article">Artikel</th><th data-i18n="location">Lagerplatz</th><th data-i18n="stock">Bestand</th><th data-i18n="status">Status</th><th></th></tr></thead><tbody id="dashRows"></tbody></table></div></div><div class="panel"><div class="ph"><div><h3 data-i18n="packingCapacity">Packing-Kapazität</h3><small data-i18n="basedOnStock">auf Basis des aktuellen Bestands</small></div></div><div id="capacityList"></div></div></div></section>
@@ -485,7 +485,7 @@ label{
 
 <div class="modal" id="bookModal"><div class="modalbox"><div class="ph"><div><h3 id="bookTitle">Buchung</h3><small id="bookSubtitle"></small></div></div><div class="mf"><div class="kv"><div><span data-i18n="stock">Bestand</span><strong id="bookStock"></strong></div><div><span data-i18n="warningStock">Warnbestand</span><strong id="bookWarn"></strong></div><div><span data-i18n="minStock">Minimum</span><strong id="bookMin"></strong></div></div><br><div class="formgrid"><label data-i18n="bookingType">Buchungsart<select id="bookType"><option value="in">Eingang / Stock In</option><option value="out">Abgang / Stock Out</option><option value="shrink">Schwund / Shrinkage</option></select></label><label data-i18n="quantity">Menge<input id="bookQty" type="number" min="1" inputmode="numeric"></label><label class="full" id="reasonWrap" style="display:none"><span data-i18n="reason">Grund</span><select id="bookReason"><option value="damaged">Beschädigt / Damaged</option><option value="lost">Verloren / Lost</option><option value="count">Zähldifferenz / Count discrepancy</option><option value="waste">Ausschuss / Waste</option><option value="other">Sonstiges / Other</option></select></label><label class="full"><span data-i18n="note">Notiz</span><textarea id="bookNote"></textarea></label></div><div id="bookPreview" class="result"></div></div><div class="mfoot"><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button class="btn primary" id="confirmBook" data-i18n="post">Buchen</button></div></div></div>
 
-<div class="modal" id="cartonModal"><div class="modalbox"><div class="ph"><h3 id="cartonModalTitle">Karton</h3></div><div class="mf"><div class="formgrid"><label data-i18n="article">Artikel<input id="cArticle"></label><label data-i18n="description">Bezeichnung<input id="cName"></label><label data-i18n="location">Lagerplatz<input id="cLocation"></label><label data-i18n="stock">Bestand<input id="cStock" type="number" min="0"></label><label data-i18n="warningStock">Warnbestand<input id="cWarn" type="number" min="0"></label><label data-i18n="minStock">Mindestbestand<input id="cMin" type="number" min="0"></label></div><div id="cartonLive" class="livecalc"></div></div><div class="mfoot"><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button type="button" class="btn primary" id="saveCarton" data-i18n="save">Speichern</button></div></div></div>
+<div class="modal" id="cartonModal"><div class="modalbox"><div class="ph"><h3 id="cartonModalTitle">Karton</h3></div><div class="mf"><div class="formgrid"><label data-i18n="article">Artikel<input id="cArticle"></label><label data-i18n="description">Bezeichnung<input id="cName"></label><label data-i18n="location">Lagerplatz<input id="cLocation"></label><label data-i18n="stock">Bestand<input id="cStock" type="number" min="0"></label><label data-i18n="warningStock">Warnbestand<input id="cWarn" type="number" min="0"></label><label data-i18n="minStock">Mindestbestand<input id="cMin" type="number" min="0"></label></div><div id="cartonLive" class="livecalc"></div></div><div class="mfoot"><button type="button" class="btn red" id="deleteCartonModal" style="display:none;margin-right:auto">Löschen</button><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button type="button" class="btn primary" id="saveCarton" data-i18n="save">Speichern</button></div></div></div>
 
 <div class="modal" id="instructionModal"><div class="modalbox"><div class="ph"><h3 id="instructionModalTitle">Packing Instruction</h3></div><div class="mf"><div class="formgrid"><label>Instruction / Name<input id="iName"></label><label data-i18n="description">Beschreibung<input id="iDesc"></label><label data-i18n="version">Version<input id="iVersion" value="1.0"></label><label data-i18n="active">Status<select id="iActive"><option value="true">Aktiv / Active</option><option value="false">Inaktiv / Inactive</option></select></label></div><br><b data-i18n="requiredCartons">Benötigte Kartons pro Packing</b><div class="materialRows" id="materialRows"></div><button class="btn" id="addMaterialRow">+ <span data-i18n="addCarton">Karton hinzufügen</span></button><div id="instructionLive" class="livecalc"></div></div><div class="mfoot"><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button class="btn primary" id="saveInstruction" data-i18n="save">Speichern</button></div></div></div>
 
@@ -497,7 +497,37 @@ label{
 <button class="fabScan" id="fabScan" aria-label="QR scannen">▣</button>
 <div class="installbar" id="installBar"><div><b>ZeroStock installieren</b><small>Als App auf Desktop oder Android installieren.</small></div><div class="actions"><button class="btn primary" id="installBtn">Installieren</button><button class="btn" id="installDismiss">×</button></div></div>
 
-<script defer src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+
+<script>
+const ZS_QR_SOURCES=[
+  'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js',
+  'https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'
+];
+let ZS_QR_PROMISE=null;
+function ensureQRCodeLibrary(){
+  if(window.QRCode)return Promise.resolve(window.QRCode);
+  if(ZS_QR_PROMISE)return ZS_QR_PROMISE;
+  ZS_QR_PROMISE=new Promise((resolve,reject)=>{
+    let i=0;
+    const next=()=>{
+      if(window.QRCode)return resolve(window.QRCode);
+      if(i>=ZS_QR_SOURCES.length)return reject(new Error('QR-Bibliothek konnte nicht geladen werden.'));
+      const src=ZS_QR_SOURCES[i++];
+      const s=document.createElement('script');
+      s.src=src;
+      s.async=true;
+      s.crossOrigin='anonymous';
+      s.onload=()=>window.QRCode?resolve(window.QRCode):next();
+      s.onerror=()=>{s.remove();next()};
+      document.head.appendChild(s);
+    };
+    next();
+  }).catch(e=>{ZS_QR_PROMISE=null;throw e});
+  return ZS_QR_PROMISE;
+}
+</script>
+
 <script>
 const FVER='12.17.1';
 const FIREBASE_BASE_CONFIG={
@@ -511,7 +541,7 @@ appId:'1:456116029815:web:85cdb8cb73364b52f1b972'
 };
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-const D={de:{dashboard:'Dashboard',scan:'QR scannen',cartons:'Kartons',planner:'Planner',movements:'Bewegungen',users:'Benutzer',settings:'Einstellungen',stockOk:'Bestand OK',warning:'Warnung',critical:'Kritisch',inventory:'Bestände',liveStock:'Aktueller Kartonbestand',packingCapacity:'Packing-Kapazität',basedOnStock:'auf Basis des aktuellen Bestands',article:'Artikel',location:'Lagerplatz',stock:'Bestand',status:'Status',scanCarton:'Karton scannen',scanText:'QR-Regalschild scannen und danach Eingang, Abgang oder Schwund buchen.',openCamera:'Kamera öffnen',manualCode:'Code eingeben',masterData:'Stammdaten & QR-Regalschilder',newCarton:'Karton',description:'Bezeichnung',minStock:'Mindestbestand',warningStock:'Warnbestand',instructionHelp:'Selbst anlegen und Kartonbedarf definieren',newInstruction:'Instruction',plannerHelp:'Prüfen, welche Aufträge mit dem aktuellen Bestand möglich sind',orderQty:'Anzahl Packings',orderRef:'Auftrag / Referenz',calculate:'Berechnen',journal:'Nachvollziehbares Buchungsjournal',time:'Zeit',user:'Benutzer',type:'Art',quantity:'Menge',stockAfter:'Bestand danach',reason:'Grund',bookingType:'Buchungsart',note:'Notiz',cancel:'Abbrechen',post:'Buchen',save:'Speichern',version:'Version',active:'Status',requiredCartons:'Benötigte Kartons pro Packing',addCarton:'Karton hinzufügen',scanQR:'QR scannen',shelfLabel:'Regalschild',close:'Schliessen',print:'Drucken',packingPossible:'möglich',bottleneck:'Engpass',needed:'Benötigt',available:'Verfügbar',missing:'Fehlt',possible:'Auftrag möglich',notPossible:'Auftrag nicht möglich',startZero:'Bei null starten',startZeroText:'Lege zuerst deine Kartonarten an, danach die TINST Packing Instructions. Der Planner berechnet alles automatisch.',stepCartons:'1. Kartons anlegen',stepInstructions:'2. TINST Instructions',stepPlanner:'3. Automatisch planen',addFirstCarton:'Ersten Karton anlegen',addFirstInstruction:'Erste TINST anlegen',noCartons:'Noch keine Kartons angelegt',noInstructions:'Noch keine Packing Instructions angelegt',liveCalculation:'Live-Berechnung',capacityNow:'Aktuell mögliche Packings',firstCreateCarton:'Lege zuerst mindestens einen Karton an.',ready:'Bereit',setupComplete:'Grundsetup abgeschlossen – jede Bestandsänderung aktualisiert den Planner automatisch.'},en:{dashboard:'Dashboard',scan:'Scan QR',cartons:'Cartons',planner:'Planner',movements:'Transactions',users:'Users',settings:'Settings',stockOk:'Stock OK',warning:'Warning',critical:'Critical',inventory:'Inventory',liveStock:'Current carton inventory',packingCapacity:'Packing capacity',basedOnStock:'based on current stock',article:'Article',location:'Location',stock:'Stock',status:'Status',scanCarton:'Scan carton',scanText:'Scan the shelf QR code, then post stock in, stock out or shrinkage.',openCamera:'Open camera',manualCode:'Enter code',masterData:'Master data & shelf QR labels',newCarton:'Carton',description:'Description',minStock:'Minimum stock',warningStock:'Warning stock',instructionHelp:'Create instructions and define carton requirements',newInstruction:'Instruction',plannerHelp:'Check which orders can be completed with current stock',orderQty:'Number of packings',orderRef:'Order / reference',calculate:'Calculate',journal:'Auditable transaction journal',time:'Time',user:'User',type:'Type',quantity:'Quantity',stockAfter:'Stock after',reason:'Reason',bookingType:'Transaction type',note:'Note',cancel:'Cancel',post:'Post',save:'Save',version:'Version',active:'Status',requiredCartons:'Required cartons per packing',addCarton:'Add carton',scanQR:'Scan QR',shelfLabel:'Shelf label',close:'Close',print:'Print',packingPossible:'possible',bottleneck:'Bottleneck',needed:'Needed',available:'Available',missing:'Missing',possible:'Order possible',notPossible:'Order not possible',startZero:'Start from zero',startZeroText:'First create your carton types, then the TINST packing instructions. The planner calculates everything automatically.',stepCartons:'1. Create cartons',stepInstructions:'2. TINST instructions',stepPlanner:'3. Plan automatically',addFirstCarton:'Add first carton',addFirstInstruction:'Add first TINST',noCartons:'No cartons created yet',noInstructions:'No packing instructions created yet',liveCalculation:'Live calculation',capacityNow:'Packings currently possible',firstCreateCarton:'Create at least one carton first.',ready:'Ready',setupComplete:'Base setup complete – every stock change updates the planner automatically.'}};
+const D={de:{dashboard:'Dashboard',scan:'QR scannen',cartons:'Kartons',planner:'Planner',movements:'Bewegungen',users:'Benutzer',settings:'Einstellungen',stockOk:'Bestand OK',warning:'Warnung',critical:'Kritisch',inventory:'Bestände',liveStock:'Aktueller Kartonbestand',packingCapacity:'Packing-Kapazität',basedOnStock:'auf Basis des aktuellen Bestands',article:'Artikel',location:'Lagerplatz',stock:'Bestand',status:'Status',scanCarton:'Karton scannen',scanText:'QR-Regalschild scannen und danach Eingang, Abgang oder Schwund buchen.',openCamera:'Kamera öffnen',manualCode:'Code eingeben',masterData:'Stammdaten & QR-Regalschilder',newCarton:'Karton',description:'Bezeichnung',minStock:'Mindestbestand',warningStock:'Warnbestand',instructionHelp:'Selbst anlegen und Kartonbedarf definieren',newInstruction:'Instruction',plannerHelp:'Prüfen, welche Aufträge mit dem aktuellen Bestand möglich sind',orderQty:'Anzahl Packings',orderRef:'Auftrag / Referenz',calculate:'Berechnen',journal:'Nachvollziehbares Buchungsjournal',time:'Zeit',user:'Benutzer',type:'Art',quantity:'Menge',stockAfter:'Bestand danach',reason:'Grund',bookingType:'Buchungsart',note:'Notiz',cancel:'Abbrechen',post:'Buchen',save:'Speichern',version:'Version',active:'Status',requiredCartons:'Benötigte Kartons pro Packing',addCarton:'Karton hinzufügen',scanQR:'QR scannen',shelfLabel:'Regalschild',close:'Schliessen',print:'Drucken',packingPossible:'möglich',bottleneck:'Engpass',needed:'Benötigt',available:'Verfügbar',missing:'Fehlt',possible:'Auftrag möglich',notPossible:'Auftrag nicht möglich',startZero:'Bei null starten',startZeroText:'Lege zuerst deine Kartonarten an, danach die TINST Packing Instructions. Der Planner berechnet alles automatisch.',stepCartons:'1. Kartons anlegen',stepInstructions:'2. TINST Instructions',stepPlanner:'3. Automatisch planen',addFirstCarton:'Ersten Karton anlegen',addFirstInstruction:'Erste TINST anlegen',noCartons:'Noch keine Kartons angelegt',noInstructions:'Noch keine Packing Instructions angelegt',liveCalculation:'Live-Berechnung',capacityNow:'Aktuell mögliche Packings',firstCreateCarton:'Lege zuerst mindestens einen Karton an.',ready:'Bereit',setupComplete:'Grundsetup abgeschlossen – jede Bestandsänderung aktualisiert den Planner automatisch.',delete:'Löschen',deleteCarton:'Karton löschen',deleteConfirm:'Diesen Karton wirklich löschen?',deleteBlocked:'Karton kann nicht gelöscht werden, weil er in einer Packing Instruction verwendet wird.'},en:{dashboard:'Dashboard',scan:'Scan QR',cartons:'Cartons',planner:'Planner',movements:'Transactions',users:'Users',settings:'Settings',stockOk:'Stock OK',warning:'Warning',critical:'Critical',inventory:'Inventory',liveStock:'Current carton inventory',packingCapacity:'Packing capacity',basedOnStock:'based on current stock',article:'Article',location:'Location',stock:'Stock',status:'Status',scanCarton:'Scan carton',scanText:'Scan the shelf QR code, then post stock in, stock out or shrinkage.',openCamera:'Open camera',manualCode:'Enter code',masterData:'Master data & shelf QR labels',newCarton:'Carton',description:'Description',minStock:'Minimum stock',warningStock:'Warning stock',instructionHelp:'Create instructions and define carton requirements',newInstruction:'Instruction',plannerHelp:'Check which orders can be completed with current stock',orderQty:'Number of packings',orderRef:'Order / reference',calculate:'Calculate',journal:'Auditable transaction journal',time:'Time',user:'User',type:'Type',quantity:'Quantity',stockAfter:'Stock after',reason:'Reason',bookingType:'Transaction type',note:'Note',cancel:'Cancel',post:'Post',save:'Save',version:'Version',active:'Status',requiredCartons:'Required cartons per packing',addCarton:'Add carton',scanQR:'Scan QR',shelfLabel:'Shelf label',close:'Close',print:'Print',packingPossible:'possible',bottleneck:'Bottleneck',needed:'Needed',available:'Available',missing:'Missing',possible:'Order possible',notPossible:'Order not possible',startZero:'Start from zero',startZeroText:'First create your carton types, then the TINST packing instructions. The planner calculates everything automatically.',stepCartons:'1. Create cartons',stepInstructions:'2. TINST instructions',stepPlanner:'3. Plan automatically',addFirstCarton:'Add first carton',addFirstInstruction:'Add first TINST',noCartons:'No cartons created yet',noInstructions:'No packing instructions created yet',liveCalculation:'Live calculation',capacityNow:'Packings currently possible',firstCreateCarton:'Create at least one carton first.',ready:'Ready',setupComplete:'Base setup complete – every stock change updates the planner automatically.',delete:'Delete',deleteCarton:'Delete carton',deleteConfirm:'Really delete this carton?',deleteBlocked:'Carton cannot be deleted because it is used in a packing instruction.'}};
 let lang=localStorage.getItem('zs-lang')||'de',scanStream=null,bookCarton=null,editingCarton=null,editingInstruction=null,deferredInstallPrompt=null;
 const t=k=>D[lang][k]||k;const S={connected:false,user:null,cartons:[],instructions:[],movements:[],customerSummary:{},firebase:null,db:null,unsubs:[],summaryTimer:null,lastSummary:''};
 function toast(a,b=''){$('toastTitle').textContent=a;$('toastText').textContent=b;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),3200)}
@@ -561,7 +591,39 @@ try{renderPlanSelect()}catch(e){console.error('renderPlanSelect',e)}
 try{renderMoves()}catch(e){console.error('renderMoves',e)}
 try{renderCapacity()}catch(e){console.error('renderCapacity',e)}
 $('connDot')?.classList.toggle('off',!S.connected);if($('connText'))$('connText').textContent=S.connected?'Firebase · Live':'Firebase · Offline';if($('mobileConn'))$('mobileConn').textContent=S.connected?'● Live':'● Offline';if($('firebaseStatusBadge'))$('firebaseStatusBadge').className='status '+(S.connected?'ok':'warn');if($('firebaseStatusBadge'))$('firebaseStatusBadge').textContent=S.connected?'LIVE':'OFFLINE';if($('firebaseStatusHelp'))$('firebaseStatusHelp').textContent=S.connected?'Produktive Realtime Database verbunden.':'Verbindung zur produktiven Realtime Database wird hergestellt.'}
-function renderCartons(){const q=(($('cartonSearch')?.value||$('dashSearch')?.value)||'').toLowerCase(),list=S.cartons.filter(c=>(c.article+' '+c.name+' '+c.location).toLowerCase().includes(q));$('dashRows').innerHTML=list.map(c=>{const s=status(c);return`<tr><td><b>${esc(c.article)}</b><br><span class="muted">${esc(c.name)}</span></td><td>${esc(c.location)}</td><td>${c.stock}</td><td><span class="status ${s.key}">${s.txt}</span></td><td><button class="btn book" data-id="${c.id}" ${canWrite()?'':'disabled'}>${lang==='de'?'Buchen':'Post'}</button></td></tr>`}).join('')||`<tr><td colspan="5"><div class="empty"><b>${t('noCartons')}</b></div></td></tr>`;$('cartonRows').innerHTML=list.map(c=>`<tr><td><b>${esc(c.article)}</b></td><td>${esc(c.name)}</td><td>${esc(c.location)}</td><td>${c.stock}</td><td>${c.min}</td><td>${c.warn}</td><td><div class="actions"><button class="btn label" data-id="${c.id}">QR</button>${isAdmin()?`<button class="btn editC" data-id="${c.id}">${lang==='de'?'Bearbeiten':'Edit'}</button>`:''}</div></td></tr>`).join('')||`<tr><td colspan="7"><div class="empty"><b>${t('noCartons')}</b></div></td></tr>`;document.querySelectorAll('.book').forEach(b=>b.onclick=()=>openBook(b.dataset.id));document.querySelectorAll('.editC').forEach(b=>b.onclick=()=>openCarton(b.dataset.id));document.querySelectorAll('.label').forEach(b=>b.onclick=()=>openLabel(b.dataset.id))}
+async function deleteCarton(id){
+  try{
+    if(!isAdmin())throw new Error(lang==='de'?'Nur Admins können Kartons löschen.':'Only admins can delete cartons.');
+    if(!S.connected||!S.db||!S.firebase)throw new Error(lang==='de'?'Keine Live-Verbindung zu Firebase.':'No live Firebase connection.');
+
+    const c=S.cartons.find(x=>x.id===id);
+    if(!c)throw new Error(lang==='de'?'Karton nicht gefunden.':'Carton not found.');
+
+    const usedBy=S.instructions.filter(i=>(i.materials||[]).some(m=>m.cartonId===id));
+    if(usedBy.length){
+      const names=usedBy.map(i=>i.name).join(', ');
+      throw new Error((lang==='de'
+        ?'Karton kann nicht gelöscht werden. Er wird noch verwendet in: '
+        :'Carton cannot be deleted. It is still used in: ')+names);
+    }
+
+    const ok=confirm(
+      lang==='de'
+        ?`Karton/Artikel "${c.article} – ${c.name}" wirklich löschen?\n\nDie Bewegungs-Historie bleibt erhalten.`
+        :`Really delete carton/article "${c.article} – ${c.name}"?\n\nMovement history will be kept.`
+    );
+    if(!ok)return;
+
+    await S.firebase.remove(S.firebase.ref(S.db,`cartons/${id}`));
+    if($('cartonModal')?.classList.contains('open'))closeAll();
+    scheduleSummary();
+    toast('✓ ZeroStock',lang==='de'?'Karton wurde gelöscht.':'Carton deleted.');
+  }catch(e){
+    console.error('deleteCarton',e);
+    toast(lang==='de'?'Löschen nicht möglich':'Delete failed',e.message||String(e));
+  }
+}
+function renderCartons(){const q=(($('cartonSearch')?.value||$('dashSearch')?.value)||'').toLowerCase(),list=S.cartons.filter(c=>(c.article+' '+c.name+' '+c.location).toLowerCase().includes(q));$('dashRows').innerHTML=list.map(c=>{const s=status(c);return`<tr><td><b>${esc(c.article)}</b><br><span class="muted">${esc(c.name)}</span></td><td>${esc(c.location)}</td><td>${c.stock}</td><td><span class="status ${s.key}">${s.txt}</span></td><td><button class="btn book" data-id="${c.id}" ${canWrite()?'':'disabled'}>${lang==='de'?'Buchen':'Post'}</button></td></tr>`}).join('')||`<tr><td colspan="5"><div class="empty"><b>${t('noCartons')}</b></div></td></tr>`;$('cartonRows').innerHTML=list.map(c=>`<tr><td><b>${esc(c.article)}</b></td><td>${esc(c.name)}</td><td>${esc(c.location)}</td><td>${c.stock}</td><td>${c.min}</td><td>${c.warn}</td><td><div class="actions"><button class="btn label" data-id="${c.id}">QR</button>${isAdmin()?`<button class="btn editC" data-id="${c.id}">${lang==='de'?'Bearbeiten':'Edit'}</button><button class="btn red deleteC" data-id="${c.id}">${lang==='de'?'Löschen':'Delete'}</button>`:''}</div></td></tr>`).join('')||`<tr><td colspan="7"><div class="empty"><b>${t('noCartons')}</b></div></td></tr>`;document.querySelectorAll('.book').forEach(b=>b.onclick=()=>openBook(b.dataset.id));document.querySelectorAll('.editC').forEach(b=>b.onclick=()=>openCarton(b.dataset.id));document.querySelectorAll('.deleteC').forEach(b=>b.onclick=()=>deleteCarton(b.dataset.id));document.querySelectorAll('.label').forEach(b=>b.onclick=()=>openLabel(b.dataset.id))}
 function renderInstructions(){$('instructionList').innerHTML=S.instructions.map(i=>{const c=S.user.role==='customer'?(S.customerSummary[i.id]||{capacity:0}):capacity(i),max=c.capacity??c.max??0;return`<div class="instruction"><div><b>${esc(i.name)}</b> <span class="status ${i.active?'ok':'crit'}">${i.active?(lang==='de'?'AKTIV':'ACTIVE'):(lang==='de'?'INAKTIV':'INACTIVE')}</span><small>${esc(i.description||'')} · v${esc(i.version||'1.0')}${S.user.role==='customer'?'':` · ${(i.materials||[]).length} ${t('cartons')}`}</small></div><div><strong class="${max===0?'red':max<5?'yellow':'green'}">${max}</strong> <small>${t('packingPossible')}</small>${isAdmin()?`<div class="actions" style="margin-top:6px"><button class="btn editI" data-id="${i.id}">${lang==='de'?'Bearbeiten':'Edit'}</button><button class="btn dupI" data-id="${i.id}">${lang==='de'?'Duplizieren':'Duplicate'}</button></div>`:''}</div></div>`}).join('')||`<div class="empty"><b>${t('noInstructions')}</b></div>`;document.querySelectorAll('.editI').forEach(b=>b.onclick=()=>openInstruction(b.dataset.id));document.querySelectorAll('.dupI').forEach(b=>b.onclick=()=>duplicateInstruction(b.dataset.id))}
 function renderCapacity(){$('capacityList').innerHTML=S.instructions.filter(i=>i.active).map(i=>{const c=S.user.role==='customer'?(S.customerSummary[i.id]||{capacity:0}):capacity(i),max=c.capacity??c.max??0,b=S.user.role==='customer'?'—':(c.bottle||'—');return`<div class="instruction"><div><b>${esc(i.name)}</b><small>${S.user.role==='customer'?'':`${t('bottleneck')}: ${esc(b)}`}</small></div><div><strong class="${max===0?'red':max<5?'yellow':'green'}">${max}</strong> <small>${t('packingPossible')}</small></div></div>`}).join('')||`<div class="empty"><b>${t('noInstructions')}</b></div>`}
 function renderPlanSelect(){
@@ -600,6 +662,12 @@ function openCarton(id=null){
     if(!modal)throw new Error('Karton-Dialog fehlt');
     editingCarton=id;
     const c=id?S.cartons.find(x=>x.id===id):null;
+    const delBtn=$('deleteCartonModal');
+    if(delBtn){
+      delBtn.style.display=c?'':'none';
+      delBtn.textContent=lang==='de'?'Löschen':'Delete';
+      delBtn.onclick=c?()=>deleteCarton(c.id):null;
+    }
     const fields={
       cartonModalTitle:c?(lang==='de'?'Karton bearbeiten':'Edit carton'):(lang==='de'?'Neuer Karton':'New carton'),
       cArticle:c?.article||'',cName:c?.name||'',cLocation:c?.location||'',
@@ -651,7 +719,48 @@ function instructionLive(){const rows=[...document.querySelectorAll('.matrow')];
 function openInstruction(id=null){if(!S.cartons.length)return toast('ZeroStock',t('firstCreateCarton'));editingInstruction=id;const i=id?S.instructions.find(x=>x.id===id):null;$('instructionModalTitle').textContent=i?(lang==='de'?'Instruction bearbeiten':'Edit instruction'):(lang==='de'?'Neue Packing Instruction':'New Packing Instruction');$('iName').value=i?.name||'';$('iDesc').value=i?.description||'';$('iVersion').value=i?.version||'1.0';$('iActive').value=String(i?.active??true);$('materialRows').innerHTML='';(i?.materials?.length?i.materials:[{cartonId:S.cartons[0]?.id,qty:1}]).forEach(m=>$('materialRows').append(matRow(m)));instructionLive();$('instructionModal').classList.add('open')}
 async function saveInstruction(){if(!S.connected)return toast('ZeroStock',lang==='de'?'Keine Live-Verbindung.':'No live connection.');const name=$('iName').value.trim();if(!name)return toast('ZeroStock','Instruction Name');const raw=[...document.querySelectorAll('.matrow')].map(r=>({cartonId:r.querySelector('.matCarton').value,qty:Number(r.querySelector('.matQty').value)}));if(raw.some(m=>!m.cartonId||!Number.isInteger(m.qty)||m.qty<=0))return toast('ZeroStock',lang==='de'?'Jede Kartonmenge muss eine ganze Zahl grösser 0 sein.':'Each quantity must be a whole number greater than zero.');if(new Set(raw.map(m=>m.cartonId)).size!==raw.length)return toast('ZeroStock',lang==='de'?'Ein Karton darf pro Instruction nur einmal vorkommen.':'A carton may only appear once per instruction.');const id=editingInstruction||name.replace(/[.#$/\[\]]/g,'_');if(!editingInstruction&&S.instructions.some(i=>i.id===id))return toast('ZeroStock',lang==='de'?'Instruction existiert bereits.':'Instruction already exists.');const o={id,name,description:$('iDesc').value.trim(),version:$('iVersion').value.trim()||'1.0',active:$('iActive').value==='true',materials:normalizeMaterials(raw),updatedAt:Date.now()};await S.firebase.set(S.firebase.ref(S.db,`instructions/${id}`),o);scheduleSummary();closeAll()}
 function duplicateInstruction(id){const i=S.instructions.find(x=>x.id===id);if(!i)return;editingInstruction=null;openInstruction();$('iName').value=i.name+' COPY';$('iDesc').value=i.description||'';$('iVersion').value=i.version||'1.0';$('materialRows').innerHTML='';i.materials.forEach(m=>$('materialRows').append(matRow(m)));instructionLive()}
-function openLabel(id){const c=S.cartons.find(x=>x.id===id);if(!c)return;const url=`${location.origin+location.pathname}?box=${encodeURIComponent(c.id)}`;$('labelContent').innerHTML=`<div style="background:white;color:#07111d;padding:24px;border-radius:12px;text-align:center;max-width:430px;margin:auto"><div style="font-size:30px;font-weight:900">${esc(c.article)}</div><div style="font-size:16px;margin:5px 0 14px">${esc(c.name)}</div><canvas id="qrCanvas"></canvas><div style="font-size:20px;font-weight:900;margin-top:10px">${esc(c.location)}</div><div style="font-size:12px;margin-top:7px">ZeroStock · QR SCANNEN / SCAN QR</div></div>`;if(window.QRCode)QRCode.toCanvas($('qrCanvas'),url,{width:240,margin:2},()=>{});else $('labelContent').insertAdjacentHTML('beforeend','<p class="red no-print">QR-Bibliothek konnte nicht geladen werden.</p>');$('labelModal').classList.add('open')}
+async function openLabel(id){
+  const c=S.cartons.find(x=>x.id===id);
+  if(!c)return toast('QR',lang==='de'?'Karton nicht gefunden.':'Carton not found.');
+  const url=`${location.origin+location.pathname}?box=${encodeURIComponent(c.id)}`;
+  const content=$('labelContent');
+  if(!content)return toast('QR','Label UI fehlt.');
+
+  content.innerHTML=`<div style="background:white;color:#07111d;padding:24px;border-radius:12px;text-align:center;max-width:430px;margin:auto">
+    <div style="font-size:30px;font-weight:900">${esc(c.article)}</div>
+    <div style="font-size:16px;margin:5px 0 14px">${esc(c.name)}</div>
+    <div id="qrBox" style="width:240px;height:240px;margin:0 auto;display:grid;place-items:center"></div>
+    <div style="font-size:20px;font-weight:900;margin-top:10px">${esc(c.location)}</div>
+    <div style="font-size:12px;margin-top:7px">ZeroStock · QR SCANNEN / SCAN QR</div>
+    <div id="qrState" class="note no-print" style="margin-top:10px">QR wird erstellt…</div>
+  </div>`;
+
+  $('labelModal')?.classList.add('open');
+
+  try{
+    const QR=await ensureQRCodeLibrary();
+    const box=$('qrBox');
+    if(!box)throw new Error('QR-Ziel fehlt.');
+    box.innerHTML='';
+    new QR(box,{
+      text:url,
+      width:240,
+      height:240,
+      colorDark:'#000000',
+      colorLight:'#ffffff',
+      correctLevel:QR.CorrectLevel.M
+    });
+    if($('qrState'))$('qrState').remove();
+  }catch(e){
+    console.error('ZeroStock QR:',e);
+    if($('qrState')){
+      $('qrState').className='red no-print';
+      $('qrState').textContent=lang==='de'
+        ?'QR-Code konnte nicht erstellt werden. Internetverbindung einmal prüfen und erneut öffnen.'
+        :'QR code could not be generated. Check the internet connection once and reopen.';
+    }
+  }
+}
 function closeAll(){document.querySelectorAll('.modal').forEach(m=>{m.classList.remove('open');m.style.display='';m.setAttribute('aria-hidden','true')});stopScanner()}
 async function startScanner(){if(!('BarcodeDetector'in window)){toast('QR',lang==='de'?'Direkter QR-Scan ist in diesem Browser nicht verfügbar. Android Chrome verwenden oder Code eingeben.':'Direct QR scan unavailable. Use Android Chrome or enter code.');return manualCode()}try{const det=new BarcodeDetector({formats:['qr_code']});scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});$('scanVideo').srcObject=scanStream;await $('scanVideo').play();$('scanModal').classList.add('open');const loop=async()=>{if(!scanStream)return;try{const codes=await det.detect($('scanVideo'));if(codes.length){handleScan(codes[0].rawValue);return}}catch{}requestAnimationFrame(loop)};loop()}catch(e){toast('QR',e.message)}}
 function stopScanner(){if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}$('scanVideo').srcObject=null}
@@ -770,11 +879,19 @@ document.addEventListener('click',e=>{
   if(add){e.preventDefault();e.stopPropagation();openCarton();return}
   const edit=e.target.closest('.editC');
   if(edit){e.preventDefault();openCarton(edit.dataset.id);return}
+  const del=e.target.closest('.deleteC');
+  if(del){e.preventDefault();deleteCarton(del.dataset.id);return}
 });
 
 // UI events
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>show(b.dataset.view));document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>show(b.dataset.goto));document.querySelectorAll('[data-mview]').forEach(b=>b.onclick=()=>show(b.dataset.mview));document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{lang=b.dataset.lang;localStorage.setItem('zs-lang',lang);applyLang()});document.querySelectorAll('.closeModal').forEach(b=>b.onclick=closeAll);
-$('dashSearch').oninput=renderCartons;$('cartonSearch').oninput=renderCartons;if($('addCarton'))$('addCarton').onclick=e=>{e.preventDefault();openCarton()};if($('saveCarton'))$('saveCarton').onclick=e=>{e.preventDefault();saveCarton()};$('addInstruction').onclick=()=>openInstruction();$('saveInstruction').onclick=saveInstruction;$('addMaterialRow').onclick=()=>{$('materialRows').append(matRow());instructionLive()};$('calculatePlan').onclick=calcPlan;if($('planQty'))$('planQty').oninput=calcPlan;if($('planInstruction'))$('planInstruction').onchange=calcPlan;if($('planRef'))$('planRef').oninput=calcPlan;if($('cStock'))$('cStock').oninput=cartonLive;if($('cWarn'))$('cWarn').oninput=cartonLive;if($('cMin'))$('cMin').oninput=cartonLive;if($('bookType'))$('bookType').onchange=bookPreview;if($('bookQty'))$('bookQty').oninput=bookPreview;$('confirmBook').onclick=confirmBook;$('startScan').onclick=startScanner;$('manualScan').onclick=manualCode;$('stopScan').onclick=closeAll;$('printLabel').onclick=()=>window.print();$('logoutBtn').onclick=()=>S.firebase?.signOut(S.firebase.auth);$('fabScan').onclick=()=>show('scan');
+$('dashSearch').oninput=renderCartons;$('cartonSearch').oninput=renderCartons;if($('addCarton'))$('addCarton').onclick=e=>{e.preventDefault();openCarton()};if($('saveCarton'))$('saveCarton').onclick=e=>{e.preventDefault();saveCarton()};$('addInstruction').onclick=()=>openInstruction();$('saveInstruction').onclick=saveInstruction;$('addMaterialRow').onclick=()=>{$('materialRows').append(matRow());instructionLive()};$('calculatePlan').onclick=calcPlan;if($('planQty'))$('planQty').oninput=calcPlan;if($('planInstruction'))$('planInstruction').onchange=calcPlan;if($('planRef'))$('planRef').oninput=calcPlan;if($('cStock'))$('cStock').oninput=cartonLive;if($('cWarn'))$('cWarn').oninput=cartonLive;if($('cMin'))$('cMin').oninput=cartonLive;if($('bookType'))$('bookType').onchange=bookPreview;if($('bookQty'))$('bookQty').oninput=bookPreview;$('confirmBook').onclick=confirmBook;$('startScan').onclick=startScanner;$('manualScan').onclick=manualCode;$('stopScan').onclick=closeAll;$('printLabel').onclick=()=>{
+      const box=$('qrBox');
+      if(!box||(!box.querySelector('canvas')&&!box.querySelector('img')&&!box.querySelector('table'))){
+        return toast('QR',lang==='de'?'QR-Code ist noch nicht bereit.':'QR code is not ready yet.');
+      }
+      window.print();
+    };$('logoutBtn').onclick=()=>S.firebase?.signOut(S.firebase.auth);$('fabScan').onclick=()=>show('scan');
 $('gateLogin').onclick=login;$('gateReset').onclick=resetPassword;
 $('gateRetryRole').onclick=async()=>{const u=S.firebase?.auth?.currentUser;if(u){$('gateRoleState').textContent='erneute Prüfung…';$('gateRoleValue').textContent='—';$('gateRoleSource').textContent='—';$('gateRoleDb').textContent=FIREBASE_BASE_CONFIG.databaseURL;await connectDb(u)}};
 $('gateLogoutRole').onclick=()=>S.firebase?.signOut(S.firebase.auth);$('gatePassword').addEventListener('keydown',e=>{if(e.key==='Enter')login()});

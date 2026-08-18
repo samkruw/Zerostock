@@ -1,34 +1,24 @@
-# ZeroStock V3.2 – Form Fix
+# ZeroStock V3.4 – Kartons/Artikel löschen
 
-## Behobene Hauptursache
+## Neu
+Admins können Kartons/Artikel löschen.
 
-Die DE/EN-Umschaltung hat bisher bei Elementen wie:
+### Löschen möglich über
+- Karton-Tabelle → `Löschen`
+- Karton bearbeiten → `Löschen`
 
-```html
-<label data-i18n="article">
-  Artikel
-  <input id="cArticle">
-</label>
-```
+### Schutz vor kaputten TINSTs
+Ein Karton kann nicht gelöscht werden, solange er noch in einer Packing Instruction / TINST verwendet wird.
 
-`textContent` auf das gesamte Label gesetzt.
+ZeroStock zeigt dann die betroffenen Instructions an.
 
-Dadurch wurde das enthaltene `<input>` aus dem DOM gelöscht.
+### Bewegungs-Historie
+Beim Löschen eines Kartons bleiben bestehende Bewegungen erhalten.
+Damit bleibt das Buchungsjournal nachvollziehbar.
 
-Das verursachte unter anderem:
-- `UI-Feld fehlt: cArticle`
-- frühere Planner-Fehler mit `disabled`
-- verschwundene Formularfelder nach `applyLang()`
+### Sicherheit
+Löschen ist nur für `admin` verfügbar.
 
-## V3.2
-
-Die Übersetzung ändert jetzt nur noch den direkten Textknoten des Elements.
-Enthaltene Inputs, Selects, Textareas und Buttons bleiben vollständig erhalten.
-
-Zusätzlich:
-- Karton anlegen bleibt robust aus V3.1
-- Planner-Fix bleibt erhalten
-- Firebase Login / Rollen bleiben erhalten
-- QR, TINST, Schwund und Multiuser bleiben erhalten
-- professionelles PWA-Logo bleibt erhalten
-- Desktop + Android PWA
+Alle bisherigen Funktionen bleiben erhalten:
+Firebase LIVE, Login, Rollen, QR-Regalschilder, Eingang, Abgang, Schwund,
+Packing Instructions, Planner, Desktop + Android PWA.
