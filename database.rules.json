@@ -1,0 +1,38 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "users": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'",
+      "$uid": {
+        ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'",
+        ".validate": "newData.hasChildren(['name','role']) && newData.child('name').isString() && (newData.child('role').val() == 'admin' || newData.child('role').val() == 'employee' || newData.child('role').val() == 'customer') && (!newData.child('active').exists() || newData.child('active').isBoolean())"
+      }
+    },
+    "cartons": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')",
+      "$id": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')",
+        ".validate": "newData.hasChildren(['article','name','location','stock','warn','min']) && newData.child('stock').isNumber() && newData.child('stock').val() >= 0"
+      }
+    },
+    "instructions": {
+      ".read": "auth != null",
+      "$id": {
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'"
+      }
+    },
+    "movements": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')",
+      "$id": {
+        ".write": "auth != null && !data.exists() && newData.exists() && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')",
+        ".validate": "newData.hasChildren(['userId','cartonId','article','type','qty','stockAfter']) && newData.child('userId').val() == auth.uid && (newData.child('type').val() == 'in' || newData.child('type').val() == 'out' || newData.child('type').val() == 'shrink') && newData.child('qty').isNumber() && newData.child('qty').val() > 0 && newData.child('stockAfter').isNumber() && newData.child('stockAfter').val() >= 0"
+      }
+    },
+    "customerSummary": {
+      ".read": "auth != null",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')"
+    }
+  }
+}
