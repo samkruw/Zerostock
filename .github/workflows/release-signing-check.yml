@@ -32,7 +32,7 @@ jobs:
           set -euo pipefail
           missing=0
           for secret_name in ANDROID_KEYSTORE_BASE64 ANDROID_KEY_ALIAS ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_PASSWORD; do
-            if [[ -z "${!secret_name}" ]]; then
+            if [[ -z "${!secret_name:-}" ]]; then
               printf '::error::Missing repository secret: %s\n' "$secret_name"
               missing=1
             fi
