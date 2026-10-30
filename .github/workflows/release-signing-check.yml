@@ -1,0 +1,57 @@
+name: ZeroStock release signing check
+
+on:
+  push:
+    branches:
+      - v5-cloud-build
+    paths:
+      - .github/workflows/release-signing-check.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-signing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Check required secrets and signing identity
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for secret_name in ANDROID_KEYSTORE_BASE64 ANDROID_KEY_ALIAS ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_PASSWORD; do
+            if [[ -z "${!secret_name}" ]]; then
+              printf '::error::Missing repository secret: %s\n' "$secret_name"
+              missing=1
+            fi
+          done
+          test "$missing" -eq 0
+          umask 077
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/zerostock-signing-check.jks"
+          keytool -certreq -keystore "$RUNNER_TEMP/zerostock-signing-check.jks" \
+            -alias "$ANDROID_KEY_ALIAS" -storepass:env ANDROID_KEYSTORE_PASSWORD \
+            -keypass:env ANDROID_KEY_PASSWORD -file "$RUNNER_TEMP/zerostock-signing-check.csr" \
+            > /dev/null 2>&1 || { echo '::error::Signing key or password validation failed'; exit 1; }
+          keytool -exportcert -keystore "$RUNNER_TEMP/zerostock-signing-check.jks" \
+            -alias "$ANDROID_KEY_ALIAS" -storepass:env ANDROID_KEYSTORE_PASSWORD \
+            -file "$RUNNER_TEMP/zerostock-signing-check.der" \
+            > /dev/null 2>&1 || { echo '::error::Signing certificate export failed'; exit 1; }
+          echo "ea278794174af099e57faae01bc8c209a0fbc4fd95dfb3b702d8fa75a9436f8a  $RUNNER_TEMP/zerostock-signing-check.der" | sha256sum -c -
+          openssl x509 -inform DER -in "$RUNNER_TEMP/zerostock-signing-check.der" -checkend 2592000 -noout
+          echo 'All four signing secrets are usable and match the approved signing certificate.'
+
+      - name: Remove temporary signing material
+        if: ${{ always() }}
+        run: rm -f "$RUNNER_TEMP/zerostock-signing-check.jks" "$RUNNER_TEMP/zerostock-signing-check.csr" "$RUNNER_TEMP/zerostock-signing-check.der"
