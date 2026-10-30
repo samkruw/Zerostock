@@ -45,6 +45,11 @@ jobs:
           distribution: temurin
           java-version: '21'
 
+      - name: Normalize Capacitor plugin versions
+        working-directory: ${{ env.ZS_SRC }}
+        run: |
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.dependencies['@capacitor/app']='8.1.2';fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\\n')"
+
       - name: Install dependencies
         working-directory: ${{ env.ZS_SRC }}
         run: npm install --no-audit --no-fund
@@ -128,6 +133,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+
+      - name: Normalize Capacitor plugin versions
+        working-directory: ${{ env.ZS_SRC }}
+        run: |
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.dependencies['@capacitor/app']='8.1.2';fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\\n')"
 
       - name: Install dependencies
         working-directory: ${{ env.ZS_SRC }}
