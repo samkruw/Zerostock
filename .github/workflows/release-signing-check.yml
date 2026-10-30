@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - v5-cloud-build
-    paths:
-      - .github/workflows/release-signing-check.yml
   workflow_dispatch:
 
 permissions:
