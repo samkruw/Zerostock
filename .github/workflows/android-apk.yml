@@ -12,6 +12,9 @@ on:
 permissions:
   contents: read
 
+env:
+  ZEROSTOCK_RELEASE_VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '5.0.0' }}
+
 concurrency:
   group: zerostock-android-${{ github.ref }}
   cancel-in-progress: true
@@ -32,6 +35,9 @@ jobs:
           echo "ece149cfe7e6d85414d82f5d6159ac452ee7faab73bc369a144c278973219ba4  $RUNNER_TEMP/zerostock-v5/source.zip" | sha256sum -c -
           unzip -q "$RUNNER_TEMP/zerostock-v5/source.zip" -d "$RUNNER_TEMP/zerostock-v5/src"
           cp cloud-build/configure-release.mjs "$RUNNER_TEMP/zerostock-v5/src/scripts/configure-release.mjs"
+          cp cloud-build/prepare-release.mjs "$RUNNER_TEMP/zerostock-v5/src/scripts/prepare-release.mjs"
+          cp cloud-build/test-release.mjs "$RUNNER_TEMP/zerostock-v5/src/scripts/test-rc.mjs"
+          cp cloud-build/RELEASE-NOTES-v5.0.0.md "$RUNNER_TEMP/zerostock-v5/src/"
           cp icon-192.png icon-512.png icon-1024.png "$RUNNER_TEMP/zerostock-v5/src/"
           echo "ZS_SRC=$RUNNER_TEMP/zerostock-v5/src" >> "$GITHUB_ENV"
 
@@ -55,6 +61,13 @@ jobs:
         working-directory: ${{ env.ZS_SRC }}
         run: npm install --no-audit --no-fund
 
+      - name: Test version preparation
+        run: node --test cloud-build/prepare-release.test.mjs
+
+      - name: Prepare selected app version
+        working-directory: ${{ env.ZS_SRC }}
+        run: node scripts/prepare-release.mjs "$ZEROSTOCK_RELEASE_VERSION"
+
       - name: Build web assets
         working-directory: ${{ env.ZS_SRC }}
         run: npm run web:build
@@ -72,6 +85,15 @@ jobs:
         run: |
           npm run android:configure
           npx cap sync android
+
+      - name: Set Android debug version
+        working-directory: ${{ env.ZS_SRC }}
+        env:
+          ZEROSTOCK_VERSION_CODE: ${{ github.run_number }}
+        run: |
+          export ZEROSTOCK_VERSION_NAME="${ZEROSTOCK_RELEASE_VERSION#v}"
+          test "$ZEROSTOCK_VERSION_CODE" -gt 23
+          node scripts/configure-release.mjs
 
       - name: Build debug APK
         working-directory: ${{ env.ZS_SRC }}/android
@@ -122,6 +144,9 @@ jobs:
           echo "ece149cfe7e6d85414d82f5d6159ac452ee7faab73bc369a144c278973219ba4  $RUNNER_TEMP/zerostock-v5/source.zip" | sha256sum -c -
           unzip -q "$RUNNER_TEMP/zerostock-v5/source.zip" -d "$RUNNER_TEMP/zerostock-v5/src"
           cp cloud-build/configure-release.mjs "$RUNNER_TEMP/zerostock-v5/src/scripts/configure-release.mjs"
+          cp cloud-build/prepare-release.mjs "$RUNNER_TEMP/zerostock-v5/src/scripts/prepare-release.mjs"
+          cp cloud-build/test-release.mjs "$RUNNER_TEMP/zerostock-v5/src/scripts/test-rc.mjs"
+          cp cloud-build/RELEASE-NOTES-v5.0.0.md "$RUNNER_TEMP/zerostock-v5/src/"
           cp icon-192.png icon-512.png icon-1024.png "$RUNNER_TEMP/zerostock-v5/src/"
           echo "ZS_SRC=$RUNNER_TEMP/zerostock-v5/src" >> "$GITHUB_ENV"
 
@@ -144,6 +169,13 @@ jobs:
       - name: Install dependencies
         working-directory: ${{ env.ZS_SRC }}
         run: npm install --no-audit --no-fund
+
+      - name: Test version preparation
+        run: node --test cloud-build/prepare-release.test.mjs
+
+      - name: Prepare selected app version
+        working-directory: ${{ env.ZS_SRC }}
+        run: node scripts/prepare-release.mjs "$ZEROSTOCK_RELEASE_VERSION"
 
       - name: Build web assets
         working-directory: ${{ env.ZS_SRC }}
@@ -170,7 +202,8 @@ jobs:
           ZEROSTOCK_VERSION_CODE: ${{ github.run_number }}
         run: |
           export ZEROSTOCK_VERSION_NAME="${ZEROSTOCK_VERSION_NAME#v}"
-          node scripts/configure-version.mjs
+          test "$ZEROSTOCK_VERSION_CODE" -gt 23
+          node scripts/configure-release.mjs
 
       - name: Build unsigned release APK
         working-directory: ${{ env.ZS_SRC }}/android
@@ -229,4 +262,4 @@ jobs:
             "ZeroStock-${GITHUB_REF_NAME}.apk" "ZeroStock-${GITHUB_REF_NAME}.apk.sha256" \
             --repo "$GITHUB_REPOSITORY" --verify-tag \
             --title "ZeroStock ${GITHUB_REF_NAME}" \
-            --notes-file RELEASE-NOTES-v5.0.0-rc.1.md $PRE
+            --notes-file "RELEASE-NOTES-${GITHUB_REF_NAME}.md" $PRE
