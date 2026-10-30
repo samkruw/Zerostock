@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
+<meta name="app-version" content="5.0.0">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#060b14">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -441,8 +442,8 @@ label{
 
 
 /* =========================================================
-   ZeroStock V4.1 — ZeroGen App/UI Design System
-   Brand refresh: dark, clear, functional, green ZeroStock identity
+   ZeroStock V5.0 Foundation — Command Scan Design System
+   Phase 1: Command Glass desktop + Scan First mobile foundation
    ========================================================= */
 :root{
   --bg:#060b14;
@@ -645,7 +646,106 @@ label{color:#a7b6c7!important}
   main{padding-top:14px!important}
 }
 
+
+/* =========================================================
+   ZeroStock V5 Foundation — Command Scan
+   Phase 1 only: visual shell + responsive interaction model.
+   No Firebase business logic is changed here.
+   ========================================================= */
+:root{--zs-glass:rgba(14,24,38,.82);--zs-glass-2:rgba(18,31,48,.92);--zs-glow:rgba(32,227,178,.16);--zs-radius:18px}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(32,227,178,.025),transparent 35%,rgba(10,132,255,.02));z-index:-1}
+.app{grid-template-columns:86px minmax(0,1fr)!important;transition:grid-template-columns .18s ease}
+aside{width:86px;overflow:hidden;z-index:65;transition:width .18s ease,padding .18s ease}
+aside:hover,aside:focus-within{width:252px;box-shadow:18px 0 50px rgba(0,0,0,.26)!important}
+aside .brand{white-space:nowrap;padding-left:6px!important}
+aside .brand>div:last-child,aside nav button span:first-child,aside .sidefoot>*:not(:first-child){opacity:0;visibility:hidden;transition:opacity .12s ease}
+aside:hover .brand>div:last-child,aside:focus-within .brand>div:last-child,aside:hover nav button span:first-child,aside:focus-within nav button span:first-child,aside:hover .sidefoot>*:not(:first-child),aside:focus-within .sidefoot>*:not(:first-child){opacity:1;visibility:visible}
+aside nav button{width:222px;display:grid!important;grid-template-columns:1fr 28px;align-items:center;padding:11px 12px!important}
+aside nav button span:last-child{text-align:center;font-size:18px}
+.logo{flex:0 0 auto}.top{position:sticky;top:14px;z-index:30}
+.card,.panel,.quickAction,.syncStrip{backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.card{min-height:108px;border-radius:var(--zs-radius)!important;position:relative;overflow:hidden}
+.card:after{content:"";position:absolute;inset:auto 0 0;height:2px;background:linear-gradient(90deg,var(--brand),transparent 72%);opacity:.55}
+.cards{gap:14px!important}.card strong{font-size:31px!important;letter-spacing:-.04em}
+.quickActions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 16px}
+.quickAction{border:1px solid #23364d;background:linear-gradient(180deg,rgba(17,28,44,.94),rgba(9,17,29,.96));color:#fff;border-radius:16px;padding:15px;text-align:left;display:grid;grid-template-columns:34px 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;transition:.16s ease}
+.quickAction:hover{transform:translateY(-1px);border-color:rgba(32,227,178,.45);box-shadow:0 12px 35px rgba(0,0,0,.20),0 0 24px rgba(32,227,178,.06)}
+.quickAction>span{grid-row:1/3;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:rgba(32,227,178,.10);color:var(--brand);font-size:18px}.quickAction b{font-size:13px}.quickAction small{color:var(--muted);font-size:10px;margin-top:2px}
+.panel{border-radius:var(--zs-radius)!important}.ph{min-height:60px}.ph h3{font-size:15px!important}.tablewrap{scrollbar-gutter:stable}
+.scanbox{max-width:620px!important;padding:38px!important;border-radius:24px!important}.scanicon{width:98px;height:98px;margin:0 auto 18px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle,rgba(32,227,178,.22),rgba(32,227,178,.05) 58%,transparent 62%);color:var(--brand);font-size:50px!important;box-shadow:0 0 40px rgba(32,227,178,.12)}
+.mobileScanHome{display:none}
+.authCard{position:relative;overflow:hidden}.authCard:before{content:"";position:absolute;inset:-80px -80px auto auto;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(32,227,178,.14),transparent 68%);pointer-events:none}
+.authLogo img,.logo img{width:100%;height:100%;border-radius:inherit}
+@media(max-width:1180px){.quickActions{grid-template-columns:repeat(2,minmax(0,1fr))}.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:980px){
+ .app{grid-template-columns:1fr!important}.top{position:static}.quickActions{display:none}.mobileScanHome{display:grid;gap:10px;margin-bottom:14px}.scanHomeButton{min-height:190px;border:1px solid rgba(32,227,178,.34);border-radius:24px;background:radial-gradient(circle at 50% 42%,rgba(32,227,178,.15),rgba(15,25,40,.96) 48%);color:#fff;display:grid;place-items:center;align-content:center;gap:3px;box-shadow:0 16px 44px rgba(0,0,0,.22)}
+ .scanHomeButton .scanGlyph{width:82px;height:82px;border:2px solid var(--brand);border-radius:50%;display:grid;place-items:center;color:var(--brand);font-size:38px;box-shadow:0 0 34px rgba(32,227,178,.18)}.scanHomeButton b{font-size:18px;letter-spacing:.08em;margin-top:8px}.scanHomeButton small{color:var(--muted)}
+ .syncStrip{border:1px solid #24374d;background:rgba(13,23,37,.88);border-radius:13px;padding:10px 12px;color:#9eb1c3;font-size:11px;display:flex;align-items:center}
+ .cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}.grid{gap:12px!important}.card{min-height:92px}.card strong{font-size:27px!important}
+ .mobileBottom{grid-template-columns:repeat(5,1fr)!important;padding-top:5px!important}.mobileBottom .scanNav{margin-top:-22px;background:transparent!important;box-shadow:none!important}.mobileBottom .scanNav span:first-child{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#20e3b2,#0fb78c);color:#04120e!important;border:2px solid #5af2cf;font-size:26px!important;box-shadow:0 12px 30px rgba(32,227,178,.28)}.mobileBottom .scanNav span:last-child{margin-top:2px;color:#dffdf4}
+ .fabScan{display:none!important}.mobilehead{min-height:58px}.mobileBrand img{width:38px;height:38px}
+}
+@media(max-width:570px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}.card{padding:13px!important}.card strong{font-size:24px!important}.scanHomeButton{min-height:170px}.top h1{font-size:24px!important}.panel{border-radius:15px!important}}
+
+/* =========================================================
+   ZeroStock V5 — Phase 2 + 3
+   Navigation split + complete Scan-First mobile home
+   ========================================================= */
+.mobileOnly{display:none}
+.desktopOnly{display:block}
+.mobileHomeStack{display:none}
+.mobileSection{background:linear-gradient(180deg,rgba(17,24,39,.96),rgba(10,17,29,.98));border:1px solid #223249;border-radius:17px;overflow:hidden}
+.mobileSectionHead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px;border-bottom:1px solid #1d2b3f}
+.mobileSectionHead b{font-size:13px}.mobileSectionHead small{color:var(--muted)}
+.mobileHomeList{display:grid}
+.mobileMove,.mobileWarning{display:grid;grid-template-columns:1fr auto;gap:10px;padding:12px 14px;border-bottom:1px solid #17263a;align-items:center}
+.mobileMove:last-child,.mobileWarning:last-child{border-bottom:0}
+.mobileMove b,.mobileWarning b{display:block;font-size:13px}.mobileMove small,.mobileWarning small{color:var(--muted);display:block;margin-top:3px}
+.mobileMoveQty{font-size:16px;font-weight:850;text-align:right}.mobileMoveQty.in{color:#4ee58b}.mobileMoveQty.out{color:#ff8585}
+.mobileWarnBadge{min-width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.24);color:#ff8c91;font-weight:900}
+.mobileSyncCard{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border-radius:14px;background:#0d1725;border:1px solid #22364d}
+.mobileSyncCard .left{display:flex;align-items:center;gap:8px;min-width:0}.mobileSyncCard b{display:block;font-size:12px}.mobileSyncCard small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.mobileScanHero{display:grid;place-items:center;text-align:center;padding:18px;border-radius:20px;background:linear-gradient(160deg,rgba(32,227,178,.12),rgba(10,132,255,.07));border:1px solid rgba(32,227,178,.28);box-shadow:0 18px 48px rgba(0,0,0,.2)}
+.mobileScanHero button{width:116px;height:116px;border-radius:50%;border:2px solid #57efd0;background:linear-gradient(145deg,#20e3b2,#0fb78c);color:#04120e;display:grid;place-items:center;align-content:center;gap:2px;box-shadow:0 20px 45px rgba(32,227,178,.24);font-weight:900}
+.mobileScanHero .glyph{font-size:37px;line-height:1}.mobileScanHero button b{font-size:15px;letter-spacing:.06em}.mobileScanHero button small{font-size:9px;opacity:.75}
+.mobileQuickBook{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.mobileQuickBook button{border:1px solid #29405a;background:#101b2b;color:#fff;border-radius:15px;padding:13px 7px;display:grid;gap:6px;place-items:center;font-size:11px;font-weight:750}
+.mobileQuickBook button span{font-size:23px}.mobileQuickBook button[data-quick-type="in"] span{color:#56e79a}.mobileQuickBook button[data-quick-type="out"] span{color:#7fc5ff}.mobileQuickBook button[data-quick-type="shrink"] span{color:#ffb85c}
+.mobileAllLink{border:0;background:transparent;color:var(--brand);font-weight:800;font-size:11px}
+.moreMenu{display:grid;gap:10px}.moreMenu button{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;border:1px solid #24384f;background:#101b2b;color:#fff;border-radius:14px;padding:14px}.moreMenu button span:first-child{display:flex;align-items:center;gap:11px}.moreMenu button i{font-style:normal;font-size:20px;color:var(--brand)}
+.taskCard{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:13px 14px;border-bottom:1px solid #17263a}.taskCard:last-child{border-bottom:0}.taskIcon{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.22);color:#ffc25a}.taskCard.crit .taskIcon{background:rgba(239,68,68,.10);border-color:rgba(239,68,68,.24);color:#ff8585}.taskCard small{display:block;color:var(--muted);margin-top:3px}.taskCard button{border:0;background:transparent;color:var(--brand);font-weight:800}
+.taskSummary{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;padding:14px;border-bottom:1px solid #17263a}.taskStat{padding:11px;border:1px solid #22354c;border-radius:12px;background:#0c1522}.taskStat small{display:block;color:var(--muted);font-size:10px}.taskStat b{display:block;font-size:20px;margin-top:3px}.taskFilters{display:flex;gap:7px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid #17263a}.taskFilters button{border:1px solid #294059;background:#0b1522;color:#9db0c3;border-radius:999px;padding:7px 10px;font-size:11px}.taskFilters button.active{border-color:var(--brand);color:#eafff9;background:rgba(32,227,178,.10)}.taskCard.high .taskIcon{background:rgba(245,158,11,.10);border-color:rgba(245,158,11,.22);color:#ffc25a}.taskCard.critical .taskIcon{background:rgba(239,68,68,.10);border-color:rgba(239,68,68,.24);color:#ff8585}.taskMeta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.taskPill{font-size:9px;padding:3px 6px;border-radius:999px;border:1px solid #294059;color:#a7bacb}.taskPill.critical{border-color:rgba(239,68,68,.35);color:#ff8f95}.taskPill.high{border-color:rgba(245,158,11,.35);color:#ffc25a}@media(max-width:570px){.taskSummary{grid-template-columns:repeat(2,1fr)}.taskCard{grid-template-columns:auto 1fr}.taskCard>button{grid-column:2;justify-self:start}}
+.quickBookSelectList{display:grid;gap:7px;max-height:46vh;overflow:auto}.quickBookItem{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid #263b54;background:#0f1a2a;color:#fff;border-radius:13px;padding:11px;text-align:left}.quickBookItem small{color:var(--muted);display:block;margin-top:3px}.quickBookItem .stock{font-weight:900;font-size:17px}
+@media(max-width:980px){
+ .desktopOnly{display:none!important}.mobileOnly{display:block!important}
+ .mobileHomeStack{display:grid!important;gap:12px}
+ #dashboardView>.cards,#dashboardView>.quickActions,#dashboardView>.grid,#dashboardView>#onboarding,#dashboardView>.mobileScanHome{display:none!important}
+ .mobileBottom{grid-template-columns:1fr 1fr 1.12fr 1fr 1fr!important}
+ .mobileBottom .scanNav{transform:translateY(-14px)}
+ .mobileBottom .scanNav span:first-child{width:58px!important;height:58px!important}
+ .fabScan{display:none!important}
+ .top{display:none!important}
+ .mobilehead{padding:10px 13px!important;min-height:57px}
+ main{padding:12px 12px calc(92px + env(safe-area-inset-bottom))!important}
+ #cartonsView .tablewrap{overflow:visible}
+ #cartonsView table{min-width:0}
+ #cartonsView thead{display:none}
+ #cartonsView tbody{display:grid;gap:10px}
+ #cartonsView tr{display:grid;background:linear-gradient(180deg,#111827,#0b1220);border:1px solid #23354c;border-radius:15px;padding:12px}
+ #cartonsView td{border:0!important;padding:3px 0!important;display:block}
+ #cartonsView td:nth-child(1) b{font-size:15px}
+ #cartonsView td:nth-child(4){font-size:25px;font-weight:900;margin-top:5px}
+ #cartonsView td:nth-child(4):before{content:"Bestand  ";font-size:10px;font-weight:600;color:var(--muted)}
+ #cartonsView td:nth-child(5):before{content:"Minimum: ";color:var(--muted);font-size:10px}
+ #cartonsView td:nth-child(6):before{content:"Warnbestand: ";color:var(--muted);font-size:10px}
+ #cartonsView td:last-child{margin-top:8px}
+ #cartonsView .ph{align-items:flex-start;flex-direction:column}.ph .actions{width:100%}.ph .search{width:100%}
+}
+
 @media print{aside,.mobilehead,.mobileBottom,.fabScan,.top,.no-print,.installbar,.authGate{display:none!important}main{padding:0}.app{display:block}.panel{box-shadow:none;border:none}body{background:white;color:black}}
+
+/* ZeroStock V5 Phase 5 - Native scanner overlay */
+.nativeScannerOverlay{position:fixed;inset:0;z-index:9999;display:none;background:transparent;color:#fff;pointer-events:none}.nativeScannerOverlay.open{display:block}.nativeScannerShade{position:absolute;inset:0;background:linear-gradient(rgba(1,8,12,.46),rgba(1,8,12,.2) 24%,rgba(1,8,12,.2) 76%,rgba(1,8,12,.56));pointer-events:none}.nativeScannerTop{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;padding:max(18px,env(safe-area-inset-top)) 18px 12px;pointer-events:auto}.nativeScannerTop button,.nativeScannerBottom button{width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(4,18,18,.58);backdrop-filter:blur(14px);color:#fff;font-size:22px}.nativeScannerTitle{text-align:center}.nativeScannerTitle b{display:block;font-size:15px;letter-spacing:.12em}.nativeScannerTitle small{display:block;color:#c9e9df;margin-top:3px}.nativeScannerFrame{position:absolute;left:50%;top:48%;width:min(74vw,330px);height:min(42vw,210px);transform:translate(-50%,-50%);border-radius:22px;box-shadow:0 0 0 9999px rgba(0,0,0,.18);pointer-events:none}.nativeScannerFrame:before,.nativeScannerFrame:after{content:"";position:absolute;inset:0;border-radius:22px}.nativeScannerFrame:before{border:2px solid rgba(32,227,178,.38)}.nativeScannerCorners{position:absolute;inset:0;background:linear-gradient(var(--brand),var(--brand)) left top/42px 4px no-repeat,linear-gradient(var(--brand),var(--brand)) left top/4px 42px no-repeat,linear-gradient(var(--brand),var(--brand)) right top/42px 4px no-repeat,linear-gradient(var(--brand),var(--brand)) right top/4px 42px no-repeat,linear-gradient(var(--brand),var(--brand)) left bottom/42px 4px no-repeat,linear-gradient(var(--brand),var(--brand)) left bottom/4px 42px no-repeat,linear-gradient(var(--brand),var(--brand)) right bottom/42px 4px no-repeat,linear-gradient(var(--brand),var(--brand)) right bottom/4px 42px no-repeat;border-radius:22px;filter:drop-shadow(0 0 10px rgba(32,227,178,.45))}.nativeScannerLine{position:absolute;left:8%;right:8%;top:50%;height:2px;background:linear-gradient(90deg,transparent,var(--brand),transparent);box-shadow:0 0 14px var(--brand);animation:zsScanLine 2s ease-in-out infinite}@keyframes zsScanLine{0%,100%{transform:translateY(-62px);opacity:.45}50%{transform:translateY(62px);opacity:1}}.nativeScannerBottom{position:absolute;left:18px;right:18px;bottom:max(24px,env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:center;gap:18px;pointer-events:auto}.nativeScannerHint{position:absolute;left:18px;right:18px;bottom:96px;text-align:center;color:#e7fff8;font-size:13px;text-shadow:0 2px 8px #000}.nativeScannerOverlay .torchOn{background:var(--brand);color:#032018;border-color:#7fffe0}.native-app.native-scanning body{background:transparent!important}.native-app.native-scanning #appShell,.native-app.native-scanning .gate,.native-app.native-scanning .mobileBottom,.native-app.native-scanning .fabScan,.native-app.native-scanning .installbar,.native-app.native-scanning .toast{visibility:hidden!important}.native-app.native-scanning .nativeScannerOverlay{visibility:visible!important}
 </style>
 </head>
 <body>
@@ -654,7 +754,7 @@ label{color:#a7b6c7!important}
 <div class="authView active" id="authLoading"><h2>ZeroStock wird gestartet</h2><p>Firebase Authentication wird geladen …</p></div>
 <div class="authView" id="authLogin"><h2>Anmelden</h2><p>Bitte mit deinem ZeroStock-Benutzer einloggen.</p><div class="authForm"><label>E-Mail<input id="gateEmail" type="email" autocomplete="username" inputmode="email" placeholder="name@firma.ch"></label><label>Passwort<input id="gatePassword" type="password" autocomplete="current-password" placeholder="••••••••"></label><button class="btn primary" id="gateLogin">Einloggen</button><button class="authLink" id="gateReset">Passwort vergessen?</button></div><div class="authError" id="gateLoginError"></div></div>
 <div class="authView" id="authNoRole"><h2>Firebase-Rolle konnte nicht geladen werden</h2><p>Der Login funktioniert. Dieser Bildschirm erscheint jetzt nur noch, wenn der Rollenwert selbst nicht gelesen werden kann.</p><div class="dangerbox"><div class="note"><code>/users/&lt;UID&gt;/role</code> muss <b>admin</b>, <b>employee</b> oder <b>customer</b> sein.<br><br><b>Gelesener Rollenwert:</b> <code id="gateRoleValue">—</code><br><b>Prüfung:</b> <span id="gateRoleState">—</span><br><b>Quelle:</b> <span id="gateRoleSource">—</span><br><b>Datenbank:</b> <code id="gateRoleDb">—</code></div></div><div class="authForm" style="margin-top:14px"><button class="btn primary" id="gateRetryRole">Rolle erneut prüfen</button><button class="btn" id="gateLogoutRole">Abmelden</button></div><div class="authMeta"><span>UID</span><span id="gateUid">—</span></div></div>
-<div class="authMeta"><span>Firebase Project</span><span>zerostock-c5f5f</span></div><div class="authMeta"><span>Version</span><span>v4.1 Brand UI</span></div>
+<div class="authMeta"><span>Firebase Project</span><span>zerostock-c5f5f</span></div><div class="authMeta"><span>Version</span><span>v5.0 Phase 10</span></div>
 </div></div>
 
 <div class="mobilehead"><div class="mobileBrand"><img src="./icon-192.png" alt="ZeroStock"><b class="wordmark"><span>Zero</span><em>Stock</em></b></div><span id="mobileConn">● Login</span></div>
@@ -666,12 +766,30 @@ label{color:#a7b6c7!important}
 <button data-view="instructions"><span>Packing Instructions</span><span>≡</span></button>
 <button data-view="planner"><span data-i18n="planner">Planner</span><span>◆</span></button>
 <button data-view="movements" data-internal><span data-i18n="movements">Bewegungen</span><span>↕</span></button>
+<button data-view="tasks" data-internal><span>Aufgaben</span><span>!</span></button>
+<button data-view="exports" data-internal><span>Export</span><span>⇩</span></button>
 <button data-view="users" data-admin><span data-i18n="users">Benutzer</span><span>♙</span></button>
 <button data-view="settings" data-admin><span data-i18n="settings">Einstellungen</span><span>⚙</span></button></nav>
-<div class="sidefoot"><div><span class="dot off" id="connDot"></span><span id="connText">Firebase</span></div><br><span id="roleLabel">—</span><br><br><span>PWA v3.5 · User Management</span></div></aside>
+<div class="sidefoot"><div><span class="dot off" id="connDot"></span><span id="connText">Firebase</span></div><br><span id="roleLabel">—</span><br><br><span>V5 Phase 10 · Share & Files</span></div></aside>
 <main><div class="top"><div><div class="eyebrow">ZEROSTOCK · LAGER &amp; PACKING</div><h1 id="pageTitle">Dashboard</h1></div><div class="toolbar"><div class="lang"><button data-lang="de" class="active">DE</button><button data-lang="en">EN</button></div><button class="btn primary" data-goto="scan" data-internal>▣ <span data-i18n="scan">QR scannen</span></button><button class="btn" id="logoutBtn">Logout</button></div></div>
 
-<section class="view active" id="dashboardView"><div id="onboarding" class="onboarding" style="display:none"></div><div class="cards"><div class="card"><small data-i18n="cartons">Kartons</small><strong id="kCartons">0</strong></div><div class="card"><small data-i18n="stockOk">Bestand OK</small><strong class="green" id="kOk">0</strong></div><div class="card"><small data-i18n="warning">Warnung</small><strong class="yellow" id="kWarn">0</strong></div><div class="card"><small data-i18n="critical">Kritisch</small><strong class="red" id="kCrit">0</strong></div></div><div class="grid"><div class="panel" id="inventoryPanel"><div class="ph"><div><h3 data-i18n="inventory">Bestände</h3><small data-i18n="liveStock">Aktueller Kartonbestand</small></div><input class="search" id="dashSearch" placeholder="Suchen…"></div><div class="tablewrap"><table><thead><tr><th data-i18n="article">Artikel</th><th data-i18n="location">Lagerplatz</th><th data-i18n="stock">Bestand</th><th data-i18n="status">Status</th><th></th></tr></thead><tbody id="dashRows"></tbody></table></div></div><div class="panel"><div class="ph"><div><h3 data-i18n="packingCapacity">Packing-Kapazität</h3><small data-i18n="basedOnStock">auf Basis des aktuellen Bestands</small></div></div><div id="capacityList"></div></div></div></section>
+<section class="view active" id="dashboardView">
+<div id="onboarding" class="onboarding desktopOnly" style="display:none"></div>
+<div class="mobileHomeStack mobileOnly" data-internal>
+  <div class="mobileSyncCard"><div class="left"><span class="dot off" id="homeSyncDot"></span><div><b id="homeSyncTitle">Offline</b><small id="homeSyncText">Live-Sync nicht verfügbar</small></div></div><span class="status warn" id="homeSyncBadge">OFFLINE</span></div>
+  <div class="mobileScanHero"><button type="button" data-goto="scan" aria-label="Scannen"><span class="glyph">⌗</span><b>SCANNEN</b><small>QR · BARCODE</small></button></div>
+  <div class="mobileQuickBook">
+    <button type="button" data-quick-type="in"><span>＋</span>Eingang</button>
+    <button type="button" data-quick-type="out"><span>−</span>Abgang</button>
+    <button type="button" data-quick-type="shrink"><span>△</span>Schwund</button>
+  </div>
+  <div class="mobileSection"><div class="mobileSectionHead"><div><b>Letzte Buchungen</b><small>Aktuelle Lagerbewegungen</small></div><button class="mobileAllLink" data-goto="movements">Alle</button></div><div id="mobileRecentMoves" class="mobileHomeList"></div></div>
+  <div class="mobileSection"><div class="mobileSectionHead"><div><b>Warnbestände</b><small id="mobileWarningSummary">Keine kritischen Artikel</small></div><button class="mobileAllLink" data-goto="tasks">Alle</button></div><div id="mobileWarnings" class="mobileHomeList"></div></div>
+</div>
+<div class="cards desktopOnly"><div class="card"><small data-i18n="cartons">Kartons</small><strong id="kCartons">0</strong></div><div class="card"><small data-i18n="stockOk">Bestand OK</small><strong class="green" id="kOk">0</strong></div><div class="card"><small data-i18n="warning">Warnung</small><strong class="yellow" id="kWarn">0</strong></div><div class="card"><small data-i18n="critical">Kritisch</small><strong class="red" id="kCrit">0</strong></div></div>
+<div class="quickActions desktopOnly" data-internal><button class="quickAction" data-goto="scan"><span>⌗</span><b>Container scannen</b><small>QR / Barcode öffnen</small></button><button class="quickAction" data-goto="cartons"><span>▦</span><b>Bestand buchen</b><small>Artikel & Lagerbestand</small></button><button class="quickAction" data-goto="movements"><span>↕</span><b>Bewegungen</b><small>Journal prüfen</small></button><button class="quickAction" data-goto="planner"><span>◆</span><b>Planner</b><small>TINST Kapazität</small></button></div>
+<div class="grid desktopOnly"><div class="panel" id="inventoryPanel"><div class="ph"><div><h3 data-i18n="inventory">Bestände</h3><small data-i18n="liveStock">Aktueller Kartonbestand</small></div><input class="search" id="dashSearch" placeholder="Suchen…"></div><div class="tablewrap"><table><thead><tr><th data-i18n="article">Artikel</th><th data-i18n="location">Lagerplatz</th><th data-i18n="stock">Bestand</th><th data-i18n="status">Status</th><th></th></tr></thead><tbody id="dashRows"></tbody></table></div></div><div class="panel"><div class="ph"><div><h3 data-i18n="packingCapacity">Packing-Kapazität</h3><small data-i18n="basedOnStock">auf Basis des aktuellen Bestands</small></div></div><div id="capacityList"></div></div></div>
+</section>
 
 <section class="view" id="scanView"><div class="panel scanhero"><div class="scanbox"><div class="scanicon">▣</div><h2 data-i18n="scanCarton">Karton scannen</h2><p data-i18n="scanText">QR-Regalschild scannen und danach Eingang, Abgang oder Schwund buchen.</p><button class="btn primary" id="startScan" data-book>📷 <span data-i18n="openCamera">Kamera öffnen</span></button><button class="btn" id="manualScan" data-book data-i18n="manualCode">Code eingeben</button><div id="scanSelected"></div></div></div></section>
 
@@ -681,12 +799,19 @@ label{color:#a7b6c7!important}
 
 <section class="view" id="plannerView"><div class="panel"><div class="ph"><div><h3 data-i18n="planner">Packing Planner</h3><small data-i18n="plannerHelp">Prüfen, welche Aufträge mit dem aktuellen Bestand möglich sind</small></div></div><div class="body"><div class="plannerTop"><label>Packing Instruction<select id="planInstruction"></select></label><label data-i18n="orderQty">Anzahl Packings<input id="planQty" type="number" min="1" value="1"></label><label data-i18n="orderRef">Auftrag / Referenz<input id="planRef" placeholder="z. B. KT12345"></label><button class="btn primary" id="calculatePlan" data-i18n="calculate">Berechnen</button></div><div id="planResult" class="result"></div></div></div></section>
 
-<section class="view" id="movementsView"><div class="panel"><div class="ph"><div><h3 data-i18n="movements">Bewegungen</h3><small data-i18n="journal">Nachvollziehbares Buchungsjournal</small></div></div><div class="tablewrap"><table><thead><tr><th data-i18n="time">Zeit</th><th data-i18n="user">Benutzer</th><th data-i18n="article">Artikel</th><th data-i18n="type">Art</th><th data-i18n="quantity">Menge</th><th data-i18n="stockAfter">Bestand danach</th><th data-i18n="reason">Grund</th></tr></thead><tbody id="movementRows"></tbody></table></div></div></section>
+<section class="view" id="movementsView"><div class="panel"><div class="ph"><div><h3 data-i18n="movements">Bewegungen</h3><small data-i18n="journal">Nachvollziehbares Buchungsjournal</small></div></div><div class="tablewrap"><table><thead><tr><th data-i18n="time">Zeit</th><th data-i18n="user">Benutzer</th><th data-i18n="article">Artikel</th><th data-i18n="type">Art</th><th data-i18n="quantity">Menge</th><th data-i18n="stockAfter">Bestand danach</th><th data-i18n="reason">Grund</th><th>Sync</th></tr></thead><tbody id="movementRows"></tbody></table></div></div></section>
+
+
+<section class="view" id="exportsView"><div class="panel"><div class="ph"><div><h3>Export & Teilen</h3><small>Bestand, Bewegungen und Sicherung lokal erzeugen</small></div><span class="status" id="exportModeBadge">WEB</span></div><div class="body"><div class="quickActions" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))"><button class="quickAction" id="exportStockExcel"><span>▤</span><b>Bestand · Excel</b><small>Excel-kompatible .xls-Datei</small></button><button class="quickAction" id="exportStockCsv"><span>≡</span><b>Bestand · CSV</b><small>Für Excel und weitere Systeme</small></button><button class="quickAction" id="exportMovesCsv"><span>↕</span><b>Bewegungen · CSV</b><small>Buchungsjournal exportieren</small></button><button class="quickAction" id="exportBackupJson" data-admin><span>◇</span><b>Datensicherung · JSON</b><small>Kartons, TINST und Bewegungen</small></button></div><div class="result" style="margin-top:14px"><b>Android</b><div class="note">Dateien werden zusätzlich unter ZeroStock/Exports im privaten App-Speicher gesichert und danach über das Android-Share-Sheet angeboten. So kannst du sie an Outlook, Teams, OneDrive, Dateien oder andere installierte Apps senden.</div></div><div class="result" style="margin-top:10px"><b>PWA / Browser</b><div class="note">Der Export wird als Datei heruntergeladen. Wenn der Browser Dateifreigabe unterstützt, kann zusätzlich das System-Share-Sheet geöffnet werden.</div></div></div></div></section>
 
 <section class="view" id="usersView"><div class="userGrid">
 <div class="panel"><div class="ph"><div><h3>Benutzerverwaltung</h3><small>Accounts, Rollen & Zugriff</small></div><button type="button" class="btn primary" id="openAddUser" data-admin>+ Benutzer</button></div><div class="body"><div id="userList"><div class="empty"><b>Benutzer werden geladen…</b></div></div></div></div>
 <div class="panel"><div class="ph"><div><h3>Aktueller Benutzer</h3><small>Firebase Authentication</small></div></div><div class="body"><div class="result"><b id="currentUserName">—</b><div class="note" id="currentUserEmail">—</div><div style="margin-top:8px"><span class="rolepill" id="currentUserRole">—</span></div></div><p class="note">Neue Mitarbeiter werden direkt hier angelegt. ZeroStock erstellt Account, UID und Rolle automatisch.</p></div></div>
 </div></section>
+
+<section class="view" id="tasksView"><div class="panel"><div class="ph"><div><h3>Aufgaben</h3><small>Bestand, Sync und künftige operative Workflows</small></div><span class="status" id="taskOpenBadge">0 OFFEN</span></div><div class="taskSummary"><div class="taskStat"><small>Offen</small><b id="taskStatOpen">0</b></div><div class="taskStat"><small>Kritisch</small><b id="taskStatCritical">0</b></div><div class="taskStat"><small>Bestand</small><b id="taskStatStock">0</b></div><div class="taskStat"><small>Sync</small><b id="taskStatSync">0</b></div></div><div class="taskFilters"><button data-task-filter="ALL" class="active">Alle</button><button data-task-filter="STOCK">Bestand</button><button data-task-filter="SYNC">Sync</button><button data-task-filter="DELIVERY">Lieferung</button><button data-task-filter="RETURN">Return</button></div><div id="taskList"></div></div></section>
+
+<section class="view" id="moreView"><div class="panel"><div class="ph"><div><h3>Mehr</h3><small>Weitere ZeroStock-Bereiche</small></div></div><div class="body"><div class="moreMenu" id="moreMenu"><button data-goto="instructions"><span><i>≡</i><span><b>Packing Instructions</b><small class="muted">TINST verwalten</small></span></span><span>›</span></button><button data-goto="planner"><span><i>◆</i><span><b>Planner</b><small class="muted">Packing-Kapazität planen</small></span></span><span>›</span></button><button data-goto="movements" data-internal><span><i>↕</i><span><b>Bewegungen</b><small class="muted">Buchungsjournal</small></span></span><span>›</span></button><button data-goto="exports" data-internal><span><i>⇩</i><span><b>Export</b><small class="muted">Excel, CSV & Sicherung</small></span></span><span>›</span></button><button data-goto="users" data-admin><span><i>♙</i><span><b>Benutzer</b><small class="muted">Rollen und Zugriffe</small></span></span><span>›</span></button><button data-goto="settings" data-admin><span><i>⚙</i><span><b>Einstellungen</b><small class="muted">Firebase und Systemstatus</small></span></span><span>›</span></button></div></div></div></section>
 
 <section class="view" id="settingsView"><div class="panel">
 <div class="ph"><div><h3>Firebase / Multiuser</h3><small>Produktivkonfiguration</small></div></div>
@@ -698,6 +823,12 @@ label{color:#a7b6c7!important}
 <label>Realtime Database<input value="https://zerostock-c5f5f-default-rtdb.europe-west1.firebasedatabase.app" readonly></label>
 </div>
 <p class="note">Die Realtime Database ist fest eingebaut. Auf neuen Geräten ist keine Konfiguration nötig.</p>
+<hr style="border:0;border-top:1px solid var(--line,#2b3440);margin:18px 0">
+<div class="result"><b>Offline-Synchronisierung</b><div class="note" id="syncEngineHelp">Auf Android werden lokale Buchungen automatisch synchronisiert, sobald Firebase wieder erreichbar ist.</div><div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><span class="status" id="syncEngineBadge">BEREIT</span><button class="btn" id="syncNowBtn" type="button">Jetzt synchronisieren</button></div></div><div id="syncQueueList" style="margin-top:12px"></div>
+<hr style="border:0;border-top:1px solid var(--line,#2b3440);margin:18px 0">
+<div class="result"><b>Android-Benachrichtigungen</b><div class="note" id="notificationHelp">Warnbestand, kritischer Bestand und Sync-Fehler werden auf Android lokal gemeldet.</div><div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="status" id="notificationBadge">ANDROID</span><label style="display:flex;align-items:center;gap:8px;margin:0"><input id="notificationToggle" type="checkbox" checked style="width:auto"> Benachrichtigungen aktiv</label></div></div>
+<hr style="border:0;border-top:1px solid var(--line,#2b3440);margin:18px 0">
+<div class="result"><b>GitHub App-Updates</b><div class="note">ZeroStock prüft öffentliche GitHub Releases. Es werden keine GitHub-Tokens gespeichert und Updates niemals automatisch installiert.</div><div class="formgrid" style="margin-top:12px"><label>GitHub Owner<input id="updateOwner" placeholder="z. B. firma-oder-benutzer"></label><label>Repository<input id="updateRepo" placeholder="z. B. ZeroStock"></label></div><div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="status" id="updateStatusBadge">NICHT KONFIGURIERT</span><button class="btn" id="saveUpdateSource" type="button">Quelle speichern</button><button class="btn" id="checkUpdateBtn" type="button">Jetzt prüfen</button></div><div id="updateResult" style="margin-top:12px"></div></div>
 </div></div></section>
 </main></div>
 
@@ -712,11 +843,23 @@ label{color:#a7b6c7!important}
 
 <div class="modal" id="instructionModal"><div class="modalbox"><div class="ph"><h3 id="instructionModalTitle">Packing Instruction</h3></div><div class="mf"><div class="formgrid"><label>Instruction / Name<input id="iName"></label><label data-i18n="description">Beschreibung<input id="iDesc"></label><label data-i18n="version">Version<input id="iVersion" value="1.0"></label><label data-i18n="active">Status<select id="iActive"><option value="true">Aktiv / Active</option><option value="false">Inaktiv / Inactive</option></select></label></div><br><b data-i18n="requiredCartons">Benötigte Kartons pro Packing</b><div class="materialRows" id="materialRows"></div><button class="btn" id="addMaterialRow">+ <span data-i18n="addCarton">Karton hinzufügen</span></button><div id="instructionLive" class="livecalc"></div></div><div class="mfoot"><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button class="btn primary" id="saveInstruction" data-i18n="save">Speichern</button></div></div></div>
 
+<div class="modal" id="quickBookModal"><div class="modalbox"><div class="ph"><div><h3 id="quickBookTitle">Schnellbuchung</h3><small>Artikel auswählen</small></div></div><div class="mf"><input class="search" id="quickBookSearch" placeholder="Artikel, Bezeichnung oder Lagerplatz…" style="width:100%;margin-bottom:10px"><div class="quickBookSelectList" id="quickBookList"></div></div><div class="mfoot"><button class="btn closeModal">Abbrechen</button></div></div></div>
 <div class="modal" id="scanModal"><div class="modalbox"><div class="ph"><h3 data-i18n="scanQR">QR scannen</h3></div><div class="mf"><div class="camera"><video id="scanVideo" playsinline></video><div class="guide"></div></div><br><button class="btn" id="stopScan" data-i18n="cancel">Abbrechen</button></div></div></div>
-<div class="modal" id="labelModal"><div class="modalbox"><div class="ph"><div><h3 data-i18n="shelfLabel">Regalschild</h3><small>QR-Code drucken und am Lagerplatz befestigen</small></div></div><div class="mf" id="labelContent"></div><div class="mfoot no-print"><button class="btn closeModal" data-i18n="close">Schliessen</button><button class="btn primary" id="printLabel" data-i18n="print">Drucken</button></div></div></div>
+<div class="modal" id="labelModal"><div class="modalbox"><div class="ph"><div><h3 data-i18n="shelfLabel">Regalschild</h3><small>QR-Code drucken und am Lagerplatz befestigen</small></div></div><div class="mf" id="labelContent"></div><div class="mfoot no-print"><button class="btn closeModal" data-i18n="close">Schliessen</button><button class="btn" id="shareLabel">Teilen / PNG</button><button class="btn primary" id="printLabel" data-i18n="print">Drucken</button></div></div></div>
+
+<div class="nativeScannerOverlay" id="nativeScannerOverlay" aria-hidden="true">
+  <div class="nativeScannerShade"></div>
+  <div class="nativeScannerTop">
+    <button type="button" id="nativeScanClose" aria-label="Scanner schliessen">×</button>
+    <div class="nativeScannerTitle"><b>ZEROSTOCK SCAN</b><small>QR · EAN · CODE 128</small></div>
+    <button type="button" id="nativeScanTorch" aria-label="Taschenlampe">⌁</button>
+  </div>
+  <div class="nativeScannerFrame"><div class="nativeScannerCorners"></div><div class="nativeScannerLine"></div></div>
+  <div class="nativeScannerHint" id="nativeScannerHint">Code innerhalb des Rahmens halten</div>
+</div>
 <div class="toast" id="toast"><b id="toastTitle"></b><small id="toastText"></small></div>
 
-<div class="mobileBottom" id="mobileBottom"><button data-mview="dashboard" class="active"><span>⌂</span><span>Home</span></button><button data-mview="scan"><span>▣</span><span>Scan</span></button><button data-mview="cartons"><span>▦</span><span>Kartons</span></button><button data-mview="planner"><span>◆</span><span>Planner</span></button><button data-mview="instructions"><span>≡</span><span>TINST</span></button></div>
+<div class="mobileBottom" id="mobileBottom"><button data-mview="dashboard" class="active"><span>⌂</span><span>Home</span></button><button data-mview="cartons"><span>▦</span><span>Bestand</span></button><button data-mview="scan" class="scanNav"><span>⌗</span><span>Scan</span></button><button data-mview="tasks"><span>!</span><span>Aufgaben</span></button><button data-mview="more"><span>•••</span><span>Mehr</span></button></div>
 <button class="fabScan" id="fabScan" aria-label="QR scannen">▣</button>
 <div class="installbar" id="installBar"><div><b>ZeroStock installieren</b><small>Als App auf Desktop oder Android installieren.</small></div><div class="actions"><button class="btn primary" id="installBtn">Installieren</button><button class="btn" id="installDismiss">×</button></div></div>
 
@@ -750,6 +893,13 @@ function ensureQRCodeLibrary(){
   return ZS_QR_PROMISE;
 }
 </script>
+<script src="./native-scanner.js"></script>
+<script src="./offline-core.js"></script>
+<script src="./native-firebase.js"></script>
+<script src="./native-notifications.js"></script>
+<script src="./native-share.js"></script>
+<script src="./native-updates.js"></script>
+<script src="./native-secure.js"></script>
 
 <script>
 const FVER='12.17.1';
@@ -763,20 +913,25 @@ messagingSenderId:'456116029815',
 appId:'1:456116029815:web:85cdb8cb73364b52f1b972'
 };
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const OFFLINE_AUTH_MAX_AGE_MS=7*24*60*60*1000;
 const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const D={de:{dashboard:'Dashboard',scan:'QR scannen',cartons:'Kartons',planner:'Planner',movements:'Bewegungen',users:'Benutzer',settings:'Einstellungen',stockOk:'Bestand OK',warning:'Warnung',critical:'Kritisch',inventory:'Bestände',liveStock:'Aktueller Kartonbestand',packingCapacity:'Packing-Kapazität',basedOnStock:'auf Basis des aktuellen Bestands',article:'Artikel',location:'Lagerplatz',stock:'Bestand',status:'Status',scanCarton:'Karton scannen',scanText:'QR-Regalschild scannen und danach Eingang, Abgang oder Schwund buchen.',openCamera:'Kamera öffnen',manualCode:'Code eingeben',masterData:'Stammdaten & QR-Regalschilder',newCarton:'Karton',description:'Bezeichnung',minStock:'Mindestbestand',warningStock:'Warnbestand',instructionHelp:'Selbst anlegen und Kartonbedarf definieren',newInstruction:'Instruction',plannerHelp:'Prüfen, welche Aufträge mit dem aktuellen Bestand möglich sind',orderQty:'Anzahl Packings',orderRef:'Auftrag / Referenz',calculate:'Berechnen',journal:'Nachvollziehbares Buchungsjournal',time:'Zeit',user:'Benutzer',type:'Art',quantity:'Menge',stockAfter:'Bestand danach',reason:'Grund',bookingType:'Buchungsart',note:'Notiz',cancel:'Abbrechen',post:'Buchen',save:'Speichern',version:'Version',active:'Status',requiredCartons:'Benötigte Kartons pro Packing',addCarton:'Karton hinzufügen',scanQR:'QR scannen',shelfLabel:'Regalschild',close:'Schliessen',print:'Drucken',packingPossible:'möglich',bottleneck:'Engpass',needed:'Benötigt',available:'Verfügbar',missing:'Fehlt',possible:'Auftrag möglich',notPossible:'Auftrag nicht möglich',startZero:'Bei null starten',startZeroText:'Lege zuerst deine Kartonarten an, danach die TINST Packing Instructions. Der Planner berechnet alles automatisch.',stepCartons:'1. Kartons anlegen',stepInstructions:'2. TINST Instructions',stepPlanner:'3. Automatisch planen',addFirstCarton:'Ersten Karton anlegen',addFirstInstruction:'Erste TINST anlegen',noCartons:'Noch keine Kartons angelegt',noInstructions:'Noch keine Packing Instructions angelegt',liveCalculation:'Live-Berechnung',capacityNow:'Aktuell mögliche Packings',firstCreateCarton:'Lege zuerst mindestens einen Karton an.',ready:'Bereit',setupComplete:'Grundsetup abgeschlossen – jede Bestandsänderung aktualisiert den Planner automatisch.',delete:'Löschen',deleteCarton:'Karton löschen',deleteConfirm:'Diesen Karton wirklich löschen?',deleteBlocked:'Karton kann nicht gelöscht werden, weil er in einer Packing Instruction verwendet wird.'},en:{dashboard:'Dashboard',scan:'Scan QR',cartons:'Cartons',planner:'Planner',movements:'Transactions',users:'Users',settings:'Settings',stockOk:'Stock OK',warning:'Warning',critical:'Critical',inventory:'Inventory',liveStock:'Current carton inventory',packingCapacity:'Packing capacity',basedOnStock:'based on current stock',article:'Article',location:'Location',stock:'Stock',status:'Status',scanCarton:'Scan carton',scanText:'Scan the shelf QR code, then post stock in, stock out or shrinkage.',openCamera:'Open camera',manualCode:'Enter code',masterData:'Master data & shelf QR labels',newCarton:'Carton',description:'Description',minStock:'Minimum stock',warningStock:'Warning stock',instructionHelp:'Create instructions and define carton requirements',newInstruction:'Instruction',plannerHelp:'Check which orders can be completed with current stock',orderQty:'Number of packings',orderRef:'Order / reference',calculate:'Calculate',journal:'Auditable transaction journal',time:'Time',user:'User',type:'Type',quantity:'Quantity',stockAfter:'Stock after',reason:'Reason',bookingType:'Transaction type',note:'Note',cancel:'Cancel',post:'Post',save:'Save',version:'Version',active:'Status',requiredCartons:'Required cartons per packing',addCarton:'Add carton',scanQR:'Scan QR',shelfLabel:'Shelf label',close:'Close',print:'Print',packingPossible:'possible',bottleneck:'Bottleneck',needed:'Needed',available:'Available',missing:'Missing',possible:'Order possible',notPossible:'Order not possible',startZero:'Start from zero',startZeroText:'First create your carton types, then the TINST packing instructions. The planner calculates everything automatically.',stepCartons:'1. Create cartons',stepInstructions:'2. TINST instructions',stepPlanner:'3. Plan automatically',addFirstCarton:'Add first carton',addFirstInstruction:'Add first TINST',noCartons:'No cartons created yet',noInstructions:'No packing instructions created yet',liveCalculation:'Live calculation',capacityNow:'Packings currently possible',firstCreateCarton:'Create at least one carton first.',ready:'Ready',setupComplete:'Base setup complete – every stock change updates the planner automatically.',delete:'Delete',deleteCarton:'Delete carton',deleteConfirm:'Really delete this carton?',deleteBlocked:'Carton cannot be deleted because it is used in a packing instruction.'}};
 let lang=localStorage.getItem('zs-lang')||'de',scanStream=null,bookCarton=null,editingCarton=null,editingInstruction=null,deferredInstallPrompt=null;
-const t=k=>D[lang][k]||k;const S={connected:false,user:null,cartons:[],instructions:[],movements:[],users:[],customerSummary:{},firebase:null,db:null,unsubs:[],summaryTimer:null,lastSummary:''};
+const t=k=>D[lang][k]||k;const S={connected:false,user:null,cartons:[],instructions:[],movements:[],users:[],tasks:[],taskFilter:'ALL',customerSummary:{},firebase:null,db:null,unsubs:[],summaryTimer:null,lastSummary:'',offlineReady:false,offlineStats:{pending:0,conflicts:0,failed:0,syncing:0,cartons:0,movements:0},native:false,offlineSession:false,syncRunning:false,syncTimer:null,lastSyncAt:0,notificationTimer:null,taskRenderToken:0,bookSubmitting:false,scanLock:false,lastScanValue:'',lastScanAt:0};
 function toast(a,b=''){$('toastTitle').textContent=a;$('toastText').textContent=b;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),3200)}
 function status(c){if(+c.stock<=+c.min)return{key:'crit',txt:lang==='de'?'KRITISCH':'CRITICAL'};if(+c.stock<=+c.warn)return{key:'warn',txt:lang==='de'?'WARNUNG':'WARNING'};return{key:'ok',txt:'OK'}}
 function canWrite(){return !!S.user&&['admin','employee'].includes(S.user.role)}function isAdmin(){return S.user?.role==='admin'}
+function canOfflineBook(){return !!S.native&&!!S.offlineReady&&canWrite()}
+async function refreshOfflineStats(){if(!S.offlineReady||!window.ZeroStockOffline)return;try{S.offlineStats=await window.ZeroStockOffline.stats()}catch(e){console.warn('offline stats',e)}}
+async function loadOfflineData(){if(!S.offlineReady)return;try{const [cartons,instructions,movements]=await Promise.all([window.ZeroStockOffline.getCartons(),window.ZeroStockOffline.getInstructions(),window.ZeroStockOffline.getMovements(200)]);if(cartons.length)S.cartons=cartons;if(instructions.length)S.instructions=instructions;if(movements.length)S.movements=movements;await refreshOfflineStats()}catch(e){console.error('loadOfflineData',e)}}
+async function initOfflineCore(){S.native=!!window.Capacitor?.isNativePlatform?.();if(!S.native||!window.ZeroStockOffline)return false;try{const r=await window.ZeroStockOffline.init();S.offlineReady=!!r?.available;await refreshOfflineStats();return S.offlineReady}catch(e){console.error('SQLite init failed',e);S.offlineReady=false;return false}}
 function normalizeMaterials(ms=[]){const map=new Map();for(const m of ms){const id=String(m.cartonId||'').trim(),q=Number(m.qty)||0;if(!id||q<=0)continue;map.set(id,(map.get(id)||0)+q)}return[...map].map(([cartonId,qty])=>({cartonId,qty}))}
 function capacity(i){let max=Infinity,bottle='—';const mats=normalizeMaterials(i.materials||[]);if(!mats.length)return{max:0,bottle};for(const m of mats){const c=S.cartons.find(x=>x.id===m.cartonId),cap=c?Math.floor((+c.stock||0)/m.qty):0;if(cap<max){max=cap;bottle=c?.article||m.cartonId}}return{max:Number.isFinite(max)?max:0,bottle}}
 function authView(id){document.querySelectorAll('.authView').forEach(v=>v.classList.toggle('active',v.id===id));$('authGate').classList.remove('hidden');$('appShell').classList.add('locked')}
-function unlock(){$('authGate').classList.add('hidden');$('appShell').classList.remove('locked')}
+function unlock(){$('authGate').classList.add('hidden');$('appShell').classList.remove('locked');if(S.native)window.ZeroStockNotifications?.init?.().catch?.(()=>{})}
 function authError(id,msg){const e=$(id);if(!e)return;e.textContent=msg||'';e.classList.toggle('show',!!msg)}
 function currentView(){return document.querySelector('.view.active')?.id.replace('View','')||'dashboard'}
-function show(v){if(S.user?.role==='customer'&&['scan','cartons','movements','users','settings'].includes(v))v='planner';document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v+'View'));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));document.querySelectorAll('[data-mview]').forEach(b=>b.classList.toggle('active',b.dataset.mview===v));$('pageTitle').textContent={dashboard:t('dashboard'),scan:t('scan'),cartons:t('cartons'),instructions:'Packing Instructions',planner:t('planner'),movements:t('movements'),users:t('users'),settings:t('settings')}[v]||v}
+function show(v){if(S.user?.role==='customer'&&['scan','cartons','movements','tasks','exports','users','settings'].includes(v))v='planner';document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v+'View'));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));document.querySelectorAll('[data-mview]').forEach(b=>b.classList.toggle('active',b.dataset.mview===v));$('pageTitle').textContent={dashboard:t('dashboard'),scan:t('scan'),cartons:t('cartons'),instructions:'Packing Instructions',planner:t('planner'),movements:t('movements'),tasks:'Aufgaben',exports:'Export',more:'Mehr',users:t('users'),settings:t('settings')}[v]||v}
 function applyRole(){const r=S.user?.role||'';document.querySelectorAll('[data-admin]').forEach(e=>e.style.display=isAdmin()?'':'none');document.querySelectorAll('[data-internal]').forEach(e=>e.style.display=r==='customer'?'none':'');document.querySelectorAll('[data-book]').forEach(e=>e.disabled=!canWrite());if($('inventoryPanel'))$('inventoryPanel').style.display=r==='customer'?'none':'';$('roleLabel').textContent=S.user?`${S.user.name} · ${S.user.role}`:'—';$('currentUserName').textContent=S.user?.name||'—';$('currentUserEmail').textContent=S.firebase?.auth?.currentUser?.email||'—';$('currentUserRole').textContent=S.user?.role||'—'}
 function setI18nText(el,text){
   if(!el)return;
@@ -835,6 +990,83 @@ try{await U.signOut(auth2)}catch{};try{await A.deleteApp(app2)}catch{};auth2=nul
 finally{try{if(auth2){const U=await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-auth.js`);await U.signOut(auth2)}}catch{};try{if(app2){const A=await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-app.js`);await A.deleteApp(app2)}}catch{};if(btn)btn.disabled=false}
 }
 
+function movementLabel(m){return m.type==='in'?(lang==='de'?'Eingang':'Stock In'):m.type==='out'?(lang==='de'?'Abgang':'Stock Out'):(lang==='de'?'Schwund':'Shrinkage')}
+function renderMobileHome(){
+  const recent=$('mobileRecentMoves'), warnings=$('mobileWarnings');
+  if(!recent||!warnings)return;
+  const moves=[...S.movements].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,5);
+  recent.innerHTML=moves.map(m=>`<div class="mobileMove"><div><b>${esc(m.article||m.cartonId||'—')}</b><small>${movementLabel(m)} · ${m.ts?new Date(m.ts).toLocaleTimeString(lang==='de'?'de-CH':'en-GB',{hour:'2-digit',minute:'2-digit'}):'—'} · ${esc(m.userName||'—')}</small></div><div class="mobileMoveQty ${m.type==='in'?'in':'out'}">${m.type==='in'?'+':'-'}${m.qty||0}</div></div>`).join('')||`<div class="empty"><b>Noch keine Buchungen</b><span>Die letzten Bewegungen erscheinen hier.</span></div>`;
+  const ws=S.cartons.filter(c=>status(c).key!=='ok').sort((a,b)=>{const A=status(a).key==='crit'?0:1,B=status(b).key==='crit'?0:1;return A-B||(+a.stock)-(+b.stock)}).slice(0,3);
+  const total=S.cartons.filter(c=>status(c).key!=='ok').length;
+  if($('mobileWarningSummary'))$('mobileWarningSummary').textContent=total?`${total} Artikel benötigen Aufmerksamkeit`:'Keine kritischen Artikel';
+  warnings.innerHTML=ws.map(c=>{const st=status(c);return `<div class="mobileWarning"><div><b>${esc(c.article)} · ${esc(c.name||'')}</b><small>${esc(c.location||'—')} · Minimum ${c.min} · Warnung ${c.warn}</small></div><div class="mobileWarnBadge">${c.stock}</div></div>`}).join('')||`<div class="empty"><b>Alles im grünen Bereich</b><span>Keine Warn- oder kritischen Bestände.</span></div>`;
+  const online=!!S.connected,pending=Number(S.offlineStats?.pending)||0,offlineOk=canOfflineBook();
+  $('homeSyncDot')?.classList.toggle('off',!online);
+  if($('homeSyncTitle'))$('homeSyncTitle').textContent=online?'Online · Firebase verbunden':'Offline · SQLite aktiv';
+  if($('homeSyncText'))$('homeSyncText').textContent=online?`Live-Daten · ${pending} lokale Buchung${pending===1?'':'en'} offen`:offlineOk?`Offline buchbar · ${pending} Buchung${pending===1?'':'en'} wartet auf Sync`:'Offline · lokale Daten nicht verfügbar';
+  if($('homeSyncBadge')){const conflicts=Number(S.offlineStats?.conflicts)||0,failed=Number(S.offlineStats?.failed)||0;$('homeSyncBadge').className='status '+(conflicts||failed?'crit':online?'ok':offlineOk?'warn':'crit');$('homeSyncBadge').textContent=conflicts?`${conflicts} KONFLIKT`:failed?`${failed} FEHLER`:online?(pending?`${pending} OFFEN`:'LIVE'):(offlineOk?'OFFLINE READY':'OFFLINE')}
+}
+async function renderTasks(){
+  const root=$('taskList');if(!root)return;
+  const token=++S.taskRenderToken;
+  const derived=[];
+  for(const c of S.cartons){
+    const st=status(c);if(st.key==='ok')continue;
+    derived.push({
+      id:`stock:${c.id}`,sourceKey:`stock:${c.id}`,type:st.key==='crit'?'CRITICAL_STOCK':'LOW_STOCK',category:'STOCK',priority:st.key==='crit'?'CRITICAL':'HIGH',status:'OPEN',referenceId:String(c.id),
+      title:`${c.article} · ${c.name||''}`,detail:`${st.txt} · Bestand ${c.stock} · Minimum ${c.min} · ${c.location||'—'}`,action:'BOOK',icon:st.key==='crit'?'!':'△'
+    });
+  }
+  if(S.native&&S.offlineReady&&window.ZeroStockOffline){
+    try{
+      const q=await window.ZeroStockOffline.queueDetails(100);
+      for(const row of q){
+        if(row.status==='CONFLICT')derived.push({id:`sync:${row.id}`,sourceKey:`sync:${row.id}`,type:'SYNC_CONFLICT',category:'SYNC',priority:'CRITICAL',status:'OPEN',referenceId:String(row.entity_id||row.id),title:'Sync-Konflikt',detail:`${row.entity_id} · ${row.last_error||'Manuelle Prüfung erforderlich'}`,action:'SYNC',icon:'↯'});
+        else if(row.status==='FAILED')derived.push({id:`sync:${row.id}`,sourceKey:`sync:${row.id}`,type:'SYNC_ERROR',category:'SYNC',priority:'HIGH',status:'OPEN',referenceId:String(row.entity_id||row.id),title:'Synchronisierung fehlgeschlagen',detail:`${row.entity_id} · Versuch ${Number(row.attempts)||0}${row.last_error?` · ${row.last_error}`:''}`,action:'SYNC',icon:'↻'});
+      }
+      await window.ZeroStockOffline.reconcileSystemTasks(derived);
+      const persisted=await window.ZeroStockOffline.getTasks('OPEN',250);
+      // Keep future/manual DELIVERY and RETURN tasks while refreshing system-derived tasks.
+      const manual=persisted.filter(x=>['DELIVERY','RETURN'].includes(x.category));
+      S.tasks=[...derived,...manual.filter(m=>!derived.some(d=>d.sourceKey===m.sourceKey))];
+    }catch(e){console.warn('task layer',e);S.tasks=derived}
+  }else S.tasks=derived;
+  if(token!==S.taskRenderToken)return;
+  const order={CRITICAL:0,HIGH:1,MEDIUM:2,LOW:3};
+  const all=[...S.tasks].sort((a,b)=>(order[a.priority]??9)-(order[b.priority]??9)||String(a.title).localeCompare(String(b.title)));
+  const f=S.taskFilter||'ALL';const items=f==='ALL'?all:all.filter(x=>x.category===f);
+  const critical=all.filter(x=>x.priority==='CRITICAL').length,stock=all.filter(x=>x.category==='STOCK').length,sync=all.filter(x=>x.category==='SYNC').length;
+  if($('taskStatOpen'))$('taskStatOpen').textContent=all.length;if($('taskStatCritical'))$('taskStatCritical').textContent=critical;if($('taskStatStock'))$('taskStatStock').textContent=stock;if($('taskStatSync'))$('taskStatSync').textContent=sync;
+  if($('taskOpenBadge')){$('taskOpenBadge').className='status '+(critical?'crit':all.length?'warn':'ok');$('taskOpenBadge').textContent=`${all.length} OFFEN`}
+  document.querySelectorAll('[data-task-filter]').forEach(b=>{b.classList.toggle('active',b.dataset.taskFilter===f);b.onclick=()=>{S.taskFilter=b.dataset.taskFilter;renderTasks()}});
+  root.innerHTML=items.map(x=>`<div class="taskCard ${String(x.priority||'').toLowerCase()}"><div class="taskIcon">${esc(x.icon||'•')}</div><div><b>${esc(x.title||x.type)}</b><small>${esc(x.detail||'')}</small><div class="taskMeta"><span class="taskPill ${String(x.priority||'').toLowerCase()}">${esc(x.priority||'MEDIUM')}</span><span class="taskPill">${esc(x.type||'TASK')}</span><span class="taskPill">OPEN</span></div></div>${x.action==='BOOK'?`<button data-task-carton="${esc(x.referenceId)}">Buchen</button>`:x.action==='SYNC'?`<button data-task-sync="1">Sync prüfen</button>`:''}</div>`).join('')||`<div class="empty"><b>${f==='ALL'?'Keine offenen Aufgaben':'Keine Aufgaben in diesem Filter'}</b><span>ZeroStock erzeugt Bestands- und Sync-Aufgaben automatisch. Lieferung/Return sind für die kommenden Module vorbereitet.</span></div>`;
+  document.querySelectorAll('[data-task-carton]').forEach(b=>b.onclick=()=>openBook(b.dataset.taskCarton));
+  document.querySelectorAll('[data-task-sync]').forEach(b=>b.onclick=()=>show('settings'));
+}
+
+let quickBookType='out';
+function openQuickBook(type='out'){
+  if(!canWrite())return toast('ZeroStock','Keine Buchungsberechtigung.');
+  if(!S.connected&&!canOfflineBook())return toast('ZeroStock',lang==='de'?'Offline-Datenbank ist nicht bereit.':'Offline database is not ready.');
+  quickBookType=type;$('quickBookTitle').textContent=type==='in'?'Eingang buchen':type==='shrink'?'Schwund buchen':'Abgang buchen';$('quickBookSearch').value='';renderQuickBookList();$('quickBookModal').classList.add('open');setTimeout(()=>$('quickBookSearch')?.focus(),80)
+}
+function renderQuickBookList(){
+  const root=$('quickBookList');if(!root)return;const q=($('quickBookSearch')?.value||'').trim().toLowerCase();const list=S.cartons.filter(c=>(`${c.article} ${c.name} ${c.location}`).toLowerCase().includes(q)).slice(0,40);
+  root.innerHTML=list.map(c=>`<button type="button" class="quickBookItem" data-qb-id="${esc(c.id)}"><span><b>${esc(c.article)} · ${esc(c.name||'')}</b><small>${esc(c.location||'—')} · ${status(c).txt}</small></span><span class="stock">${c.stock}</span></button>`).join('')||`<div class="empty"><b>Kein Artikel gefunden</b></div>`;
+  document.querySelectorAll('[data-qb-id]').forEach(b=>b.onclick=()=>{closeAll();openBook(b.dataset.qbId);$('bookType').value=quickBookType;bookPreview()});
+}
+async function refreshNotificationSettingsUI(){
+  const toggle=$('notificationToggle'),badge=$('notificationBadge'),help=$('notificationHelp');if(!toggle||!badge)return;
+  if(!S.native||!window.ZeroStockNotifications){toggle.checked=false;toggle.disabled=true;badge.className='status';badge.textContent='PWA';if(help)help.textContent='Native lokale Benachrichtigungen sind nur in der Android-App aktiv.';return}
+  try{const enabled=await window.ZeroStockNotifications.getEnabled();toggle.checked=!!enabled;toggle.disabled=false;badge.className='status '+(enabled?'ok':'warn');badge.textContent=enabled?'AKTIV':'AUS'}catch{badge.className='status warn';badge.textContent='PRÜFEN'}
+}
+function scheduleNativeNotificationEvaluation(delay=300){
+  if(!S.native||!window.ZeroStockNotifications||!S.user||S.user.role==='customer')return;
+  clearTimeout(S.notificationTimer);
+  S.notificationTimer=setTimeout(async()=>{
+    try{await window.ZeroStockNotifications.evaluateStocks(S.cartons,lang);await window.ZeroStockNotifications.evaluateSync(S.offlineStats,lang)}catch(e){console.warn('notification evaluation',e)}
+  },delay);
+}
 function render(){
 if(!S.user)return;
 try{applyRole()}catch(e){console.error('applyRole',e)}
@@ -845,7 +1077,10 @@ try{renderPlanSelect()}catch(e){console.error('renderPlanSelect',e)}
 try{renderMoves()}catch(e){console.error('renderMoves',e)}
 try{renderCapacity()}catch(e){console.error('renderCapacity',e)}
 try{renderUsers()}catch(e){console.error('renderUsers',e)}
-$('connDot')?.classList.toggle('off',!S.connected);if($('connText'))$('connText').textContent=S.connected?'Firebase · Live':'Firebase · Offline';if($('mobileConn'))$('mobileConn').textContent=S.connected?'● Live':'● Offline';if($('firebaseStatusBadge'))$('firebaseStatusBadge').className='status '+(S.connected?'ok':'warn');if($('firebaseStatusBadge'))$('firebaseStatusBadge').textContent=S.connected?'LIVE':'OFFLINE';if($('firebaseStatusHelp'))$('firebaseStatusHelp').textContent=S.connected?'Produktive Realtime Database verbunden.':'Verbindung zur produktiven Realtime Database wird hergestellt.'}
+try{renderMobileHome()}catch(e){console.error('renderMobileHome',e)}
+try{renderTasks()}catch(e){console.error('renderTasks',e)}
+try{renderSyncQueue()}catch(e){console.error('renderSyncQueue',e)}
+$('connDot')?.classList.toggle('off',!S.connected);if($('connText'))$('connText').textContent=S.connected?'Firebase · Live':'Firebase · Offline';if($('mobileConn'))$('mobileConn').textContent=S.connected?'● Live':'● Offline';if($('firebaseStatusBadge'))$('firebaseStatusBadge').className='status '+(S.connected?'ok':'warn');if($('firebaseStatusBadge'))$('firebaseStatusBadge').textContent=S.connected?'LIVE':'OFFLINE';if($('firebaseStatusHelp'))$('firebaseStatusHelp').textContent=S.connected?'Produktive Realtime Database verbunden.':'Verbindung zur produktiven Realtime Database wird hergestellt.';if($('syncEngineBadge')){const p=Number(S.offlineStats?.pending)||0,c=Number(S.offlineStats?.conflicts)||0,f=Number(S.offlineStats?.failed)||0;$('syncEngineBadge').className='status '+(c||f?'crit':p?'warn':'ok');$('syncEngineBadge').textContent=c?`${c} KONFLIKT`:f?`${f} FEHLER`:p?`${p} OFFEN`:'SYNCHRON'};if($('syncEngineHelp'))$('syncEngineHelp').textContent=S.native?(S.connected?'Automatische Synchronisierung aktiv.':'Offline: Buchungen bleiben lokal und werden bei Rückkehr der Verbindung automatisch gesendet.'):'PWA verwendet weiterhin direkte Firebase-Buchungen.';scheduleNativeNotificationEvaluation();refreshNotificationSettingsUI()}
 async function deleteCarton(id){
   try{
     if(!isAdmin())throw new Error(lang==='de'?'Nur Admins können Kartons löschen.':'Only admins can delete cartons.');
@@ -894,10 +1129,14 @@ function calcPlan(){
 const sel=$('planInstruction'),qtyEl=$('planQty'),refEl=$('planRef'),out=$('planResult');
 if(!sel||!qtyEl||!refEl||!out){console.warn('ZeroStock: Planner elements missing');return}
 const i=S.instructions.find(x=>x.id===sel.value)||S.instructions.find(x=>x.active);if(!i){out.innerHTML=`<div class="empty"><b>${t('noInstructions')}</b></div>`;return}const q=Math.max(1,+$('planQty').value||1),ref=$('planRef').value.trim();if(S.user.role==='customer'){const s=S.customerSummary[i.id]||{capacity:0},ok=(s.capacity||0)>=q;$('planResult').innerHTML=`<span class="status ${ok?'ok':'crit'}">${ok?t('possible'):t('notPossible')}</span> <b>${esc(ref||i.name)}</b><div style="margin-top:8px">${i.name}: <b>${s.capacity||0}</b> ${t('packingPossible')}</div>`;return}let ok=true;const rows=(i.materials||[]).map(m=>{const c=S.cartons.find(x=>x.id===m.cartonId),need=(+m.qty||1)*q,have=+c?.stock||0,miss=Math.max(0,need-have);if(miss)ok=false;return`<div class="req"><b>${esc(c?.article||m.cartonId)}</b><small>${esc(c?.name||'')}</small><div>${t('needed')}: <b>${need}</b></div><div>${t('available')}: <b>${have}</b></div>${miss?`<div class="red">${t('missing')}: ${miss}</div>`:''}</div>`}).join(''),cap=capacity(i);$('planResult').innerHTML=`<span class="status ${ok?'ok':'crit'}">${ok?t('possible'):t('notPossible')}</span> <b>${esc(ref||i.name)}</b><div style="margin-top:8px">${i.name}: <b>${cap.max}</b> ${t('packingPossible')} · ${t('bottleneck')}: <b>${esc(cap.bottle)}</b></div><div class="reqgrid">${rows}</div>`}
-function renderMoves(){$('movementRows').innerHTML=[...S.movements].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,200).map(m=>`<tr><td>${new Date(m.ts).toLocaleString(lang==='de'?'de-CH':'en-GB')}</td><td>${esc(m.userName||'—')}</td><td>${esc(m.article)}</td><td>${m.type==='in'?(lang==='de'?'Eingang':'Stock In'):m.type==='out'?(lang==='de'?'Abgang':'Stock Out'):(lang==='de'?'Schwund':'Shrinkage')}</td><td class="${m.type==='in'?'green':'red'}">${m.type==='in'?'+':'-'}${m.qty}</td><td>${m.stockAfter}</td><td>${esc(m.reason||'')}</td></tr>`).join('')}
-function openBook(id){if(!canWrite())return;if(!S.connected)return toast('ZeroStock',lang==='de'?'Keine Live-Verbindung.':'No live connection.');bookCarton=S.cartons.find(c=>c.id===id);if(!bookCarton)return;$('bookTitle').textContent=`${bookCarton.article} · ${bookCarton.name}`;$('bookSubtitle').textContent=bookCarton.location;$('bookStock').textContent=bookCarton.stock;$('bookWarn').textContent=bookCarton.warn;$('bookMin').textContent=bookCarton.min;$('bookQty').value='';$('bookNote').value='';$('bookType').value='out';bookPreview();$('bookModal').classList.add('open')}
+function syncLabel(m){const x=String(m.syncStatus||'SYNCED').toUpperCase();return x==='SYNCED'?'✓ Sync':x==='SYNCING'?'↻ Sync':x==='CONFLICT'?'! Konflikt':x==='FAILED'?'! Fehler':'○ Offen'}
+function renderMoves(){$('movementRows').innerHTML=[...S.movements].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,200).map(m=>`<tr><td>${new Date(m.ts).toLocaleString(lang==='de'?'de-CH':'en-GB')}</td><td>${esc(m.userName||'—')}</td><td>${esc(m.article)}</td><td>${m.type==='in'?(lang==='de'?'Eingang':'Stock In'):m.type==='out'?(lang==='de'?'Abgang':'Stock Out'):(lang==='de'?'Schwund':'Shrinkage')}</td><td class="${m.type==='in'?'green':'red'}">${m.type==='in'?'+':'-'}${m.qty}</td><td>${m.stockAfter}</td><td>${esc(m.reason||'')}</td><td><span class="status ${m.syncStatus==='CONFLICT'||m.syncStatus==='FAILED'?'crit':m.syncStatus==='PENDING'||m.syncStatus==='SYNCING'?'warn':'ok'}">${syncLabel(m)}</span></td></tr>`).join('')}
+function openBook(id){if(!canWrite())return;if(!S.connected&&!canOfflineBook())return toast('ZeroStock',lang==='de'?'Keine Live-Verbindung und SQLite ist nicht bereit.':'No live connection and SQLite is not ready.');bookCarton=S.cartons.find(c=>c.id===id);if(!bookCarton)return;$('bookTitle').textContent=`${bookCarton.article} · ${bookCarton.name}`;$('bookSubtitle').textContent=bookCarton.location;$('bookStock').textContent=bookCarton.stock;$('bookWarn').textContent=bookCarton.warn;$('bookMin').textContent=bookCarton.min;$('bookQty').value='';$('bookNote').value='';$('bookType').value='out';bookPreview();$('bookModal').classList.add('open')}
 function bookPreview(){if(!bookCarton)return;const type=$('bookType').value,q=Math.max(0,+$('bookQty').value||0),next=Math.max(0,+bookCarton.stock+(type==='in'?q:-q));$('reasonWrap').style.display=type==='shrink'?'grid':'none';$('bookPreview').innerHTML=`${t('stock')}: <b>${bookCarton.stock}</b> → <b>${next}</b>`}
-async function confirmBook(){const q=Math.floor(+$('bookQty').value),type=$('bookType').value;if(!S.connected)return toast('ZeroStock',lang==='de'?'Keine Live-Verbindung.':'No live connection.');if(!q||q<1)return toast('ZeroStock',lang==='de'?'Menge eingeben.':'Enter quantity.');if(type!=='in'&&q>+bookCarton.stock)return toast('ZeroStock',lang==='de'?'Menge ist grösser als Bestand.':'Quantity exceeds stock.');try{await firebaseBook(bookCarton.id,type,q,type==='shrink'?$('bookReason').value:'',$('bookNote').value.trim());closeAll();toast('✓ ZeroStock',lang==='de'?'Buchung gespeichert.':'Transaction saved.')}catch(e){toast('ZeroStock',e.message)}}
+async function confirmBook(){if(S.bookSubmitting)return;const q=Math.floor(+$('bookQty').value),type=$('bookType').value;if(!q||q<1)return toast('ZeroStock',lang==='de'?'Menge eingeben.':'Enter quantity.');if(type!=='in'&&q>+bookCarton.stock)return toast('ZeroStock',lang==='de'?'Menge ist grösser als Bestand.':'Quantity exceeds stock.');const reason=type==='shrink'?$('bookReason').value:'',note=$('bookNote').value.trim(),btn=$('confirmBook');S.bookSubmitting=true;if(btn)btn.disabled=true;try{
+if(S.native&&S.offlineReady){const move=await window.ZeroStockOffline.recordMovement({cartonId:bookCarton.id,type,qty:q,reason,note,userId:S.user.uid,userName:S.user.name});const c=S.cartons.find(x=>x.id===bookCarton.id);if(c)c.stock=move.stockAfter;S.movements=[move,...S.movements.filter(x=>x.id!==move.id)];await refreshOfflineStats();closeAll();render();if(S.connected){scheduleSync(50);toast('✓ ZeroStock',lang==='de'?'Lokal gespeichert · Synchronisierung läuft.':'Saved locally · synchronization running.')}else toast('✓ Offline gespeichert',lang==='de'?'Buchung wartet auf Synchronisierung.':'Transaction is waiting for synchronization.');return}
+if(S.connected){await firebaseBook(bookCarton.id,type,q,reason,note);closeAll();toast('✓ ZeroStock',lang==='de'?'Buchung gespeichert.':'Transaction saved.');return}
+throw Error(lang==='de'?'Offline-Datenbank nicht verfügbar.':'Offline database unavailable.')}catch(e){const msg=String(e?.message||e);toast('ZeroStock',msg==='INSUFFICIENT_STOCK'?(lang==='de'?'Menge ist grösser als Bestand.':'Quantity exceeds stock.'):msg)}finally{S.bookSubmitting=false;if(btn)btn.disabled=false}}
 function cartonLive(){
   const stockEl=$('cStock'),warnEl=$('cWarn'),minEl=$('cMin'),out=$('cartonLive');
   if(!stockEl||!warnEl||!minEl||!out)return;
@@ -1017,12 +1256,103 @@ async function openLabel(id){
   }
 }
 function closeAll(){document.querySelectorAll('.modal').forEach(m=>{m.classList.remove('open');m.style.display='';m.setAttribute('aria-hidden','true')});stopScanner()}
-async function startScanner(){if(!('BarcodeDetector'in window)){toast('QR',lang==='de'?'Direkter QR-Scan ist in diesem Browser nicht verfügbar. Android Chrome verwenden oder Code eingeben.':'Direct QR scan unavailable. Use Android Chrome or enter code.');return manualCode()}try{const det=new BarcodeDetector({formats:['qr_code']});scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});$('scanVideo').srcObject=scanStream;await $('scanVideo').play();$('scanModal').classList.add('open');const loop=async()=>{if(!scanStream)return;try{const codes=await det.detect($('scanVideo'));if(codes.length){handleScan(codes[0].rawValue);return}}catch{}requestAnimationFrame(loop)};loop()}catch(e){toast('QR',e.message)}}
-function stopScanner(){if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}$('scanVideo').srcObject=null}
+async function startNativeScanner(){
+  const N=window.ZeroStockNativeScanner;
+  if(!N?.isNativeAvailable?.())return false;
+  const overlay=$('nativeScannerOverlay');
+  try{
+    document.documentElement.classList.add('native-scanning');
+    overlay?.classList.add('open');overlay?.setAttribute('aria-hidden','false');
+    if($('nativeScannerHint'))$('nativeScannerHint').textContent=lang==='de'?'Code innerhalb des Rahmens halten':'Hold code inside the frame';
+    await N.start({
+      onDetected:(value)=>{closeNativeScannerUI();handleScan(value)},
+      onError:(message)=>{if($('nativeScannerHint'))$('nativeScannerHint').textContent=message||'Scan-Fehler'}
+    });
+    return true;
+  }catch(e){
+    await stopNativeScanner();
+    const msg=e?.message||String(e);
+    if(msg.includes('CAMERA_PERMISSION_DENIED'))toast('Scanner',lang==='de'?'Kamera-Berechtigung wurde nicht erteilt.':'Camera permission was not granted.');
+    else if(msg.includes('SCANNER_NOT_SUPPORTED'))toast('Scanner',lang==='de'?'Dieses Gerät unterstützt den nativen Scanner nicht.':'This device does not support the native scanner.');
+    else toast('Scanner',msg);
+    return true;
+  }
+}
+function closeNativeScannerUI(){document.documentElement.classList.remove('native-scanning');const o=$('nativeScannerOverlay');o?.classList.remove('open');o?.setAttribute('aria-hidden','true');const t=$('nativeScanTorch');t?.classList.remove('torchOn')}
+async function stopNativeScanner(){try{await window.ZeroStockNativeScanner?.stop?.()}catch{}closeNativeScannerUI()}
+async function startScanner(){
+  if(window.ZeroStockNativeScanner?.isNativeAvailable?.())return startNativeScanner();
+  if(!('BarcodeDetector'in window)){toast('QR',lang==='de'?'Direkter QR-/Barcode-Scan ist in diesem Browser nicht verfügbar. Code manuell eingeben.':'Direct QR/barcode scan unavailable in this browser. Enter the code manually.');return manualCode()}
+  try{const det=new BarcodeDetector({formats:['qr_code','ean_8','ean_13','code_128','code_39','data_matrix']});scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});$('scanVideo').srcObject=scanStream;await $('scanVideo').play();$('scanModal').classList.add('open');const loop=async()=>{if(!scanStream)return;try{const codes=await det.detect($('scanVideo'));if(codes.length){handleScan(codes[0].rawValue);return}}catch{}requestAnimationFrame(loop)};loop()}catch(e){const name=String(e?.name||'');const msg=/NotAllowed|Permission/i.test(name)?(lang==='de'?'Kamera-Berechtigung wurde verweigert. Bitte in den Browser-/App-Einstellungen erlauben.':'Camera permission was denied. Enable it in browser/app settings.'):String(e?.message||e);toast('QR',msg)}}
+function stopScanner(){if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}if($('scanVideo'))$('scanVideo').srcObject=null;if(window.ZeroStockNativeScanner?.running)stopNativeScanner()}
 function manualCode(){const v=prompt(lang==='de'?'Artikel-/QR-Code eingeben':'Enter article/QR code');if(v)handleScan(v)}
-function handleScan(v){stopScanner();$('scanModal').classList.remove('open');let id=v;try{id=new URL(v).searchParams.get('box')||v}catch{}const c=S.cartons.find(x=>x.id===id||x.article===id);if(!c)return toast('QR',lang==='de'?'Karton nicht gefunden.':'Carton not found.');show('scan');$('scanSelected').innerHTML=`<div class="result" style="text-align:left"><b>${esc(c.article)}</b><div class="note">${esc(c.name)} · ${esc(c.location)}</div><div class="kv" style="margin-top:10px"><div><span>${t('stock')}</span><strong>${c.stock}</strong></div><div><span>${t('warningStock')}</span><strong>${c.warn}</strong></div><div><span>${t('minStock')}</span><strong>${c.min}</strong></div></div><br><button class="btn primary" id="scanBook">${lang==='de'?'Buchung öffnen':'Open transaction'}</button></div>`;$('scanBook').onclick=()=>openBook(c.id)}
+function handleScan(v){const raw=String(v||'').trim(),ts=Date.now();if(!raw)return;if(S.scanLock)return;if(raw===S.lastScanValue&&ts-S.lastScanAt<1500)return;S.scanLock=true;S.lastScanValue=raw;S.lastScanAt=ts;try{stopScanner();$('scanModal').classList.remove('open');let id=raw;try{id=new URL(raw).searchParams.get('box')||raw}catch{}const c=S.cartons.find(x=>x.id===id||x.article===id);if(!c)return toast('QR',lang==='de'?'Karton nicht gefunden.':'Carton not found.');show('scan');$('scanSelected').innerHTML=`<div class="result" style="text-align:left"><b>${esc(c.article)}</b><div class="note">${esc(c.name)} · ${esc(c.location)}</div><div class="kv" style="margin-top:10px"><div><span>${t('stock')}</span><strong>${c.stock}</strong></div><div><span>${t('warningStock')}</span><strong>${c.warn}</strong></div><div><span>${t('minStock')}</span><strong>${c.min}</strong></div></div><br><button class="btn primary" id="scanBook">${lang==='de'?'Buchung öffnen':'Open transaction'}</button></div>`;$('scanBook').onclick=()=>openBook(c.id)}finally{setTimeout(()=>{S.scanLock=false},450)}}
 function scheduleSummary(){if(!canWrite())return;clearTimeout(S.summaryTimer);S.summaryTimer=setTimeout(publishSummary,300)}
 async function publishSummary(){if(!canWrite()||!S.db)return;const sum={};for(const i of S.instructions.filter(x=>x.active)){const c=capacity(i);sum[i.id]={name:i.name,description:i.description||'',version:i.version||'',capacity:c.max,updatedAt:Date.now()}}const h=JSON.stringify(sum);if(h===S.lastSummary)return;S.lastSummary=h;await S.firebase.set(S.firebase.ref(S.db,'customerSummary'),sum)}
+function syncBackoff(attempts){return Math.min(300000,2000*Math.pow(2,Math.max(0,(Number(attempts)||1)-1)))}
+function withTimeout(promise,ms=20000,label='TIMEOUT'){let timer;return Promise.race([Promise.resolve(promise).finally(()=>clearTimeout(timer)),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(label)),ms)})])}
+function scheduleSync(delay=250){if(!S.native||!S.offlineReady)return;clearTimeout(S.syncTimer);S.syncTimer=setTimeout(()=>runSyncEngine().catch(e=>console.error('sync engine',e)),delay)}
+function classifySyncError(e){const m=String(e?.code||e?.message||e||'SYNC_FAILED');if(/permission|auth|user-disabled|PERMISSION_DENIED/i.test(m))return'CONFLICT';if(/INSUFFICIENT|CARTON_NOT_FOUND|ID_COLLISION|MOVEMENT_MISMATCH/i.test(m))return'CONFLICT';return'RETRY'}
+async function syncOneMovement(move){
+  const F=S.firebase;if(!F||!S.db)throw Error('FIREBASE_NOT_READY');
+  const movementRef=F.ref(S.db,`movements/${move.id}`);
+  const existingSnap=await F.get(movementRef);
+  if(existingSnap.exists()){
+    const ex=existingSnap.val()||{};
+    const same=String(ex.userId||'')===String(move.userId||'')&&String(ex.cartonId||'')===String(move.cartonId||'')&&String(ex.type||'')===String(move.type||'')&&Number(ex.qty)===Number(move.qty);
+    if(!same)throw Error('ID_COLLISION_OR_MOVEMENT_MISMATCH');
+    return {stockAfter:Number(ex.stockAfter)||0,recovered:true};
+  }
+  const cartonRef=F.ref(S.db,`cartons/${move.cartonId}`), markerKey=String(move.id);
+  const tx=await F.runTransaction(cartonRef,c=>{
+    if(!c)return;
+    const applied=c._zsApplied||{};
+    if(applied[markerKey])return c;
+    const cur=Number(c.stock)||0;
+    if(move.type!=='in'&&Number(move.qty)>cur)return;
+    const after=Math.max(0,cur+(move.type==='in'?Number(move.qty):-Number(move.qty)));
+    c.stock=after;c.updatedAt=Date.now();
+    c._zsApplied={...applied,[markerKey]:{stockAfter:after,appliedAt:Date.now(),userId:move.userId}};
+    return c;
+  });
+  if(!tx.committed){
+    const snap=await F.get(cartonRef);if(!snap.exists())throw Error('CARTON_NOT_FOUND');
+    const c=snap.val()||{};if(move.type!=='in'&&Number(move.qty)>(Number(c.stock)||0))throw Error('INSUFFICIENT_STOCK_SERVER');
+    throw Error('TRANSACTION_NOT_COMMITTED');
+  }
+  const c=tx.snapshot.val()||{}, marker=c._zsApplied?.[markerKey], stockAfter=Number(marker?.stockAfter??c.stock)||0;
+  await F.set(movementRef,{ts:Number(move.ts)||Date.now(),clientTs:Number(move.ts)||Date.now(),syncedAt:F.serverTimestamp(),userId:move.userId,userName:move.userName,cartonId:move.cartonId,article:move.article,type:move.type,qty:Number(move.qty)||0,reason:move.reason||'',note:move.note||'',stockAfter});
+  // Marker is only needed for crash recovery between carton transaction and movement creation.
+  // Once the movement exists, its UUID itself is the durable idempotency key.
+  try{await F.set(F.ref(S.db,`cartons/${move.cartonId}/_zsApplied/${markerKey}`),null)}catch(e){console.warn('sync marker cleanup',e)}
+  return {stockAfter,recovered:false};
+}
+async function runSyncEngine({manual=false}={}){
+  if(S.syncRunning||!S.native||!S.offlineReady||!S.connected||!S.db||!S.firebase||!canWrite())return {processed:0};
+  S.syncRunning=true;let processed=0,synced=0,conflicts=0,failed=0;
+  try{
+    const batch=await window.ZeroStockOffline.getSyncBatch(20);
+    for(const move of batch){
+      if(!S.connected)break;
+      processed++;
+      try{
+        await window.ZeroStockOffline.markSyncing(move.id);await refreshOfflineStats();render();
+        const result=await withTimeout(syncOneMovement(move),20000,'SYNC_TIMEOUT');
+        await window.ZeroStockOffline.markSynced(move.id,{serverId:move.id,stockAfter:result.stockAfter});synced++;
+      }catch(e){
+        console.error('sync movement',move.id,e);const kind=classifySyncError(e);
+        if(kind==='CONFLICT'){await window.ZeroStockOffline.markConflict(move.id,e?.message||String(e));conflicts++}
+        else{const wait=syncBackoff((move.attempts||0)+1);await window.ZeroStockOffline.markRetry(move.id,e?.message||String(e),Date.now()+wait);failed++}
+      }
+    }
+    S.lastSyncAt=Date.now();await loadOfflineData();await refreshOfflineStats();render();
+    if(manual)toast('ZeroStock Sync',conflicts?`${synced} synchronisiert · ${conflicts} Konflikt${conflicts===1?'':'e'}`:failed?`${synced} synchronisiert · ${failed} später erneut`:`${synced} Buchung${synced===1?'':'en'} synchronisiert.`);
+    if(S.connected&&S.offlineStats.pending>0&&S.offlineStats.conflicts<S.offlineStats.pending)scheduleSync(5000);
+    return {processed,synced,conflicts,failed};
+  }finally{S.syncRunning=false}
+}
+async function renderSyncQueue(){const root=$('syncQueueList');if(!root)return;if(!S.native||!S.offlineReady){root.innerHTML='<div class="note">SQLite-Sync ist nur in der Android-App aktiv.</div>';return}try{const rows=await window.ZeroStockOffline.queueDetails(20);root.innerHTML=rows.filter(r=>r.status!=='SYNCED').map(r=>`<div class="result" style="margin-top:8px"><b>${esc(r.entity_id)} · ${esc(r.status)}</b><div class="note">Versuche: ${Number(r.attempts)||0}${r.last_error?` · ${esc(r.last_error)}`:''}</div></div>`).join('')||'<div class="note">Keine offenen Sync-Vorgänge.</div>'}catch(e){root.innerHTML=`<div class="note">${esc(e.message||String(e))}</div>`}}
+
 async function firebaseBook(id,type,q,reason,note){const F=S.firebase,r=F.ref(S.db,`cartons/${id}`);const out=await F.runTransaction(r,c=>{if(!c)return c;const cur=+c.stock||0;if(type!=='in'&&q>cur)return;c.stock=Math.max(0,cur+(type==='in'?q:-q));c.updatedAt=Date.now();return c});if(!out.committed)throw Error(lang==='de'?'Buchung konnte nicht ausgeführt werden.':'Transaction could not be completed.');const c=out.snapshot.val(),key=F.push(F.ref(S.db,'movements')).key;await F.set(F.ref(S.db,`movements/${key}`),{ts:F.serverTimestamp(),userId:S.user.uid,userName:S.user.name,cartonId:id,article:c.article,type,qty:q,reason,note,stockAfter:c.stock});scheduleSummary()}
 async function readRoleViaRest(user){
   const token=await user.getIdToken(true);
@@ -1041,9 +1371,11 @@ async function readProfileViaRest(user){
   if(!res.ok)return null;
   return await res.json();
 }
+async function startOfflineSession(user){if(!S.native||!S.offlineReady||!window.ZeroStockOffline)return false;try{const cached=await window.ZeroStockOffline.getCachedUser(user.uid);const age=Date.now()-Number(cached?.cachedAt||0);if(!cached||cached.active===false||!['admin','employee','customer'].includes(cached.role)||!Number.isFinite(age)||age<0||age>OFFLINE_AUTH_MAX_AGE_MS)return false;S.user={uid:user.uid,name:cached.name||user.email||'User',role:cached.role};S.offlineSession=true;S.connected=false;await loadOfflineData();unlock();show(S.user.role==='customer'?'planner':'dashboard');render();toast('ZeroStock Offline',lang==='de'?'Lokale Daten geladen. Ausstehende Buchungen werden bei der nächsten Verbindung automatisch synchronisiert.':'Local data loaded. Pending transactions will synchronize automatically when the connection returns.');return true}catch(e){console.error('startOfflineSession',e);return false}}
 async function connectDb(user){try{
 S.db=S.firebase.getDatabase(S.firebase.app,FIREBASE_BASE_CONFIG.databaseURL);
-S.firebase.onValue(S.firebase.ref(S.db,'.info/connected'),x=>{S.connected=!!x.val();if(S.user)render()});
+S.firebase.onValue(S.firebase.ref(S.db,'.info/connected'),x=>{const was=S.connected;S.connected=!!x.val();if(S.user)render();if(S.connected&&(!was||S.offlineStats.pending>0))scheduleSync(300)});
+if(S.native&&S.offlineReady&&navigator.onLine===false){if(await startOfflineSession(user))return}
 
 const rolePath=`users/${user.uid}/role`;
 let role='',rawRole=null,source='Firebase SDK';
@@ -1075,6 +1407,7 @@ if(!['admin','employee','customer'].includes(role)){
 }
 
 if(!['admin','employee','customer'].includes(role)){
+  if(await startOfflineSession(user))return;
   S.user=null;
   $('gateUid').textContent=user.uid;
   if($('gateRoleValue'))$('gateRoleValue').textContent=rawRole===null||rawRole===undefined?'(nicht vorhanden)':JSON.stringify(rawRole);
@@ -1096,12 +1429,16 @@ try{
 
 if(profile.active===false){S.user=null;$('gateUid').textContent=user.uid;if($('gateRoleValue'))$('gateRoleValue').textContent=role;if($('gateRoleState'))$('gateRoleState').textContent='Benutzer ist deaktiviert.';if($('gateRoleSource'))$('gateRoleSource').textContent='ZeroStock Benutzerprofil';if($('gateRoleDb'))$('gateRoleDb').textContent=FIREBASE_BASE_CONFIG.databaseURL;authView('authNoRole');return}
 S.user={uid:user.uid,name:String(profile.name||user.email||'User'),role};
+S.offlineSession=false;
+if(S.offlineReady)try{await window.ZeroStockOffline.cacheUser({uid:user.uid,name:S.user.name,email:user.email||'',role,active:profile.active!==false})}catch(e){console.warn('cache user',e)}
 
 // From this point onward the Firebase role is VALID.
 // UI startup errors must never be reported as a role error.
 unlock();
 try{
+  if(S.offlineReady)await loadOfflineData();
   subscribe();
+  if(S.native&&S.offlineReady&&S.connected)scheduleSync(500);
   const deep=new URLSearchParams(location.search).get('box');
   if(deep&&S.user.role!=='customer')setTimeout(()=>handleScan(deep),120);
   else show(S.user.role==='customer'?'planner':'dashboard');
@@ -1125,11 +1462,66 @@ authView('authNoRole')
 }}
 function clearSubs(){S.unsubs.forEach(u=>{try{u()}catch{}});S.unsubs=[]}
 function subscribe(){clearSubs();const F=S.firebase;
-if(isAdmin())S.unsubs.push(F.onValue(F.ref(S.db,'users'),s=>{S.users=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));renderUsers()},e=>{console.error('users subscription',e);S.users=[];renderUsers()}));else S.users=[];
-if(S.user.role==='customer'){S.cartons=[];S.movements=[];S.unsubs.push(F.onValue(F.ref(S.db,'instructions'),s=>{S.instructions=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));render()}));S.unsubs.push(F.onValue(F.ref(S.db,'customerSummary'),s=>{S.customerSummary=s.val()||{};render()}));return}S.unsubs.push(F.onValue(F.ref(S.db,'cartons'),s=>{S.cartons=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));render();scheduleSummary()}));S.unsubs.push(F.onValue(F.ref(S.db,'instructions'),s=>{S.instructions=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));render();scheduleSummary()}));S.unsubs.push(F.onValue(F.query(F.ref(S.db,'movements'),F.limitToLast(200)),s=>{S.movements=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));render()}))}
-async function initFirebase(){authView('authLoading');try{const A=await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-app.js`),U=await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-auth.js`),R=await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-database.js`),app=A.initializeApp(FIREBASE_BASE_CONFIG),auth=U.getAuth(app);try{await U.setPersistence(auth,U.browserLocalPersistence)}catch{}S.firebase={...U,...R,app,auth};U.onAuthStateChanged(auth,async user=>{clearSubs();S.user=null;S.cartons=[];S.instructions=[];S.movements=[];S.users=[];S.customerSummary={};S.connected=false;S.db=null;if(!user){authView('authLogin');return}await connectDb(user)})}catch(e){console.error(e);authError('gateLoginError',lang==='de'?'Firebase konnte nicht geladen werden. Internet prüfen.':'Firebase could not be loaded. Check internet.');authView('authLogin')}}
-async function login(){authError('gateLoginError','');const e=$('gateEmail').value.trim(),p=$('gatePassword').value;if(!e||!p)return authError('gateLoginError',lang==='de'?'E-Mail und Passwort eingeben.':'Enter email and password.');try{await S.firebase.signInWithEmailAndPassword(S.firebase.auth,e,p)}catch(x){authError('gateLoginError',x.message)}}
+if(isAdmin())S.unsubs.push(F.onValue(F.ref(S.db,'users'),s=>{S.users=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));renderUsers()},e=>{console.error('users subscription',e);renderUsers()}));else S.users=[];
+if(S.user.role==='customer'){S.cartons=[];S.movements=[];S.unsubs.push(F.onValue(F.ref(S.db,'instructions'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));S.instructions=S.offlineReady?await window.ZeroStockOffline.cacheInstructions(list):list;render()}));S.unsubs.push(F.onValue(F.ref(S.db,'customerSummary'),s=>{S.customerSummary=s.val()||{};render()}));return}
+S.unsubs.push(F.onValue(F.ref(S.db,'cartons'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));S.cartons=S.offlineReady?await window.ZeroStockOffline.cacheCartons(list):list;await refreshOfflineStats();render();scheduleSummary()}));
+S.unsubs.push(F.onValue(F.ref(S.db,'instructions'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));S.instructions=S.offlineReady?await window.ZeroStockOffline.cacheInstructions(list):list;render();scheduleSummary()}));
+S.unsubs.push(F.onValue(F.query(F.ref(S.db,'movements'),F.limitToLast(200)),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));S.movements=S.offlineReady?await window.ZeroStockOffline.cacheMovements(list):list;await refreshOfflineStats();render()}))}
+async function loadFirebaseModules(){if(S.native&&window.ZeroStockFirebaseNative)return window.ZeroStockFirebaseNative;return{app:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-app.js`),auth:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-auth.js`),database:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-database.js`)}}
+async function initFirebase(){authView('authLoading');try{const M=await loadFirebaseModules(),A=M.app,U=M.auth,R=M.database,app=A.initializeApp(FIREBASE_BASE_CONFIG),auth=U.getAuth(app);try{await U.setPersistence(auth,U.browserLocalPersistence)}catch{}S.firebase={...U,...R,app,auth};U.onAuthStateChanged(auth,async user=>{clearSubs();S.user=null;S.cartons=[];S.instructions=[];S.movements=[];S.users=[];S.customerSummary={};S.connected=false;S.db=null;S.offlineSession=false;if(!user){authView('authLogin');return}await connectDb(user)})}catch(e){console.error(e);if(S.native&&S.offlineReady)authError('gateLoginError',lang==='de'?'Keine gespeicherte Anmeldung verfügbar. Für die erste Anmeldung ist Internet erforderlich.':'No cached sign-in available. Internet is required for the first sign-in.');else authError('gateLoginError',lang==='de'?'Firebase konnte nicht geladen werden. Internet prüfen.':'Firebase could not be loaded. Check internet.');authView('authLogin')}}
+function safeAuthMessage(err){const c=String(err?.code||'');if(/invalid-credential|wrong-password|user-not-found|invalid-email/i.test(c))return lang==='de'?'Anmeldung fehlgeschlagen. E-Mail oder Passwort prüfen.':'Sign-in failed. Check email or password.';if(/too-many-requests/i.test(c))return lang==='de'?'Zu viele Versuche. Bitte später erneut versuchen.':'Too many attempts. Try again later.';if(/network-request-failed/i.test(c))return lang==='de'?'Keine Verbindung. Netzwerk prüfen.':'No connection. Check network.';return lang==='de'?'Anmeldung konnte nicht abgeschlossen werden.':'Sign-in could not be completed.'}
+async function login(){authError('gateLoginError','');const e=$('gateEmail').value.trim(),p=$('gatePassword').value;if(!e||!p)return authError('gateLoginError',lang==='de'?'E-Mail und Passwort eingeben.':'Enter email and password.');try{await S.firebase.signInWithEmailAndPassword(S.firebase.auth,e,p)}catch(x){authError('gateLoginError',safeAuthMessage(x))}}
 async function resetPassword(){authError('gateLoginError','');const e=$('gateEmail').value.trim();if(!e)return authError('gateLoginError',lang==='de'?'Zuerst E-Mail eingeben.':'Enter email first.');try{await S.firebase.sendPasswordResetEmail(S.firebase.auth,e);authError('gateLoginError',lang==='de'?'Reset-E-Mail wurde gesendet.':'Reset email sent.')}catch(x){authError('gateLoginError',x.message)}}
+
+
+function zsDateStamp(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`}
+function spreadsheetSafeText(v){let x=String(v??'');if(/^[=+@-]/.test(x)||/^[\t\r]/.test(x))x="'"+x;return x}
+function csvCell(v){const x=spreadsheetSafeText(v).replace(/"/g,'""');return /[;"\n\r]/.test(x)?`"${x}"`:x}
+function makeCsv(headers,rows){return '\ufeff'+[headers,...rows].map(r=>r.map(csvCell).join(';')).join('\r\n')}
+function xmlCell(v,type='String'){const raw=type==='Number'?String(v??''):spreadsheetSafeText(v);const x=raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');return `<Cell><Data ss:Type="${type}">${x}</Data></Cell>`}
+function makeStockExcelXml(){const rows=S.cartons.map(c=>[c.article,c.name,c.location,+c.stock||0,+c.min||0,+c.warn||0,status(c).txt]);const header=['Artikel','Bezeichnung','Lagerplatz','Bestand','Minimum','Warnbestand','Status'];const body=[header,...rows].map((r,ri)=>`<Row>${r.map((v,i)=>xmlCell(v,ri>0&&[3,4,5].includes(i)?'Number':'String')).join('')}</Row>`).join('');return `<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Bestand"><Table>${body}</Table></Worksheet></Workbook>`}
+async function exportTextFile(filename,data,mime,title){try{const r=await window.ZeroStockFiles?.saveAndShareText?.({filename,data,mime,title,text:`ZeroStock · ${title}`});toast('✓ Export',S.native?'Datei gespeichert · Share-Sheet geöffnet.':'Datei wurde erstellt.');return r}catch(e){console.error('export',e);toast('Export',e.message||String(e))}}
+async function exportStockExcel(){return exportTextFile(`ZeroStock_Bestand_${zsDateStamp()}.xls`,makeStockExcelXml(),'application/vnd.ms-excel','Bestand Excel')}
+async function exportStockCsv(){const rows=S.cartons.map(c=>[c.article,c.name,c.location,c.stock,c.min,c.warn,status(c).txt]);return exportTextFile(`ZeroStock_Bestand_${zsDateStamp()}.csv`,makeCsv(['Artikel','Bezeichnung','Lagerplatz','Bestand','Minimum','Warnbestand','Status'],rows),'text/csv;charset=utf-8','Bestand CSV')}
+async function exportMovesCsv(){const rows=[...S.movements].sort((a,b)=>(b.ts||0)-(a.ts||0)).map(m=>[new Date(m.ts||Date.now()).toISOString(),m.userName||'',m.article||'',m.type||'',m.qty??'',m.stockAfter??'',m.reason||'',m.note||'',m.syncStatus||'SYNCED',m.id||'']);return exportTextFile(`ZeroStock_Bewegungen_${zsDateStamp()}.csv`,makeCsv(['Zeit','Benutzer','Artikel','Typ','Menge','Bestand danach','Grund','Notiz','Sync','ID'],rows),'text/csv;charset=utf-8','Bewegungen CSV')}
+async function exportBackupJson(){if(!isAdmin())return;const payload={format:'ZeroStock Backup',version:'5.0-phase11',createdAt:new Date().toISOString(),cartons:S.cartons,instructions:S.instructions,movements:S.movements};return exportTextFile(`ZeroStock_Backup_${zsDateStamp()}.json`,JSON.stringify(payload,null,2),'application/json;charset=utf-8','ZeroStock Datensicherung')}
+async function shareCurrentLabel(){try{const box=$('qrBox'),canvas=box?.querySelector('canvas'),img=box?.querySelector('img');let dataUrl=canvas?.toDataURL?.('image/png')||img?.src;if(!dataUrl||!String(dataUrl).startsWith('data:image/'))throw Error(lang==='de'?'QR-Code ist noch nicht bereit.':'QR code is not ready.');const article=$('labelContent')?.querySelector('h2')?.textContent?.trim()||'QR';await window.ZeroStockFiles?.shareDataUrl?.({filename:`ZeroStock_QR_${article.replace(/[^A-Za-z0-9_-]+/g,'_')}.png`,dataUrl,title:'ZeroStock QR'});toast('✓ QR',S.native?'QR gespeichert · Share-Sheet geöffnet.':'QR wurde heruntergeladen.')}catch(e){toast('QR',e.message||String(e))}}
+function refreshExportMode(){const b=$('exportModeBadge');if(b){b.textContent=S.native?'ANDROID · SHARE':'WEB · DOWNLOAD';b.className='status ok'}}
+
+
+let lastUpdateCheckResult=null;
+function escUpdateText(v){return esc(String(v??''))}
+async function loadUpdateSettings(){
+  if(!window.ZeroStockUpdates)return;
+  const c=window.ZeroStockUpdates.getConfig();
+  if($('updateOwner'))$('updateOwner').value=c.owner||'';
+  if($('updateRepo'))$('updateRepo').value=c.repo||'';
+  try{const v=await window.ZeroStockUpdates.currentVersion();const b=$('updateStatusBadge');if(b&&!window.ZeroStockUpdates.isConfigured()){b.textContent=`V${v} · QUELLE FEHLT`;b.className='status warn'}}catch{}
+}
+function renderUpdateResult(r){
+  lastUpdateCheckResult=r;
+  const box=$('updateResult'), badge=$('updateStatusBadge'); if(!box||!badge)return;
+  if(!r||r.status==='UNCONFIGURED'){badge.textContent='NICHT KONFIGURIERT';badge.className='status warn';box.innerHTML='<div class="note">GitHub Owner und Repository eintragen und speichern.</div>';return}
+  if(r.status==='SKIPPED'){badge.textContent='PRÜFUNG AKTUELL';badge.className='status ok';box.innerHTML='<div class="note">Automatische Prüfung wurde bereits kürzlich ausgeführt.</div>';return}
+  if(r.status==='CURRENT'){badge.textContent='AKTUELL';badge.className='status ok';box.innerHTML=`<b>ZeroStock ${escUpdateText(r.current)}</b><div class="note">Neueste GitHub-Version: ${escUpdateText(r.latest)}</div>${r.releaseUrl?'<div style="margin-top:8px"><button class="btn" id="openReleaseBtn" type="button">Release öffnen</button></div>':''}`;return}
+  if(r.status==='AVAILABLE'){badge.textContent='UPDATE VERFÜGBAR';badge.className='status warn';const notes=escUpdateText(r.notes||'Keine Release Notes.').replace(/\n/g,'<br>');box.innerHTML=`<b>${escUpdateText(r.releaseName||r.latest)}</b><div class="note">Installiert: ${escUpdateText(r.current)} · Verfügbar: ${escUpdateText(r.latest)}</div><div class="result" style="margin-top:10px;max-height:180px;overflow:auto"><div class="note">${notes}</div></div><div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">${r.apk?`<button class="btn primary" id="downloadUpdateBtn" type="button">APK herunterladen · ${escUpdateText(r.apk.name)}</button>`:'<span class="status crit">KEINE APK</span>'}<button class="btn" id="openReleaseBtn" type="button">Release öffnen</button></div>`;return}
+  badge.textContent='PRÜFEN';badge.className='status warn';box.innerHTML='';
+}
+async function saveUpdateSource(){
+  if(!window.ZeroStockUpdates)return;
+  const c=window.ZeroStockUpdates.saveConfig({owner:$('updateOwner')?.value,repo:$('updateRepo')?.value,assetPattern:'^ZeroStock.*\\.apk$',checkIntervalHours:24});
+  renderUpdateResult(window.ZeroStockUpdates.isConfigured(c)?{status:'CURRENT',current:await window.ZeroStockUpdates.currentVersion(),latest:'noch nicht geprüft'}:{status:'UNCONFIGURED'});
+  toast('ZeroStock',window.ZeroStockUpdates.isConfigured(c)?'GitHub Update-Quelle gespeichert.':'Bitte gültigen GitHub Owner und Repository eintragen.');
+}
+async function checkForUpdate(force=true,quiet=false){
+  if(!window.ZeroStockUpdates)return;
+  const badge=$('updateStatusBadge'); if(badge){badge.textContent='PRÜFE…';badge.className='status'}
+  try{const r=await window.ZeroStockUpdates.check({force});renderUpdateResult(r);if(!quiet&&r.status==='AVAILABLE')toast('ZeroStock',`Update ${r.latest} verfügbar.`);return r}catch(e){if(badge){badge.textContent='FEHLER';badge.className='status crit'}if($('updateResult'))$('updateResult').innerHTML=`<div class="note">${escUpdateText(e.message||String(e))}</div>`;if(!quiet)toast('Update',e.message||String(e));return null}
+}
+document.addEventListener('click',async e=>{
+  const dl=e.target.closest('#downloadUpdateBtn');if(dl){e.preventDefault();try{await window.ZeroStockUpdates?.download?.(lastUpdateCheckResult)}catch(err){toast('Update',err.message||String(err))}return}
+  const rel=e.target.closest('#openReleaseBtn');if(rel){e.preventDefault();try{await window.ZeroStockUpdates?.openRelease?.(lastUpdateCheckResult)}catch(err){toast('Update',err.message||String(err))}return}
+});
 
 // Robust delegated actions: survives re-renders and partial UI initialization
 document.addEventListener('click',e=>{
@@ -1142,19 +1534,22 @@ document.addEventListener('click',e=>{
 });
 
 // UI events
-document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>show(b.dataset.view));document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>show(b.dataset.goto));document.querySelectorAll('[data-mview]').forEach(b=>b.onclick=()=>show(b.dataset.mview));document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{lang=b.dataset.lang;localStorage.setItem('zs-lang',lang);applyLang()});document.querySelectorAll('.closeModal').forEach(b=>b.onclick=closeAll);
-$('dashSearch').oninput=renderCartons;$('cartonSearch').oninput=renderCartons;if($('addCarton'))$('addCarton').onclick=e=>{e.preventDefault();openCarton()};if($('saveCarton'))$('saveCarton').onclick=e=>{e.preventDefault();saveCarton()};$('addInstruction').onclick=()=>openInstruction();$('saveInstruction').onclick=saveInstruction;$('addMaterialRow').onclick=()=>{$('materialRows').append(matRow());instructionLive()};$('calculatePlan').onclick=calcPlan;if($('planQty'))$('planQty').oninput=calcPlan;if($('planInstruction'))$('planInstruction').onchange=calcPlan;if($('planRef'))$('planRef').oninput=calcPlan;if($('cStock'))$('cStock').oninput=cartonLive;if($('cWarn'))$('cWarn').oninput=cartonLive;if($('cMin'))$('cMin').oninput=cartonLive;if($('bookType'))$('bookType').onchange=bookPreview;if($('bookQty'))$('bookQty').oninput=bookPreview;$('confirmBook').onclick=confirmBook;$('startScan').onclick=startScanner;$('manualScan').onclick=manualCode;$('stopScan').onclick=closeAll;$('printLabel').onclick=()=>{
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>show(b.dataset.view));document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>show(b.dataset.goto));document.querySelectorAll('[data-mview]').forEach(b=>b.onclick=()=>show(b.dataset.mview));document.querySelectorAll('[data-quick-type]').forEach(b=>b.onclick=()=>openQuickBook(b.dataset.quickType));document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{lang=b.dataset.lang;localStorage.setItem('zs-lang',lang);applyLang()});document.querySelectorAll('.closeModal').forEach(b=>b.onclick=closeAll);if($('notificationToggle'))$('notificationToggle').onchange=async e=>{try{await window.ZeroStockNotifications?.setEnabled?.(!!e.target.checked);if(e.target.checked)await window.ZeroStockNotifications?.init?.();refreshNotificationSettingsUI();scheduleNativeNotificationEvaluation(50)}catch(err){toast('ZeroStock',err.message||String(err))}};
+window.addEventListener('online',()=>{if(S.native&&S.offlineReady){scheduleSync(150);refreshOfflineStats().then(render).catch(()=>{})}});
+window.addEventListener('offline',()=>{if(S.native&&S.offlineReady){S.connected=false;refreshOfflineStats().then(render).catch(()=>{})}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&S.native&&S.offlineReady&&navigator.onLine){scheduleSync(200)}});
+$('dashSearch').oninput=renderCartons;if($('quickBookSearch'))$('quickBookSearch').oninput=renderQuickBookList;$('cartonSearch').oninput=renderCartons;if($('addCarton'))$('addCarton').onclick=e=>{e.preventDefault();openCarton()};if($('saveCarton'))$('saveCarton').onclick=e=>{e.preventDefault();saveCarton()};$('addInstruction').onclick=()=>openInstruction();$('saveInstruction').onclick=saveInstruction;$('addMaterialRow').onclick=()=>{$('materialRows').append(matRow());instructionLive()};$('calculatePlan').onclick=calcPlan;if($('planQty'))$('planQty').oninput=calcPlan;if($('planInstruction'))$('planInstruction').onchange=calcPlan;if($('planRef'))$('planRef').oninput=calcPlan;if($('cStock'))$('cStock').oninput=cartonLive;if($('cWarn'))$('cWarn').oninput=cartonLive;if($('cMin'))$('cMin').oninput=cartonLive;if($('bookType'))$('bookType').onchange=bookPreview;if($('bookQty'))$('bookQty').oninput=bookPreview;$('confirmBook').onclick=confirmBook;$('startScan').onclick=startScanner;$('manualScan').onclick=manualCode;$('stopScan').onclick=closeAll;if($('nativeScanClose'))$('nativeScanClose').onclick=()=>stopNativeScanner();if($('nativeScanTorch'))$('nativeScanTorch').onclick=async()=>{try{const on=await window.ZeroStockNativeScanner?.toggleTorch?.();$('nativeScanTorch').classList.toggle('torchOn',!!on)}catch(e){toast('Scanner',lang==='de'?'Taschenlampe nicht verfügbar.':'Torch unavailable.')}};$('printLabel').onclick=()=>{
       const box=$('qrBox');
       if(!box||(!box.querySelector('canvas')&&!box.querySelector('img')&&!box.querySelector('table'))){
         return toast('QR',lang==='de'?'QR-Code ist noch nicht bereit.':'QR code is not ready yet.');
       }
       window.print();
-    };$('logoutBtn').onclick=()=>S.firebase?.signOut(S.firebase.auth);$('fabScan').onclick=()=>show('scan');
-if($('openAddUser'))$('openAddUser').onclick=openAddUser;if($('createUserBtn'))$('createUserBtn').onclick=createZeroStockUser;$('gateLogin').onclick=login;$('gateReset').onclick=resetPassword;
+    };$('logoutBtn').onclick=async()=>{const uid=S.user?.uid;try{if(uid&&window.ZeroStockSecure)await window.ZeroStockSecure.removeUser(uid)}catch{};await S.firebase?.signOut(S.firebase.auth)};$('fabScan').onclick=()=>show('scan');
+if($('exportStockExcel'))$('exportStockExcel').onclick=exportStockExcel;if($('exportStockCsv'))$('exportStockCsv').onclick=exportStockCsv;if($('exportMovesCsv'))$('exportMovesCsv').onclick=exportMovesCsv;if($('exportBackupJson'))$('exportBackupJson').onclick=exportBackupJson;if($('shareLabel'))$('shareLabel').onclick=shareCurrentLabel;refreshExportMode();if($('openAddUser'))$('openAddUser').onclick=openAddUser;if($('createUserBtn'))$('createUserBtn').onclick=createZeroStockUser;if($('syncNowBtn'))$('syncNowBtn').onclick=()=>runSyncEngine({manual:true});if($('saveUpdateSource'))$('saveUpdateSource').onclick=saveUpdateSource;if($('checkUpdateBtn'))$('checkUpdateBtn').onclick=()=>checkForUpdate(true,false);loadUpdateSettings();$('gateLogin').onclick=login;$('gateReset').onclick=resetPassword;
 $('gateRetryRole').onclick=async()=>{const u=S.firebase?.auth?.currentUser;if(u){$('gateRoleState').textContent='erneute Prüfung…';$('gateRoleValue').textContent='—';$('gateRoleSource').textContent='—';$('gateRoleDb').textContent=FIREBASE_BASE_CONFIG.databaseURL;await connectDb(u)}};
 $('gateLogoutRole').onclick=()=>S.firebase?.signOut(S.firebase.auth);$('gatePassword').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;$('installBar').classList.add('show')});$('installBtn').onclick=async()=>{if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice}catch{}deferredInstallPrompt=null;$('installBar').classList.remove('show')};$('installDismiss').onclick=()=>$('installBar').classList.remove('show');window.addEventListener('appinstalled',()=>$('installBar').classList.remove('show'));
 
-(async()=>{applyLang();await initFirebase();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(console.warn)})();
+(async()=>{const nativeCap=!!window.Capacitor?.isNativePlatform?.();S.native=nativeCap;document.documentElement.classList.toggle('native-app',nativeCap);applyLang();if(nativeCap)await initOfflineCore();await initFirebase();if(nativeCap)setTimeout(()=>checkForUpdate(false,true),2500);if(!nativeCap&&'serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(console.warn)})();
 </script>
 </body></html>

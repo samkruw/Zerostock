@@ -1,3 +1,21 @@
+# ZeroStock V5.0.0 — Website und Android
+
+Dieser Webstand enthält dieselben 17 Anwendungsdateien wie die veröffentlichte, signierte Android-Version V5.0.0.
+
+- Website: https://samkruw.github.io/Zerostock/
+- Android-Release: https://github.com/samkruw/Zerostock/releases/tag/v5.0.0
+- UI: Command Glass auf Desktop, Scan First auf Mobilgeräten
+- Firebase-Projekt: zerostock-c5f5f für beide Oberflächen
+- Herkunft und Datei-Prüfsummen: web-release.json
+
+Die Website ist statisch und benötigt keinen eigenen Server oder Build beim Veröffentlichen. GitHub Pages verwendet main / root; .nojekyll erhält die vorgebauten Dateien unverändert.
+
+Die Website-QA prüft die Identität zur Final-APK, den Firebase-SDK-Start, Versionsdaten, Desktop-/Mobil-Loginoberfläche und Service Worker. Echte Konto-Tests werden nur ausgeführt, wenn ZEROSTOCK_TEST_EMAIL und ZEROSTOCK_TEST_PASSWORD sicher als Repository-Secrets hinterlegt sind. Ohne diese Zugangsdaten ist ein erfolgreicher Live-Login oder Buchungs-/Sync-Test nicht bestätigt.
+
+Die Datei database.rules.json ist die V5-Sollkonfiguration als Versionsbackup. Das Aktualisieren dieser Datei veröffentlicht keine Firebase-Regeln und verändert keine Produktionsdaten.
+
+## Bisherige Funktionsdokumentation
+
 # ZeroStock V4.0 — Gesamtprodukt
 
 > **Packing Material Control · LIVE**  

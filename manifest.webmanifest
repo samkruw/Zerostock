@@ -1,7 +1,7 @@
 {
-  "name": "ZeroStock – Lager & Packing",
+  "name": "ZeroStock V5 – Lager & Packing",
   "short_name": "ZeroStock",
-  "description": "ZeroStock PWA für Kartonbestand, QR-Buchungen, Packing Instructions und Planung.",
+  "description": "ZeroStock V5 RC1 – Command Scan mit Offline-First, sicherem Sync, nativen Android-Funktionen und GitHub-Updates.",
   "id": "./",
   "start_url": "./",
   "scope": "./",

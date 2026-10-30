@@ -3,36 +3,36 @@
     ".read": false,
     ".write": false,
     "users": {
-      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'",
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin' && root.child('users').child(auth.uid).child('active').val() != false",
       "$uid": {
-        ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin')",
-        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'",
-        ".validate": "newData.hasChildren(['name','role']) && newData.child('name').isString() && (newData.child('role').val() == 'admin' || newData.child('role').val() == 'employee' || newData.child('role').val() == 'customer') && (!newData.child('active').exists() || newData.child('active').isBoolean())"
+        ".read": "auth != null && (auth.uid == $uid || (root.child('users').child(auth.uid).child('role').val() == 'admin' && root.child('users').child(auth.uid).child('active').val() != false))",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin' && root.child('users').child(auth.uid).child('active').val() != false",
+        ".validate": "newData.hasChildren(['name','role']) && newData.child('name').isString() && newData.child('name').val().length <= 120 && (newData.child('role').val() == 'admin' || newData.child('role').val() == 'employee' || newData.child('role').val() == 'customer') && (!newData.child('active').exists() || newData.child('active').isBoolean()) && (!newData.child('email').exists() || (newData.child('email').isString() && newData.child('email').val().length <= 254))"
       }
     },
     "cartons": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')",
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() != false && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')",
       "$id": {
-        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')",
-        ".validate": "newData.hasChildren(['article','name','location','stock','warn','min']) && newData.child('stock').isNumber() && newData.child('stock').val() >= 0"
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() != false && (root.child('users').child(auth.uid).child('role').val() == 'admin' || (root.child('users').child(auth.uid).child('role').val() == 'employee' && data.exists() && newData.exists() && newData.child('id').val() == data.child('id').val() && newData.child('article').val() == data.child('article').val() && newData.child('name').val() == data.child('name').val() && newData.child('location').val() == data.child('location').val() && newData.child('warn').val() == data.child('warn').val() && newData.child('min').val() == data.child('min').val()))",
+        ".validate": "newData.hasChildren(['id','article','name','location','stock','warn','min']) && newData.child('id').val() == $id && newData.child('article').isString() && newData.child('article').val().length <= 120 && newData.child('name').isString() && newData.child('name').val().length <= 200 && newData.child('location').isString() && newData.child('location').val().length <= 120 && newData.child('stock').isNumber() && newData.child('stock').val() >= 0 && newData.child('warn').isNumber() && newData.child('warn').val() >= 0 && newData.child('min').isNumber() && newData.child('min').val() >= 0 && newData.child('warn').val() >= newData.child('min').val()"
       }
     },
     "instructions": {
-      ".read": "auth != null",
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() != false",
       "$id": {
-        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'"
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin' && root.child('users').child(auth.uid).child('active').val() != false"
       }
     },
     "movements": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')",
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() != false && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')",
       "$id": {
-        ".write": "auth != null && !data.exists() && newData.exists() && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')",
-        ".validate": "newData.hasChildren(['userId','cartonId','article','type','qty','stockAfter']) && newData.child('userId').val() == auth.uid && (newData.child('type').val() == 'in' || newData.child('type').val() == 'out' || newData.child('type').val() == 'shrink') && newData.child('qty').isNumber() && newData.child('qty').val() > 0 && newData.child('stockAfter').isNumber() && newData.child('stockAfter').val() >= 0"
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() != false && !data.exists() && newData.exists() && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')",
+        ".validate": "newData.hasChildren(['userId','cartonId','article','type','qty','stockAfter']) && newData.child('userId').val() == auth.uid && root.child('cartons').child(newData.child('cartonId').val()).exists() && newData.child('article').val() == root.child('cartons').child(newData.child('cartonId').val()).child('article').val() && (newData.child('type').val() == 'in' || newData.child('type').val() == 'out' || newData.child('type').val() == 'shrink') && newData.child('qty').isNumber() && newData.child('qty').val() > 0 && newData.child('stockAfter').isNumber() && newData.child('stockAfter').val() >= 0 && (!newData.child('reason').exists() || (newData.child('reason').isString() && newData.child('reason').val().length <= 500)) && (!newData.child('note').exists() || (newData.child('note').isString() && newData.child('note').val().length <= 1000))"
       }
     },
     "customerSummary": {
-      ".read": "auth != null",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')"
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() != false",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() != false && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')"
     }
   }
 }

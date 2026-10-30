@@ -1,0 +1,17 @@
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+key.properties
+keystore.properties
+signing.properties
+ANDROID_KEYSTORE_BASE64.txt
+GITHUB-SECRETS.txt
+node_modules/
+android/.gradle/
+android/app/build/
+dist/
+
+__pycache__/
+*.py[cod]

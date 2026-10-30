@@ -1,0 +1,7 @@
+{
+  "owner": "",
+  "repo": "",
+  "assetPattern": "^ZeroStock.*\\.apk$",
+  "checkIntervalHours": 24,
+  "note": "Repository wird einmalig in ZeroStock > Einstellungen hinterlegt. Keine Tokens erforderlich."
+}

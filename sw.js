@@ -1,5 +1,5 @@
-const CACHE='zerostock-v4.1-brand-ui';
-const CORE=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-1024.png'];
+const CACHE='zerostock-v5.0.0';
+const CORE=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-1024.png','./native-scanner.js','./offline-core.js','./native-firebase.js','./native-notifications.js','./native-share.js','./native-updates.js','./native-secure.js','./update-config.json'];
 const QR_HOSTS=new Set(['cdn.jsdelivr.net','unpkg.com','cdnjs.cloudflare.com']);
 
 self.addEventListener('install',e=>{
