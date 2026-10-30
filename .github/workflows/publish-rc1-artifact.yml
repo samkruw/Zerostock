@@ -48,20 +48,26 @@ jobs:
         run: |
           set -euo pipefail
           APK=ZeroStock-v5.0.0-rc.1.apk
-          test -s "$APK"
-          sha256sum -c "$APK.sha256"
+          test -s "$APK" || { echo '::error::Downloaded artifact does not contain the expected nonempty APK'; exit 1; }
+          sha256sum -c "$APK.sha256" || { echo '::error::Downloaded APK does not match its build checksum'; exit 1; }
           BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
-          "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK" | tee "$RUNNER_TEMP/rc1-signature.txt"
-          grep -Fq 'Signer #1 certificate SHA-256 digest: ea278794174af099e57faae01bc8c209a0fbc4fd95dfb3b702d8fa75a9436f8a' "$RUNNER_TEMP/rc1-signature.txt"
+          "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK" | tee "$RUNNER_TEMP/rc1-signature.txt" \
+            || { echo '::error::Downloaded APK failed Android signature verification'; exit 1; }
+          if ! grep -Fiq 'ea278794174af099e57faae01bc8c209a0fbc4fd95dfb3b702d8fa75a9436f8a' "$RUNNER_TEMP/rc1-signature.txt"; then
+            grep -i 'certificate SHA-256 digest' "$RUNNER_TEMP/rc1-signature.txt" || true
+            echo '::error::APK signing certificate does not match the approved certificate'
+            exit 1
+          fi
           BADGING="$("$BUILD_TOOLS/aapt" dump badging "$APK")"
           PACKAGE="$(printf '%s\n' "$BADGING" | sed -n '1p')"
-          [[ "$PACKAGE" == *"name='ch.zerogen.zerostock'"* ]]
-          [[ "$PACKAGE" == *"versionName='5.0.0-rc.1'"* ]]
-          [[ "$PACKAGE" == *"versionCode='23'"* ]]
+          [[ "$PACKAGE" == *"name='ch.zerogen.zerostock'"* ]] || { echo "::error::Unexpected APK package: $PACKAGE"; exit 1; }
+          [[ "$PACKAGE" == *"versionName='5.0.0-rc.1'"* ]] || { echo "::error::Unexpected APK version: $PACKAGE"; exit 1; }
+          [[ "$PACKAGE" == *"versionCode='23'"* ]] || { echo "::error::Unexpected APK versionCode: $PACKAGE"; exit 1; }
           cat "$GITHUB_WORKSPACE"/cloud-build/source.b64.* | base64 --decode > "$RUNNER_TEMP/rc1-source.zip"
-          echo "ece149cfe7e6d85414d82f5d6159ac452ee7faab73bc369a144c278973219ba4  $RUNNER_TEMP/rc1-source.zip" | sha256sum -c -
+          echo "ece149cfe7e6d85414d82f5d6159ac452ee7faab73bc369a144c278973219ba4  $RUNNER_TEMP/rc1-source.zip" | sha256sum -c - \
+            || { echo '::error::Release-notes source archive checksum mismatch'; exit 1; }
           unzip -p "$RUNNER_TEMP/rc1-source.zip" RELEASE-NOTES-v5.0.0-rc.1.md > "$RUNNER_TEMP/RC-NOTES.md"
-          test -s "$RUNNER_TEMP/RC-NOTES.md"
+          test -s "$RUNNER_TEMP/RC-NOTES.md" || { echo '::error::Release notes missing from verified source archive'; exit 1; }
           {
             echo 'Verified RC1 assets from Android build #23; all 40 gates ran before artifact upload.'
             echo "$PACKAGE"
