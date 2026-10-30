@@ -193,10 +193,20 @@ jobs:
           BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
           UNSIGNED="android/app/build/outputs/apk/release/app-release-unsigned.apk"
           OUT="ZeroStock-${GITHUB_REF_NAME}.apk"
-          "$BUILD_TOOLS/apksigner" sign --ks "$RUNNER_TEMP/zerostock-release.jks" --ks-key-alias "$KEY_ALIAS" --ks-pass "pass:$KEYSTORE_PASSWORD" --key-pass "pass:$KEY_PASSWORD" --out "$OUT" "$UNSIGNED"
+          "$BUILD_TOOLS/apksigner" sign --ks "$RUNNER_TEMP/zerostock-release.jks" --ks-key-alias "$KEY_ALIAS" --ks-pass env:KEYSTORE_PASSWORD --key-pass env:KEY_PASSWORD --out "$OUT" "$UNSIGNED"
           "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$OUT"
+          test -s "$OUT"
+          BADGING="$("$BUILD_TOOLS/aapt" dump badging "$OUT")"
+          PACKAGE="$(printf '%s\n' "$BADGING" | sed -n '1p')"
+          [[ "$PACKAGE" == *"name='ch.zerogen.zerostock'"* ]]
+          [[ "$PACKAGE" == *"versionName='${GITHUB_REF_NAME#v}'"* ]]
+          [[ "$PACKAGE" == *"versionCode='${GITHUB_RUN_NUMBER}'"* ]]
           sha256sum "$OUT" > "$OUT.sha256"
-          rm -f "$RUNNER_TEMP/zerostock-release.jks"
+          sha256sum -c "$OUT.sha256"
+
+      - name: Remove temporary keystore
+        if: ${{ always() }}
+        run: rm -f "$RUNNER_TEMP/zerostock-release.jks"
 
       - name: Upload signed APK
         uses: actions/upload-artifact@v4
