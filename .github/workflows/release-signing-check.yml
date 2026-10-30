@@ -37,11 +37,20 @@ jobs:
           done
           test "$missing" -eq 0
           umask 077
-          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/zerostock-signing-check.jks"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/zerostock-signing-check.jks" \
+            || { echo '::error::ANDROID_KEYSTORE_BASE64 is not valid Base64'; exit 1; }
+          echo "795e6e20a9e998b1945df05aa68f04f69c502e3807325c052ee8d5a6f06e2c29  $RUNNER_TEMP/zerostock-signing-check.jks" | sha256sum -c - > /dev/null 2>&1 \
+            || { echo '::error::ANDROID_KEYSTORE_BASE64 does not match the supplied signing kit'; exit 1; }
+          keytool -list -keystore "$RUNNER_TEMP/zerostock-signing-check.jks" \
+            -storepass:env ANDROID_KEYSTORE_PASSWORD > /dev/null 2>&1 \
+            || { echo '::error::ANDROID_KEYSTORE_PASSWORD does not open the supplied keystore'; exit 1; }
+          keytool -list -keystore "$RUNNER_TEMP/zerostock-signing-check.jks" \
+            -alias "$ANDROID_KEY_ALIAS" -storepass:env ANDROID_KEYSTORE_PASSWORD > /dev/null 2>&1 \
+            || { echo '::error::ANDROID_KEY_ALIAS does not exist in the supplied keystore'; exit 1; }
           keytool -certreq -keystore "$RUNNER_TEMP/zerostock-signing-check.jks" \
             -alias "$ANDROID_KEY_ALIAS" -storepass:env ANDROID_KEYSTORE_PASSWORD \
             -keypass:env ANDROID_KEY_PASSWORD -file "$RUNNER_TEMP/zerostock-signing-check.csr" \
-            > /dev/null 2>&1 || { echo '::error::Signing key or password validation failed'; exit 1; }
+            > /dev/null 2>&1 || { echo '::error::ANDROID_KEY_PASSWORD does not unlock the signing key'; exit 1; }
           keytool -exportcert -keystore "$RUNNER_TEMP/zerostock-signing-check.jks" \
             -alias "$ANDROID_KEY_ALIAS" -storepass:env ANDROID_KEYSTORE_PASSWORD \
             -file "$RUNNER_TEMP/zerostock-signing-check.der" \
