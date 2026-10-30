@@ -1,0 +1,58 @@
+name: ZeroStock V5 Web Pages
+
+on:
+  push:
+    branches:
+      - v5-web-publish
+    paths:
+      - .github/workflows/web-pages.yml
+      - cloud-build/web-*.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  pages: read
+
+jobs:
+  inspect-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Read current Pages configuration
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh api "repos/$GITHUB_REPOSITORY/pages" > "$RUNNER_TEMP/pages.json" 2> "$RUNNER_TEMP/pages-error.txt"; then
+            python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          d=json.loads((Path(os.environ['RUNNER_TEMP'])/'pages.json').read_text())
+          safe={k:d.get(k) for k in ['status','html_url','cname','build_type','source','https_enforced','public']}
+          print('::notice::Pages configuration: '+json.dumps(safe,separators=(',',':')))
+          PY
+          else
+            cat "$RUNNER_TEMP/pages-error.txt"
+            echo '::warning::Pages configuration could not be read; no settings were changed.'
+          fi
+
+      - name: Read Pages deployment branch restrictions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/environments/github-pages" --jq '{deployment_branch_policy: .deployment_branch_policy, protection_rule_types: [.protection_rules[].type]}' > "$RUNNER_TEMP/environment.json" 2> /dev/null \
+            && echo "::notice::Pages environment: $(cat "$RUNNER_TEMP/environment.json")" \
+            || echo '::notice::No readable github-pages environment.'
+          gh api "repos/$GITHUB_REPOSITORY/environments/github-pages/deployment-branch-policies" --jq '[.branch_policies[] | {name,type}]' > "$RUNNER_TEMP/branches.json" 2> /dev/null \
+            && echo "::notice::Pages allowed refs: $(cat "$RUNNER_TEMP/branches.json")" \
+            || echo '::notice::No readable custom Pages ref policy.'
+
+      - name: Check existing live-test credential bindings
+        env:
+          ZEROSTOCK_TEST_EMAIL_SET: ${{ secrets.ZEROSTOCK_TEST_EMAIL != '' }}
+          ZEROSTOCK_TEST_PASSWORD_SET: ${{ secrets.ZEROSTOCK_TEST_PASSWORD != '' }}
+          FIREBASE_TEST_EMAIL_SET: ${{ secrets.FIREBASE_TEST_EMAIL != '' }}
+          FIREBASE_TEST_PASSWORD_SET: ${{ secrets.FIREBASE_TEST_PASSWORD != '' }}
+        run: |
+          echo "::notice::Live-test bindings: ZEROSTOCK_TEST_EMAIL=$ZEROSTOCK_TEST_EMAIL_SET; ZEROSTOCK_TEST_PASSWORD=$ZEROSTOCK_TEST_PASSWORD_SET; FIREBASE_TEST_EMAIL=$FIREBASE_TEST_EMAIL_SET; FIREBASE_TEST_PASSWORD=$FIREBASE_TEST_PASSWORD_SET"
