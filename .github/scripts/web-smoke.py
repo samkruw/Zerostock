@@ -17,9 +17,10 @@ parser.add_argument('--url')
 args = parser.parse_args()
 root = Path.cwd()
 expected = json.loads((root / 'web-release.json').read_text())
+version = expected['version']
 stage = 'start'
 server = None
-report = {'version': '5.0.0', 'authenticated': 'not_run_missing_credentials', 'stock_writes': False}
+report = {'version': version, 'authenticated': 'not_run_missing_credentials', 'stock_writes': False}
 
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *_):
@@ -65,12 +66,13 @@ try:
             assert page.locator('#gateLoginError').inner_text() == ''
             assert page.evaluate('Boolean(S.firebase?.auth)')
             assert page.evaluate('S.firebase.auth.app.options.projectId') == 'zerostock-c5f5f'
-            assert page.locator('meta[name="app-version"]').get_attribute('content') == '5.0.0'
-            assert page.evaluate('ZeroStockUpdates.currentVersion()') == '5.0.0'
+            assert page.locator('meta[name="app-version"]').get_attribute('content') == version
+            assert page.evaluate('ZeroStockUpdates.currentVersion()') == version
             assert page.evaluate('ZeroStockUpdates.isNewer("5.0.0", "5.0.0-rc.1")')
+            assert page.evaluate('ZeroStockUpdates.isNewer("5.0.1", "5.0.0")')
             stage = label + ':service-worker'
             page.wait_for_function('Boolean(navigator.serviceWorker.controller)', timeout=45000)
-            assert 'zerostock-v5.0.0' in page.evaluate('caches.keys()')
+            assert 'zerostock-v'+version in page.evaluate('caches.keys()')
             stage = label + ':login-validation'
             page.locator('#gateLogin').click()
             assert 'E-Mail und Passwort' in page.locator('#gateLoginError').inner_text()
