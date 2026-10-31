@@ -52,6 +52,21 @@ test('preparing Final twice is idempotent', t => {
   assert.deepEqual(files.map(file => read(root, file)), first);
 });
 
+test('patch release upgrades Final consistently and is repeatable', t => {
+  const root = fixture(t);
+  assert.equal(prepare(root, '5.0.0').status, 0);
+  const result = prepare(root, '5.0.1');
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(JSON.parse(read(root, 'package.json')).version, '5.0.1');
+  assert.match(read(root, 'index.html'), /content="5\.0\.1"/);
+  assert.match(read(root, 'sw.js'), /const CACHE='zerostock-v5\.0\.1';/);
+  assert.match(read(root, 'src/native-updates.js'), /\|\|'5\.0\.1'/);
+  assert.match(read(root, 'scripts/configure-version.mjs'), /\|\| '5\.0\.1'/);
+  const first = read(root, 'index.html');
+  assert.equal(prepare(root, '5.0.1').status, 0);
+  assert.equal(read(root, 'index.html'), first);
+});
+
 test('RC1 preparation preserves its published cache and version', t => {
   const root = fixture(t);
   assert.equal(prepare(root, '5.0.0-rc.1').status, 0);
@@ -62,7 +77,7 @@ test('RC1 preparation preserves its published cache and version', t => {
 test('invalid release versions are rejected before changing files', t => {
   const root = fixture(t);
   const before = read(root, 'package.json');
-  for (const version of ['', '../5.0.0', '5.0.0\n', '5.0.0-rc.01', '5.1.0']) {
+  for (const version of ['', '../5.0.0', '5.0.0\n', '5.0.0-rc.01', '5.0.01', '5.1.0']) {
     const result = prepare(root, version);
     assert.notEqual(result.status, 0, `Accepted invalid version ${JSON.stringify(version)}`);
     assert.equal(read(root, 'package.json'), before);

@@ -2,8 +2,8 @@ import fs from 'node:fs';
 
 const input = process.argv[2] ?? process.env.ZEROSTOCK_RELEASE_VERSION ?? '';
 const version = input.startsWith('v') ? input.slice(1) : input;
-const valid = value => value === value.trim() && /^5\.0\.0(?:-rc\.[1-9]\d*)?$/.test(value);
-if (!valid(version)) throw new Error('Expected a 5.0.0 release or 5.0.0-rc.N version.');
+const valid = value => value === value.trim() && /^5\.0\.(?:0|[1-9]\d*)(?:-rc\.[1-9]\d*)?$/.test(value);
+if (!valid(version)) throw new Error('Expected a 5.0.x release or 5.0.x-rc.N version.');
 
 const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 const cap = JSON.parse(fs.readFileSync('capacitor.config.json', 'utf8'));

@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 env:
-  ZEROSTOCK_RELEASE_VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '5.0.0' }}
+  ZEROSTOCK_RELEASE_VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '5.0.1' }}
 
 concurrency:
   group: zerostock-android-${{ github.ref }}
@@ -37,7 +37,9 @@ jobs:
           cp cloud-build/configure-release.mjs "$RUNNER_TEMP/zerostock-v5/src/scripts/configure-release.mjs"
           cp cloud-build/prepare-release.mjs "$RUNNER_TEMP/zerostock-v5/src/scripts/prepare-release.mjs"
           cp cloud-build/test-release.mjs "$RUNNER_TEMP/zerostock-v5/src/scripts/test-rc.mjs"
-          cp cloud-build/RELEASE-NOTES-v5.0.0.md "$RUNNER_TEMP/zerostock-v5/src/"
+          cp cloud-build/test-phase12.mjs "$RUNNER_TEMP/zerostock-v5/src/scripts/test-phase12.mjs"
+          patch --batch --fuzz=0 -p1 -d "$RUNNER_TEMP/zerostock-v5/src" < cloud-build/ui-readability.patch
+          cp cloud-build/RELEASE-NOTES-v*.md "$RUNNER_TEMP/zerostock-v5/src/"
           cp icon-192.png icon-512.png icon-1024.png "$RUNNER_TEMP/zerostock-v5/src/"
           echo "ZS_SRC=$RUNNER_TEMP/zerostock-v5/src" >> "$GITHUB_ENV"
 
@@ -76,6 +78,13 @@ jobs:
         working-directory: ${{ env.ZS_SRC }}
         run: npm run test:all
 
+      - name: Verify UI readability with isolated browser fixtures
+        run: |
+          python3 -m venv "$RUNNER_TEMP/ui-qa"
+          "$RUNNER_TEMP/ui-qa/bin/python" -m pip install --disable-pip-version-check playwright==1.56.0
+          "$RUNNER_TEMP/ui-qa/bin/python" -m playwright install --with-deps --only-shell chromium
+          "$RUNNER_TEMP/ui-qa/bin/python" .github/scripts/ui-readability.py --root "$ZS_SRC/www"
+
       - name: Create Android project
         working-directory: ${{ env.ZS_SRC }}
         run: npx cap add android
@@ -92,7 +101,7 @@ jobs:
           ZEROSTOCK_VERSION_CODE: ${{ github.run_number }}
         run: |
           export ZEROSTOCK_VERSION_NAME="${ZEROSTOCK_RELEASE_VERSION#v}"
-          test "$ZEROSTOCK_VERSION_CODE" -gt 23
+          test "$ZEROSTOCK_VERSION_CODE" -gt 27
           node scripts/configure-release.mjs
 
       - name: Build debug APK
@@ -146,7 +155,9 @@ jobs:
           cp cloud-build/configure-release.mjs "$RUNNER_TEMP/zerostock-v5/src/scripts/configure-release.mjs"
           cp cloud-build/prepare-release.mjs "$RUNNER_TEMP/zerostock-v5/src/scripts/prepare-release.mjs"
           cp cloud-build/test-release.mjs "$RUNNER_TEMP/zerostock-v5/src/scripts/test-rc.mjs"
-          cp cloud-build/RELEASE-NOTES-v5.0.0.md "$RUNNER_TEMP/zerostock-v5/src/"
+          cp cloud-build/test-phase12.mjs "$RUNNER_TEMP/zerostock-v5/src/scripts/test-phase12.mjs"
+          patch --batch --fuzz=0 -p1 -d "$RUNNER_TEMP/zerostock-v5/src" < cloud-build/ui-readability.patch
+          cp cloud-build/RELEASE-NOTES-v*.md "$RUNNER_TEMP/zerostock-v5/src/"
           cp icon-192.png icon-512.png icon-1024.png "$RUNNER_TEMP/zerostock-v5/src/"
           echo "ZS_SRC=$RUNNER_TEMP/zerostock-v5/src" >> "$GITHUB_ENV"
 
@@ -185,6 +196,13 @@ jobs:
         working-directory: ${{ env.ZS_SRC }}
         run: npm run test:all
 
+      - name: Verify UI readability with isolated browser fixtures
+        run: |
+          python3 -m venv "$RUNNER_TEMP/ui-qa"
+          "$RUNNER_TEMP/ui-qa/bin/python" -m pip install --disable-pip-version-check playwright==1.56.0
+          "$RUNNER_TEMP/ui-qa/bin/python" -m playwright install --with-deps --only-shell chromium
+          "$RUNNER_TEMP/ui-qa/bin/python" .github/scripts/ui-readability.py --root "$ZS_SRC/www"
+
       - name: Create Android project
         working-directory: ${{ env.ZS_SRC }}
         run: npx cap add android
@@ -202,7 +220,7 @@ jobs:
           ZEROSTOCK_VERSION_CODE: ${{ github.run_number }}
         run: |
           export ZEROSTOCK_VERSION_NAME="${ZEROSTOCK_VERSION_NAME#v}"
-          test "$ZEROSTOCK_VERSION_CODE" -gt 23
+          test "$ZEROSTOCK_VERSION_CODE" -gt 27
           node scripts/configure-release.mjs
 
       - name: Build unsigned release APK

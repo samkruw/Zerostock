@@ -15,7 +15,7 @@ function ok(name, condition) {
   if (!condition) throw new Error(`FAIL: ${name}`);
   checks.push(name);
 }
-ok('package matches selected release', /^5\.0\.0(?:-rc\.[1-9]\d*)?$/.test(version) && pkg.version === version);
+ok('package matches selected release', /^5\.0\.(?:0|[1-9]\d*)(?:-rc\.[1-9]\d*)?$/.test(version) && pkg.version === version);
 const htmlVersion = html.match(/meta name="app-version" content="([^"]+)"/)?.[1];
 ok('web app version matches selected release', htmlVersion === version);
 const cache = version === '5.0.0-rc.1' ? 'zerostock-v5.0-rc1' : `zerostock-v${version}`;
