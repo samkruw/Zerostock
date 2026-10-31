@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - v5-web-main
+      - v5-ui-web
       - main
   workflow_dispatch:
 
@@ -29,6 +30,8 @@ jobs:
           ZEROSTOCK_TEST_EMAIL: ${{ secrets.ZEROSTOCK_TEST_EMAIL }}
           ZEROSTOCK_TEST_PASSWORD: ${{ secrets.ZEROSTOCK_TEST_PASSWORD }}
         run: '"$RUNNER_TEMP/web-qa/bin/python" .github/scripts/web-smoke.py'
+      - name: Test content readability and Android safe areas with isolated fixtures
+        run: '"$RUNNER_TEMP/web-qa/bin/python" .github/scripts/ui-readability.py'
       - name: Test public website after Pages deployment
         if: github.ref == 'refs/heads/main'
         env:
