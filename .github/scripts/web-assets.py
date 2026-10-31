@@ -6,14 +6,14 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-APK_URL = 'https://github.com/samkruw/Zerostock/releases/download/v5.0.0/ZeroStock-v5.0.0.apk'
-APK_SHA = '73049ba778e4ecf0fdf1ba9384e7f0d0a3d395134d78cd5fef6b6e419ca87e92'
+APK_URL = 'https://github.com/samkruw/Zerostock/releases/download/v5.0.2/ZeroStock-v5.0.2.apk'
+APK_SHA = '848989395eb783869d0b0b94895dab3242bb45ce03e06551dc075473b05fee9d'
 parser = argparse.ArgumentParser()
 parser.add_argument('--apk', type=Path)
 args = parser.parse_args()
 root = Path.cwd()
 manifest = json.loads((root / 'web-release.json').read_text())
-assert manifest['version'] == '5.0.0'
+assert manifest['version'] == '5.0.2'
 assert manifest['source_apk'] == APK_URL and manifest['source_apk_sha256'] == APK_SHA
 with tempfile.TemporaryDirectory(prefix='zerostock-web-assets-') as temporary:
     apk = args.apk or Path(temporary) / 'release.apk'
@@ -31,5 +31,5 @@ with tempfile.TemporaryDirectory(prefix='zerostock-web-assets-') as temporary:
                 expected[name] = digest
     assert manifest['files'] == expected
 assert (root / '.nojekyll').exists()
-assert 'content="5.0.0"' in (root / 'index.html').read_text()
+assert 'content="5.0.2"' in (root / 'index.html').read_text()
 print(f'Canonical V5 web assets verified: {len(expected)} files, identical to the signed Final APK.')

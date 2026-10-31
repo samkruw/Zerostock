@@ -1,8 +1,8 @@
 {
-  "version": "5.0.0",
-  "source_commit": "3b6287459311b5da71351521c240b7c5123dac69",
-  "source_apk": "https://github.com/samkruw/Zerostock/releases/download/v5.0.0/ZeroStock-v5.0.0.apk",
-  "source_apk_sha256": "73049ba778e4ecf0fdf1ba9384e7f0d0a3d395134d78cd5fef6b6e419ca87e92",
+  "version": "5.0.2",
+  "source_commit": "9929c63566e720b85d5605da28bc016bb9d75b58",
+  "source_apk": "https://github.com/samkruw/Zerostock/releases/download/v5.0.2/ZeroStock-v5.0.2.apk",
+  "source_apk_sha256": "848989395eb783869d0b0b94895dab3242bb45ce03e06551dc075473b05fee9d",
   "files": {
     "cordova.js": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "cordova_plugins.js": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -10,16 +10,16 @@
     "icon-1024.png": "2c5f36de0a765a8385d465264800ef16d85cb3ed6108c00ee9b8f7e8f61a6e67",
     "icon-192.png": "fcd8efc7f233cd7add9a9f16a955afd7ac23688826286392c1e9acc944e24374",
     "icon-512.png": "79fd9ee3aad840c55c08f8f28d7090806de611a1937983c5017551a92b6da05b",
-    "index.html": "50cef7310ca23db5d8d817a814c665a0c22cf59e6d6f4256a9036ebb6388da72",
+    "index.html": "c527a3a1b10e4186a7f53ce231c314a790ec7487f337871c27c2882f46b5ef2d",
     "manifest.webmanifest": "f16abab0c7ef7c29fca86274e4c1ef83a7b2477e56785a4da065dc242d262883",
     "native-firebase.js": "7c46d7961c65a7bb0864edfbaa1769365df22180e3d680c45169d6d240ace488",
     "native-notifications.js": "5c5e50c4b84e1bdd61a7ae458ab56fd58dd14ddea1a46c4699244f86337505b2",
     "native-scanner.js": "e770e24015969913f7c825effda6dce7ad819869200f3e5d39b1aaadad92deff",
     "native-secure.js": "9a4d9eb0c8a48bc63940b89ad44680d802fb450d2b70d3e5202da4e31b802dfb",
     "native-share.js": "38256db1b7457364a1bd567f91b86de66f9b264d537f93d00788ec6ab7fd6097",
-    "native-updates.js": "c69bd928fb11ad9dbcab41131eeb1c80a93b411f7eb8cef17a03f9385cd2ae61",
+    "native-updates.js": "66b01edcea9d2146cae83c8126c1608c494e645b400285fa5d2db1a2ec0d0dec",
     "offline-core.js": "67db108a8b17c3122360e58e82e46ef3c8b333e3da86ab40e27a95ac2e2d1a90",
-    "sw.js": "dd12dae45cad2cd239d6080db9e7ea4e705cf176f16b9bc1821f8d6c5f86686b",
+    "sw.js": "de48c1603a0d9239eb4ea7d4f1ad595b820822760d7b2945883cce3ae0fea18a",
     "update-config.json": "140c4b801067f3e740cad3a75cc39f17edf129f9522a9665ff1b4a17dde75fcf"
   }
 }
