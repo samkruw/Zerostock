@@ -1,0 +1,13 @@
+{
+  "name": "zerostock-isolated-rules-tests",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "firebase": "12.17.1",
+    "@firebase/rules-unit-testing": "5.0.0",
+    "firebase-tools": "15.37.0"
+  },
+  "scripts": {
+    "test": "firebase emulators:exec --project demo-zerostock-articles --only database --non-interactive 'node --test rules.test.mjs'"
+  }
+}

@@ -1,0 +1,50 @@
+name: ZeroStock database rule tests
+
+on:
+  push:
+    branches: [feat/plates-container-quantities, main]
+    paths:
+      - cloud-build/overrides/database.rules.json
+      - cloud-build/rules-tests/**
+      - .github/workflows/database-rules.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rules:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install isolated official rule-testing tools
+        working-directory: cloud-build/rules-tests
+        run: npm ci --no-audit --no-fund
+      - name: Test supplied rules against a local demo-project emulator
+        working-directory: cloud-build/rules-tests
+        env:
+          CI: true
+          FIREBASE_EMULATORS_PATH: ${{ runner.temp }}/firebase-emulators
+        run: |
+          cp ../overrides/database.rules.json database.rules.json
+          if npm test > "$RUNNER_TEMP/rules-result.log" 2>&1; then
+            echo '::notice::Firebase demo-project rule tests passed.'
+          else
+            python3 - <<'PY'
+          import os,re
+          from pathlib import Path
+          text=Path(os.environ['RUNNER_TEMP'],'rules-result.log').read_text()
+          failures=re.findall(r'^not ok \d+ - (.+)$',text,re.M)
+          for name in failures: print('::error::Rule test failed: '+name)
+          if not failures: print('::error::Rule emulator setup failed before test results; inspect the job log.')
+          PY
+            exit 1
+          fi
