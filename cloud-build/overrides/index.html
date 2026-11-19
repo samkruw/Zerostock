@@ -1124,7 +1124,7 @@ function scheduleSync(delay=250){
   if(!S.native){clearTimeout(S.syncTimer);S.syncTimer=setTimeout(()=>retryWebBookings().catch(e=>console.error('web recovery',e)),delay);return;}
   if(!S.offlineReady)return;clearTimeout(S.syncTimer);S.syncTimer=setTimeout(()=>runSyncEngine().catch(e=>console.error('sync engine',e)),delay);
 }
-function classifySyncError(e){const m=String(e?.code||e?.message||e||'SYNC_FAILED');if(/permission|auth|user-disabled|PERMISSION_DENIED/i.test(m))return'CONFLICT';if(/INSUFFICIENT|CARTON_NOT_FOUND|ID_COLLISION|MOVEMENT_MISMATCH|INVALID_/i.test(m))return'CONFLICT';return'RETRY'}
+function classifySyncError(e){const m=String(e?.code||e?.message||e||'SYNC_FAILED');if(m==='AUTH_ACTOR_MISMATCH')return'RETRY';if(/permission|auth|user-disabled|PERMISSION_DENIED/i.test(m))return'CONFLICT';if(/INSUFFICIENT|CARTON_NOT_FOUND|ID_COLLISION|MOVEMENT_MISMATCH|INVALID_/i.test(m))return'CONFLICT';return'RETRY'}
 async function syncOneMovement(move){
   const F=S.firebase;if(!F||!S.db)throw Error('FIREBASE_NOT_READY');
   move=ArticleModel.validateMovement(move);

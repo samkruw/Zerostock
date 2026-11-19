@@ -37,6 +37,21 @@ class Regressions(unittest.TestCase):
     def test_wrong_actor_never_applies_queued_stock(self):
         result=self.page.evaluate("""async()=>{S.user={uid:'employee-b',role:'employee'};S.firebase.auth.currentUser.uid='employee-b';let rejected=false;try{await syncOneMovement({id:'queued-a',userId:'employee-a',userName:'A',cartonId:'C',article:'CON-A',type:'out',qty:2,ts:1})}catch{rejected=true}return {rejected,stock:uiFixture.data.cartons.C.stock}}""")
         self.assertEqual(result,{'rejected':True,'stock':10})
+    def test_account_switch_during_sync_retries_for_original_user_without_second_debit(self):
+        result=self.page.evaluate("""async()=>{
+            const user={...S.user},move={id:'switch-mid-sync',userId:user.uid,userName:user.name,cartonId:'C',article:'CON-A',type:'out',qty:2,ts:1};
+            let state='pending';S.native=true;S.offlineReady=true;
+            window.ZeroStockOffline={getSyncBatch:async(_,uid)=>uid===user.uid&&state!=='conflict'&&state!=='synced'?[move]:[],
+                markSyncing:async()=>{},markRetry:async()=>{state='retry'},markConflict:async()=>{state='conflict'},markSynced:async()=>{state='synced'},
+                stats:async()=>({pending:state==='synced'?0:1,conflicts:state==='conflict'?1:0}),
+                getCartons:async()=>Object.values(uiFixture.data.cartons),getInstructions:async()=>Object.values(uiFixture.data.instructions),getMovements:async()=>[]};
+            const transaction=S.firebase.runTransaction;
+            S.firebase.runTransaction=async(...args)=>{const result=await transaction(...args);S.user={uid:'other-user',role:'employee'};S.firebase.auth.currentUser.uid='other-user';S.connected=false;return result};
+            await runSyncEngine();
+            S.firebase.runTransaction=transaction;S.user=user;S.firebase.auth.currentUser.uid=user.uid;S.connected=true;
+            await runSyncEngine();return {state,stock:uiFixture.data.cartons.C.stock,moves:Object.keys(uiFixture.data.movements).length};
+        }""")
+        self.assertEqual(result,{'state':'synced','stock':8,'moves':1})
     def test_existing_article_number_cannot_be_renamed_to_another_record(self):
         self.page.evaluate("openCarton('C');document.getElementById('cArticle').value='PL-P'")
         self.page.locator('#saveCarton').click()
