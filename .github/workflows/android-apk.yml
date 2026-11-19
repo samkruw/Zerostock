@@ -34,7 +34,7 @@ jobs:
     uses: ./.github/workflows/android-native-check.yml
     with:
       version: '5.1.1'
-      version_code: ${{ github.run_number }}
+      version_code: ${{ fromJSON(github.run_number) }}
 
   verify-source:
     runs-on: ubuntu-24.04
