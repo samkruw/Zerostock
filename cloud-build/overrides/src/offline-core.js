@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { CapacitorSQLite } from '@capacitor-community/sqlite';
-import { createMovementMetadata, movementMetadata } from './articles.mjs';
+import { createMovementMetadata, movementMetadata, validateMovement } from './articles.mjs';
 
 const DB='zerostock';
 const DB_VERSION=3;
@@ -163,6 +163,12 @@ async function cacheCartons(cartons=[]){
       server_updated_at=excluded.server_updated_at,local_updated_at=excluded.local_updated_at,payload_json=excluded.payload_json`,
       [id,String(c.article||id),String(c.name||''),String(c.location||''),effective,Number(c.min)||0,Number(c.warn)||0,c.active===false?0:1,Number(c.updatedAt)||0,now(),JSON.stringify(c)]);
   }
+  // This API receives the complete onValue snapshot, including an empty snapshot.
+  // Movement/queue history is independent and remains available for recovery.
+  const present=new Set(cartons.map(c=>String(c.id)));
+  for(const row of await query('SELECT id FROM cartons')){
+    if(!present.has(String(row.id)))await run('DELETE FROM cartons WHERE id=?',[row.id]);
+  }
   await run(`INSERT OR REPLACE INTO metadata(key,value,updated_at) VALUES(?,?,?)`,['cartons_cached_at',String(now()),now()]);
   return getCartons();
 }
@@ -184,6 +190,10 @@ async function cacheInstructions(items=[]){
     await run(`INSERT INTO instructions(id,name,active,updated_at,payload_json) VALUES(?,?,?,?,?)
       ON CONFLICT(id) DO UPDATE SET name=excluded.name,active=excluded.active,updated_at=excluded.updated_at,payload_json=excluded.payload_json`,
       [id,String(i.name||''),i.active===false?0:1,Number(i.updatedAt)||now(),JSON.stringify(i)]);
+  }
+  const present=new Set(items.map(i=>String(i.id)));
+  for(const row of await query('SELECT id FROM instructions')){
+    if(!present.has(String(row.id)))await run('DELETE FROM instructions WHERE id=?',[row.id]);
   }
   return getInstructions();
 }
@@ -236,7 +246,7 @@ async function recordMovement({cartonId,type,qty,reason='',note='',userId='',use
   if(!Number.isSafeInteger(before)||before<0||!Number.isSafeInteger(after))throw new Error('Die Menge oder der lokale Bestand ist für diese Buchung ungültig. Bitte Bestand und Synchronisierung prüfen.');
   const id=uuid(),ts=now();
   const metadata=createMovementMetadata(safeJson(c.payload_json)||{},{partner,reference});
-  const payload={id,cartonId:String(cartonId),article:c.article,type,qty:q,reason,note,userId,userName,stockBefore:before,stockAfter:after,ts,syncStatus:'PENDING',...metadata};
+  const payload=validateMovement({id,cartonId:String(cartonId),article:c.article,type,qty:q,reason,note,userId,userName,stockBefore:before,stockAfter:after,ts,syncStatus:'PENDING',...metadata});
   await CapacitorSQLite.beginTransaction({database:DB});
   try{
     await run(`UPDATE cartons SET stock=?,local_updated_at=? WHERE id=?`,[after,ts,String(cartonId)]);
@@ -263,13 +273,13 @@ async function getMovementsByStatus(statuses=[]){
   return rows.map(r=>({...movementMetadata(safeJson(r.payload_json)||{}),id:r.id,ts:Number(r.ts)||0,userId:r.user_id||'',userName:r.user_name||'',cartonId:r.carton_id,article:r.article||'',type:r.type,qty:Number(r.qty)||0,reason:r.reason||'',note:r.note||'',stockBefore:Number(r.stock_before)||0,stockAfter:Number(r.stock_after)||0,syncStatus:r.sync_status}));
 }
 
-async function getSyncBatch(limit=20){
+async function getSyncBatch(limit=20,userId=null){
   await init();
   const t=now();
   const rows=await query(`SELECT q.*,m.ts,m.user_id,m.user_name,m.carton_id,m.article,m.type,m.qty,m.reason,m.note,m.stock_before,m.stock_after,m.sync_status
     FROM sync_queue q JOIN movements m ON m.id=q.entity_id
     WHERE q.entity_type='movement' AND q.status IN ('PENDING','FAILED') AND (q.next_retry_at IS NULL OR q.next_retry_at<=?)
-    ORDER BY q.created_at ASC LIMIT ?`,[t,Number(limit)||20]);
+    AND (? IS NULL OR m.user_id=?) ORDER BY q.created_at ASC LIMIT ?`,[t,userId,userId,Number(limit)||20]);
   return rows.map(r=>({...movementMetadata(safeJson(r.payload_json)||{}),id:r.id,entityId:r.entity_id,status:r.status,attempts:Number(r.attempts)||0,ts:Number(r.ts)||0,userId:r.user_id||'',userName:r.user_name||'',cartonId:r.carton_id,article:r.article||'',type:r.type,qty:Number(r.qty)||0,reason:r.reason||'',note:r.note||'',stockBefore:Number(r.stock_before)||0,stockAfter:Number(r.stock_after)||0,syncStatus:r.sync_status}));
 }
 

@@ -4,7 +4,7 @@ import { DatabaseSync } from 'node:sqlite';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { randomUUID } from 'node:crypto';
-import { createMovementMetadata, movementMetadata } from '../src/articles.mjs';
+import { createMovementMetadata, movementMetadata, validateMovement } from '../src/articles.mjs';
 
 const source = fs.readFileSync(new URL('../src/offline-core.js',import.meta.url),'utf8')
   .replace(/^import[^\n]*\n/gm,'');
@@ -27,7 +27,7 @@ function fixture(t) {
   };
   function load() {
     const context=vm.createContext({console,window:{},crypto:{randomUUID},
-      Capacitor:{isNativePlatform:()=>true},CapacitorSQLite:sqlite,createMovementMetadata,movementMetadata});
+      Capacitor:{isNativePlatform:()=>true},CapacitorSQLite:sqlite,createMovementMetadata,movementMetadata,validateMovement});
     vm.runInContext(source,context);
     return context.window.ZeroStockOffline;
   }
@@ -45,6 +45,8 @@ test('typed articles and configurations survive real SQLite cache/reload',async 
   const restarted=f.load(); await restarted.init();
   assert.equal((await restarted.getCartons()).find(x=>x.id==='C').externalRef,'CT-A');
   assert.equal((await restarted.getInstructions())[0].kind,'container');
+  await restarted.cacheInstructions([]);
+  assert.equal((await restarted.getInstructions()).length,0);
 });
 test('container exit changes only its stock and preserves metadata in all queue views',async t=>{
   const f=fixture(t); await f.offline.cacheCartons(articles);
@@ -87,7 +89,7 @@ test('invalid metadata and fractional quantities cannot cause partial stock chan
 });
 test('a queue write failure rolls back real SQLite stock and movement writes',async t=>{
   const f=fixture(t); await f.offline.cacheCartons(articles);f.state.failQueue=true;
-  await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'out',qty:1,partner:'Kunde'}),/TEST_IO_FAILURE/);
+  await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'out',qty:1,userId:'u',partner:'Kunde'}),/TEST_IO_FAILURE/);
   assert.equal((await f.offline.getCartons()).find(x=>x.id==='C').stock,10);
   assert.equal(f.db.prepare('SELECT count(*) AS n FROM movements').get().n,0);
 });
@@ -96,4 +98,26 @@ test('a receipt that would overflow a safe stock count is rejected before writin
   await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'in',qty:1,userId:'u'}));
   assert.equal((await f.offline.getCartons())[0].stock,Number.MAX_SAFE_INTEGER);
   assert.equal(f.db.prepare('SELECT count(*) AS n FROM movements').get().n,0);
+});
+test('authoritative snapshots remove missing articles while retaining queued movement history',async t=>{
+  const f=fixture(t);await f.offline.cacheCartons(articles);
+  const move=await f.offline.recordMovement({cartonId:'P',type:'out',qty:1,userId:'a'});
+  const refreshed=await f.offline.cacheCartons(articles.filter(c=>c.id!=='P'));
+  assert.equal(refreshed.some(c=>c.id==='P'),false);
+  assert.equal((await f.offline.getSyncBatch(20,'a'))[0].id,move.id);
+  await f.offline.cacheCartons([]);assert.equal((await f.offline.getCartons()).length,0);
+});
+test('sync batches select only the authenticated actor without consuming another actor queue',async t=>{
+  const f=fixture(t);await f.offline.cacheCartons(articles);
+  const a=await f.offline.recordMovement({cartonId:'C',type:'out',qty:1,userId:'a'});
+  const b=await f.offline.recordMovement({cartonId:'C',type:'out',qty:1,userId:'b'});
+  assert.deepEqual(plain(await f.offline.getSyncBatch(20,'b')).map(m=>m.id),[b.id]);
+  assert.deepEqual(plain(await f.offline.getSyncBatch(20,'a')).map(m=>m.id),[a.id]);
+});
+test('journal text rejected by Firebase cannot enter the local stock transaction',async t=>{
+  const f=fixture(t);await f.offline.cacheCartons(articles);
+  await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'out',qty:1,userId:'a',note:'x'.repeat(1001)}));
+  await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'out',qty:1,userId:'a',reason:'x'.repeat(501)}));
+  assert.equal((await f.offline.getCartons()).find(c=>c.id==='C').stock,10);
+  assert.equal((await f.offline.getSyncBatch()).length,0);
 });

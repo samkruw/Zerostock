@@ -48,6 +48,7 @@ jobs:
           "$RUNNER_TEMP/ui-qa/bin/python" -m pip install --disable-pip-version-check playwright==1.56.0
           "$RUNNER_TEMP/ui-qa/bin/python" -m playwright install --with-deps --only-shell chromium
           "$RUNNER_TEMP/ui-qa/bin/python" .github/scripts/articles-ui.py --root "$ZS_SRC/www"
+          "$RUNNER_TEMP/ui-qa/bin/python" .github/scripts/articles-regressions.py --root "$ZS_SRC/www"
           "$RUNNER_TEMP/ui-qa/bin/python" .github/scripts/ui-readability.py --root "$ZS_SRC/www"
       - name: Archive tested source and resolved dependency lock
         run: tar --exclude='./node_modules' --exclude='./android' -czf "$RUNNER_TEMP/tested-source.tar.gz" -C "$ZS_SRC" .

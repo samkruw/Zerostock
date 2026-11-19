@@ -3,6 +3,8 @@ export const ARTICLE_KINDS = Object.freeze(['carton', 'plate', 'container']);
 
 const messages = {
   INVALID_KIND: 'Bitte eine gültige Artikelart wählen.',
+  INVALID_BOOKING: 'Die Buchungsdaten sind ungültig. Bitte Menge und Textfelder prüfen.',
+  IMMUTABLE_ARTICLE: 'Die Artikelnummer kann nach dem Anlegen nicht geändert werden.',
   IMMUTABLE_KIND: 'Die bereits festgelegte Artikelart kann nicht geändert werden.',
   REQUIRED_TEXT: 'Artikelnummer, Bezeichnung und Lagerplatz sind erforderlich.',
   INVALID_TEXT: 'Ein Textfeld ist ungültig oder zu lang.',
@@ -48,6 +50,7 @@ export function validateArticle(input, previous) {
   const kind = input.kind ?? 'carton';
   if (!ARTICLE_KINDS.includes(kind)) fail('INVALID_KIND');
   if (previous?.kind && previous.kind !== kind) fail('IMMUTABLE_KIND');
+  if (previous?.article && text(input.article, 120, true) !== previous.article) fail('IMMUTABLE_ARTICLE');
   const result = {
     id: input.id,
     article: text(input.article, 120, true), name: text(input.name, 200, true),
@@ -114,6 +117,14 @@ export function movementMetadata(record = {}) {
 export function createMovementMetadata(article, options = {}) {
   return movementMetadata({articleKind:articleKind(article), externalRef:article.externalRef || '',
     partner:options.partner, reference:options.reference});
+}
+/** Validate the complete journal payload before either storage system changes stock. */
+export function validateMovement(move) {
+  if (!['in','out','shrink'].includes(move.type)) fail('INVALID_BOOKING');
+  return {...move, ...movementMetadata(move), qty:whole(move.qty,true,'INVALID_BOOKING'),
+    cartonId:text(move.cartonId,120,true), article:text(move.article,120,true),
+    userId:text(move.userId,128,true), userName:text(move.userName,120),
+    reason:text(move.reason,500), note:text(move.note,1000)};
 }
 export function containerMovementRows(movements, articles) {
   const byId = new Map(articles.map(a => [String(a.id), a]));
