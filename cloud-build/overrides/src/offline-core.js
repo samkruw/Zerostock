@@ -233,6 +233,7 @@ async function recordMovement({cartonId,type,qty,reason='',note='',userId='',use
   const before=Number(c.stock)||0;
   if(type!=='in'&&q>before) throw new Error('INSUFFICIENT_STOCK');
   const after=Math.max(0,before+(type==='in'?q:-q));
+  if(!Number.isSafeInteger(before)||before<0||!Number.isSafeInteger(after))throw new Error('Die Menge oder der lokale Bestand ist für diese Buchung ungültig. Bitte Bestand und Synchronisierung prüfen.');
   const id=uuid(),ts=now();
   const metadata=createMovementMetadata(safeJson(c.payload_json)||{},{partner,reference});
   const payload={id,cartonId:String(cartonId),article:c.article,type,qty:q,reason,note,userId,userName,stockBefore:before,stockAfter:after,ts,syncStatus:'PENDING',...metadata};

@@ -91,3 +91,9 @@ test('a queue write failure rolls back real SQLite stock and movement writes',as
   assert.equal((await f.offline.getCartons()).find(x=>x.id==='C').stock,10);
   assert.equal(f.db.prepare('SELECT count(*) AS n FROM movements').get().n,0);
 });
+test('a receipt that would overflow a safe stock count is rejected before writing',async t=>{
+  const f=fixture(t);await f.offline.cacheCartons([{...articles[0],stock:Number.MAX_SAFE_INTEGER}]);
+  await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'in',qty:1,userId:'u'}));
+  assert.equal((await f.offline.getCartons())[0].stock,Number.MAX_SAFE_INTEGER);
+  assert.equal(f.db.prepare('SELECT count(*) AS n FROM movements').get().n,0);
+});
