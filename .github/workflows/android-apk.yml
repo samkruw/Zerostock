@@ -51,11 +51,11 @@ jobs:
           docker run --rm --ipc=host \
             -v "$GITHUB_WORKSPACE:/checkout:ro" -v "$ZS_SRC/www:/web:ro" \
             mcr.microsoft.com/playwright/python:v1.56.0-noble bash -euc '
-              python3 -m venv /tmp/qa
-              /tmp/qa/bin/python -m pip install --disable-pip-version-check playwright==1.56.0
-              /tmp/qa/bin/python /checkout/.github/scripts/articles-ui.py --root /web
-              /tmp/qa/bin/python /checkout/.github/scripts/articles-regressions.py --root /web
-              /tmp/qa/bin/python /checkout/.github/scripts/ui-readability.py --root /web
+              export PYTHONPATH=/tmp/qa
+              python -m pip install --disable-pip-version-check --target "$PYTHONPATH" playwright==1.56.0 || { echo "::error::Installing the Playwright Python client failed"; exit 1; }
+              python /checkout/.github/scripts/articles-ui.py --root /web || { echo "::error::Article UI flow failed"; exit 1; }
+              python /checkout/.github/scripts/articles-regressions.py --root /web || { echo "::error::Booking recovery checks failed"; exit 1; }
+              python /checkout/.github/scripts/ui-readability.py --root /web || { echo "::error::Layout checks failed"; exit 1; }
             '
       - name: Archive tested source and resolved dependency lock
         run: tar --exclude='./node_modules' --exclude='./android' -czf "$RUNNER_TEMP/tested-source.tar.gz" -C "$ZS_SRC" .
