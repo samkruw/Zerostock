@@ -1,22 +1,25 @@
-# ZeroStock V5.0.2 — Website und Android
+# ZeroStock V5.1.1
 
-Dieser Webstand enthält dieselben 17 Anwendungsdateien wie die veröffentlichte, signierte Android-Version V5.0.2.
+ZeroStock verwaltet Kartons, Plates und Container. Website und Android-App arbeiten mit demselben Firebase-Projekt. Die Website verwendet die 18 Anwendungsdateien aus der signierten Android-APK. [Website](https://samkruw.github.io/Zerostock/) · [Android-Release](https://github.com/samkruw/Zerostock/releases/tag/v5.1.1) · [Dateiprüfsummen](web-release.json)
 
-- Website: https://samkruw.github.io/Zerostock/
-- Android-Release: https://github.com/samkruw/Zerostock/releases/tag/v5.0.2
-- UI: Command Glass auf Desktop, Scan First auf Mobilgeräten
-- Firebase-Projekt: zerostock-c5f5f für beide Oberflächen
-- Herkunft und Datei-Prüfsummen: web-release.json
+## Plates und Container im Lager
 
-Die Website ist statisch und benötigt keinen eigenen Server oder Build beim Veröffentlichen. GitHub Pages verwendet main / root; .nojekyll erhält die vorgebauten Dateien unverändert.
+1. Öffne auf dem Handy **Bestand → + Artikel**. Wähle als Admin die Artikelart **Plate** oder **Container** und trage Anfangsbestand, Mindestbestand und Warnbestand ein. Eine externe Artikelreferenz kannst du ergänzen. Bei vorhandenen Artikeln ohne Typ ist die erste Zuordnung möglich.
+2. Öffne **Mehr → Konfigurationen → + Konfiguration**. Wähle **Container-Konfiguration**, den Containertyp und die benötigte Stückzahl jedes Plate-Artikels.
+3. Gib unter **Mehr → Planner** die gewünschte Anzahl Container ein. Der Planner zeigt den Bedarf, die verfügbaren Mengen, die Fehlmengen je Artikel und die maximal bestückbare Containerzahl. Die Planung lässt die Lagerbestände unverändert.
+4. Buche **Eingang**, **Abgang** oder **Schwund** für jeden Artikel separat. Bei Containern kannst du die Gegenstelle und eine Referenz eintragen. Die Bewegung erscheint im Journal.
 
-Die Website-QA prüft die Identität zur Final-APK, den Firebase-SDK-Start, Versionsdaten, Desktop-/Mobil-Loginoberfläche und Service Worker. Echte Konto-Tests werden nur ausgeführt, wenn ZEROSTOCK_TEST_EMAIL und ZEROSTOCK_TEST_PASSWORD sicher als Repository-Secrets hinterlegt sind. Ohne diese Zugangsdaten ist ein erfolgreicher Live-Login oder Buchungs-/Sync-Test nicht bestätigt.
+Im Rechenbeispiel braucht ein Container vier Plates P und zwei Plates Q. Mit zehn Containern, 30 P und 20 Q kannst du sieben Container bestücken. Bei einer Anfrage für acht Container fehlen zwei P.
 
-V5.0.2 entfernt widersprüchliche Regeln des früheren hellen Designs. Überschriften, Artikelnummern und Bestände bleiben auf dunklen Flächen lesbar; Menübeschreibungen stehen unter den Titeln. Der Installationshinweis verdeckt keine Bestandskarten. Die Oberfläche berücksichtigt Android-Systemleisten über die von Capacitor gelieferten Safe-Area-Werte.
+Unter **Mehr → Export → Container-Bewegungen · CSV** erhältst du die Containerbuchungen aus den aktuell geladenen Bewegungen. Das Journal lädt bis zu 200 Bewegungen über alle Artikelarten. Die Mengen beziehen sich auf den Containertyp. Die externe Artikelreferenz und die CSV bereiten eine spätere Container-Track-Anbindung vor.
 
-Zusätzlich prüft ui-readability.py die tatsächlichen App-Ansichten mit lokalen Beispieldaten in sechs Browser-Konfigurationen. Externe Verbindungen sind dabei blockiert. Die Prüfung erfasst Kontraste, Menüabstände, Bestandsfilter, Navigation, Installationshinweis und simulierte Android-Abstände. Sie ersetzt keinen Test auf einem physischen Android-Gerät.
+## Android, Website und Datenbank
 
-Die Datei database.rules.json ist die V5-Sollkonfiguration als Versionsbackup. Das Aktualisieren dieser Datei veröffentlicht keine Firebase-Regeln und verändert keine Produktionsdaten.
+Installiere die neue APK als Update über der vorhandenen ZeroStock-App. Die Paketkennung lautet `ch.zerogen.zerostock`. Android prüft beim Update die bestehende Signatur. Die Android-App speichert ausstehende Buchungen in SQLite. Ein unterbrochener Abgleich setzt dieselbe Buchung mit ihrer ursprünglichen ID fort.
+
+Die Änderungsquellen liegen unter `cloud-build/overrides`. `cloud-build/restore-source.mjs` stellt das geprüfte Originalarchiv, die Lesbarkeitskorrektur und die Änderungen in einem neuen Verzeichnis wieder her. Nach der Signaturprüfung der APK stammen die Website-Dateien direkt aus `assets/public`. GitHub Pages veröffentlicht das Stammverzeichnis von `main`.
+
+Die automatisierten Prüfungen umfassen Lagerberechnung, SQLite, Web- und Android-Ansichten sowie die mitgelieferten Firebase-Regeln im Emulator. Für V5.1.1 steht der Test auf einem physischen Android-Gerät mit einem freigegebenen Konto noch aus. Für die Aktivierung der mitgelieferten Datenbankregeln ist ein Administratorzugang zum Firebase-Projekt erforderlich. [Firebase-Regeln](database.rules.json)
 
 ## Bisherige Funktionsdokumentation
 

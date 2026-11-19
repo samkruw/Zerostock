@@ -66,8 +66,8 @@
 
 **Files:** Android/source QA workflows, release notes, canonical root assets/provenance, environment setup/start instructions and release report.
 
-- [ ] Validate restored source locally and in pinned Ubuntu 24.04 CI; preserve existing test gates and add new suites.
-- [ ] Dispatch one fresh whole-branch review as required by the inline execution skill, fix material findings with regression coverage, and record decisions in the ledger.
-- [ ] Build/sign a new immutable 5.1.0 APK; independently verify APK metadata, SHA and signer. Do not move a failed release tag.
+- [x] Validate restored source locally and in pinned Ubuntu 24.04 CI; preserve existing test gates and add new suites.
+- [x] Dispatch one fresh whole-branch review as required by the inline execution skill, fix material findings with regression coverage, and record decisions in the ledger.
+- [x] Build/sign the corrective V5.1.1 APK; independently verify APK metadata, SHA and signer. Do not move a failed release tag.
 - [ ] Extract exact public assets into web root, update provenance/tests, publish the approved feature via normal main fast-forward, and verify the actual public site.
 - [ ] Save tested reusable environment instructions and report what passed, what remains unverified, and any actual Firebase access blocker.

@@ -682,11 +682,11 @@
   async function currentVersion() {
     if (isNative()) {
       try {
-        return (await App.getInfo()).version || "5.0.2";
+        return (await App.getInfo()).version || "5.1.1";
       } catch {
       }
     }
-    return document.querySelector('meta[name="app-version"]')?.content || "5.0.2";
+    return document.querySelector('meta[name="app-version"]')?.content || "5.1.1";
   }
   function chooseApk(release, c) {
     let rx;

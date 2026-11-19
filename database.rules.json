@@ -13,21 +13,48 @@
     "cartons": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() != false && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')",
       "$id": {
-        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() != false && (root.child('users').child(auth.uid).child('role').val() == 'admin' || (root.child('users').child(auth.uid).child('role').val() == 'employee' && data.exists() && newData.exists() && newData.child('id').val() == data.child('id').val() && newData.child('article').val() == data.child('article').val() && newData.child('name').val() == data.child('name').val() && newData.child('location').val() == data.child('location').val() && newData.child('warn').val() == data.child('warn').val() && newData.child('min').val() == data.child('min').val()))",
-        ".validate": "newData.hasChildren(['id','article','name','location','stock','warn','min']) && newData.child('id').val() == $id && newData.child('article').isString() && newData.child('article').val().length <= 120 && newData.child('name').isString() && newData.child('name').val().length <= 200 && newData.child('location').isString() && newData.child('location').val().length <= 120 && newData.child('stock').isNumber() && newData.child('stock').val() >= 0 && newData.child('warn').isNumber() && newData.child('warn').val() >= 0 && newData.child('min').isNumber() && newData.child('min').val() >= 0 && newData.child('warn').val() >= newData.child('min').val()"
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() != false && (root.child('users').child(auth.uid).child('role').val() == 'admin' || (root.child('users').child(auth.uid).child('role').val() == 'employee' && data.exists() && newData.exists() && newData.child('id').val() == data.child('id').val() && newData.child('article').val() == data.child('article').val() && newData.child('name').val() == data.child('name').val() && newData.child('location').val() == data.child('location').val() && newData.child('warn').val() == data.child('warn').val() && newData.child('min').val() == data.child('min').val() && newData.child('kind').val() == data.child('kind').val() && newData.child('externalRef').val() == data.child('externalRef').val()))",
+        ".validate": "newData.hasChildren(['id','article','name','location','stock','warn','min']) && newData.child('id').val() == $id && newData.child('article').isString() && newData.child('article').val().length <= 120 && newData.child('name').isString() && newData.child('name').val().length <= 200 && newData.child('location').isString() && newData.child('location').val().length <= 120 && newData.child('stock').isNumber() && newData.child('stock').val() >= 0 && newData.child('warn').isNumber() && newData.child('warn').val() >= 0 && newData.child('min').isNumber() && newData.child('min').val() >= 0 && newData.child('warn').val() >= newData.child('min').val() && (!data.child('kind').exists() || newData.child('kind').val() == data.child('kind').val()) && ((newData.child('kind').val() != 'plate' && newData.child('kind').val() != 'container') || (newData.child('stock').val() % 1 == 0 && newData.child('stock').val() <= 9007199254740991 && newData.child('min').val() % 1 == 0 && newData.child('warn').val() % 1 == 0))",
+        "kind": {
+          ".validate": "newData.val() == 'carton' || newData.val() == 'plate' || newData.val() == 'container'"
+        },
+        "externalRef": {
+          ".validate": "newData.isString() && newData.val().length <= 120"
+        }
       }
     },
     "instructions": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() != false",
       "$id": {
-        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin' && root.child('users').child(auth.uid).child('active').val() != false"
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin' && root.child('users').child(auth.uid).child('active').val() != false",
+        ".validate": "(!data.child('kind').exists() || newData.child('kind').val() == data.child('kind').val()) && (newData.child('kind').val() != 'container' || (newData.hasChildren(['id','name','containerId','materials']) && newData.child('id').val() == $id && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 200 && newData.child('containerId').isString() && root.child('cartons').child(newData.child('containerId').val()).child('kind').val() == 'container' && root.child('cartons').child(newData.child('containerId').val()).child('active').val() != false && newData.child('materials').hasChildren(['0','1']) && newData.child('materials').child('0').child('cartonId').val() == newData.child('containerId').val() && newData.child('materials').child('0').child('qty').val() == 1))",
+        "kind": {
+          ".validate": "newData.val() == 'packing' || newData.val() == 'container'"
+        },
+        "materials": {
+          "$index": {
+            ".validate": "newData.parent().parent().child('kind').val() != 'container' || ($index.matches(/^(0|[1-9][0-9]*)$/) && newData.hasChildren(['cartonId','qty']) && newData.child('cartonId').isString() && newData.child('qty').isNumber() && newData.child('qty').val() > 0 && newData.child('qty').val() % 1 == 0 && newData.child('qty').val() <= 9007199254740991 && (($index == '0' && newData.child('cartonId').val() == newData.parent().parent().child('containerId').val() && newData.child('qty').val() == 1) || ($index != '0' && root.child('cartons').child(newData.child('cartonId').val()).child('kind').val() == 'plate' && root.child('cartons').child(newData.child('cartonId').val()).child('active').val() != false)))"
+          }
+        }
       }
     },
     "movements": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() != false && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')",
       "$id": {
         ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() != false && !data.exists() && newData.exists() && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')",
-        ".validate": "newData.hasChildren(['userId','cartonId','article','type','qty','stockAfter']) && newData.child('userId').val() == auth.uid && root.child('cartons').child(newData.child('cartonId').val()).exists() && newData.child('article').val() == root.child('cartons').child(newData.child('cartonId').val()).child('article').val() && (newData.child('type').val() == 'in' || newData.child('type').val() == 'out' || newData.child('type').val() == 'shrink') && newData.child('qty').isNumber() && newData.child('qty').val() > 0 && newData.child('stockAfter').isNumber() && newData.child('stockAfter').val() >= 0 && (!newData.child('reason').exists() || (newData.child('reason').isString() && newData.child('reason').val().length <= 500)) && (!newData.child('note').exists() || (newData.child('note').isString() && newData.child('note').val().length <= 1000))"
+        ".validate": "newData.hasChildren(['userId','cartonId','article','type','qty','stockAfter']) && newData.child('userId').val() == auth.uid && root.child('cartons').child(newData.child('cartonId').val()).exists() && newData.child('article').val() == root.child('cartons').child(newData.child('cartonId').val()).child('article').val() && (newData.child('type').val() == 'in' || newData.child('type').val() == 'out' || newData.child('type').val() == 'shrink') && newData.child('qty').isNumber() && newData.child('qty').val() > 0 && newData.child('stockAfter').isNumber() && newData.child('stockAfter').val() >= 0 && (!newData.child('reason').exists() || (newData.child('reason').isString() && newData.child('reason').val().length <= 500)) && (!newData.child('note').exists() || (newData.child('note').isString() && newData.child('note').val().length <= 1000))",
+        "partner": {
+          ".validate": "newData.isString() && newData.val().length <= 120"
+        },
+        "reference": {
+          ".validate": "newData.isString() && newData.val().length <= 200"
+        },
+        "externalRef": {
+          ".validate": "newData.isString() && newData.val().length <= 120"
+        },
+        "articleKind": {
+          ".validate": "newData.val() == 'carton' || newData.val() == 'plate' || newData.val() == 'container'"
+        }
       }
     },
     "customerSummary": {

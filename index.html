@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="app-version" content="5.0.2">
+<meta name="app-version" content="5.1.1">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#060b14">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -376,6 +376,16 @@ aside nav button span:last-child{text-align:center;font-size:18px;grid-column:1;
 
 /* ZeroStock V5 Phase 5 - Native scanner overlay */
 .nativeScannerOverlay{position:fixed;inset:0;z-index:9999;display:none;background:transparent;color:#fff;pointer-events:none}.nativeScannerOverlay.open{display:block}.nativeScannerShade{position:absolute;inset:0;background:linear-gradient(rgba(1,8,12,.46),rgba(1,8,12,.2) 24%,rgba(1,8,12,.2) 76%,rgba(1,8,12,.56));pointer-events:none}.nativeScannerTop{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;padding:max(18px,var(--zs-safe-top)) 18px 12px;pointer-events:auto}.nativeScannerTop button,.nativeScannerBottom button{width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(4,18,18,.58);backdrop-filter:blur(14px);color:#fff;font-size:22px}.nativeScannerTitle{text-align:center}.nativeScannerTitle b{display:block;font-size:15px;letter-spacing:.12em}.nativeScannerTitle small{display:block;color:#c9e9df;margin-top:3px}.nativeScannerFrame{position:absolute;left:50%;top:48%;width:min(74vw,330px);height:min(42vw,210px);transform:translate(-50%,-50%);border-radius:22px;box-shadow:0 0 0 9999px rgba(0,0,0,.18);pointer-events:none}.nativeScannerFrame:before,.nativeScannerFrame:after{content:"";position:absolute;inset:0;border-radius:22px}.nativeScannerFrame:before{border:2px solid rgba(32,227,178,.38)}.nativeScannerCorners{position:absolute;inset:0;background:linear-gradient(var(--brand),var(--brand)) left top/42px 4px no-repeat,linear-gradient(var(--brand),var(--brand)) left top/4px 42px no-repeat,linear-gradient(var(--brand),var(--brand)) right top/42px 4px no-repeat,linear-gradient(var(--brand),var(--brand)) right top/4px 42px no-repeat,linear-gradient(var(--brand),var(--brand)) left bottom/42px 4px no-repeat,linear-gradient(var(--brand),var(--brand)) left bottom/4px 42px no-repeat,linear-gradient(var(--brand),var(--brand)) right bottom/42px 4px no-repeat,linear-gradient(var(--brand),var(--brand)) right bottom/4px 42px no-repeat;border-radius:22px;filter:drop-shadow(0 0 10px rgba(32,227,178,.45))}.nativeScannerLine{position:absolute;left:8%;right:8%;top:50%;height:2px;background:linear-gradient(90deg,transparent,var(--brand),transparent);box-shadow:0 0 14px var(--brand);animation:zsScanLine 2s ease-in-out infinite}@keyframes zsScanLine{0%,100%{transform:translateY(-62px);opacity:.45}50%{transform:translateY(62px);opacity:1}}.nativeScannerBottom{position:absolute;left:18px;right:18px;bottom:max(24px,var(--zs-safe-bottom));display:flex;align-items:center;justify-content:center;gap:18px;pointer-events:auto}.nativeScannerHint{position:absolute;left:18px;right:18px;bottom:96px;text-align:center;color:#e7fff8;font-size:13px;text-shadow:0 2px 8px #000}.nativeScannerOverlay .torchOn{background:var(--brand);color:#032018;border-color:#7fffe0}.native-app.native-scanning body{background:transparent!important}.native-app.native-scanning #appShell,.native-app.native-scanning .gate,.native-app.native-scanning .mobileBottom,.native-app.native-scanning .fabScan,.native-app.native-scanning .installbar,.native-app.native-scanning .toast{visibility:hidden!important}.native-app.native-scanning .nativeScannerOverlay{visibility:visible!important}
+
+/* Typed articles and configuration planning share the existing readable V5 surfaces. */
+[hidden]{display:none!important}
+.articleKind{display:inline-block;margin:4px 4px 0 0;padding:3px 7px;border:1px solid var(--line);border-radius:8px;color:var(--muted);font-size:11px;font-weight:600;vertical-align:middle}
+.articleFilters button{min-height:44px;font-size:13px}.articleFilters{padding:12px}
+.configCapacity{font-size:18px;margin:14px 0 8px}.configCapacity strong{font-size:26px;font-variant-numeric:tabular-nums}
+.instruction b,.req b{overflow-wrap:anywhere}
+#exportsView .quickActions{display:grid!important}
+@media(max-width:980px){.mfoot{padding-bottom:calc(13px + var(--zs-safe-bottom))}.instruction{grid-template-columns:minmax(0,1fr)}.instruction .actions .btn{min-height:44px}.articleFilters{gap:6px}}
+
 </style>
 </head>
 <body>
@@ -425,16 +435,16 @@ aside nav button span:last-child{text-align:center;font-size:18px;grid-column:1;
 
 <section class="view" id="scanView"><div class="panel scanhero"><div class="scanbox"><div class="scanicon">▣</div><h2 data-i18n="scanCarton">Karton scannen</h2><p data-i18n="scanText">QR-Regalschild scannen und danach Eingang, Abgang oder Schwund buchen.</p><button class="btn primary" id="startScan" data-book>📷 <span data-i18n="openCamera">Kamera öffnen</span></button><button class="btn" id="manualScan" data-book data-i18n="manualCode">Code eingeben</button><div id="scanSelected"></div></div></div></section>
 
-<section class="view" id="cartonsView"><div class="panel"><div class="ph"><div><h3 data-i18n="cartons">Kartons</h3><small data-i18n="masterData">Stammdaten & QR-Regalschilder</small></div><div class="actions"><input class="search" id="cartonSearch" placeholder="Suchen…"><button type="button" class="btn primary" id="addCarton" data-admin>+ <span data-i18n="newCarton">Karton</span></button></div></div><div class="tablewrap"><table><thead><tr><th data-i18n="article">Artikel</th><th data-i18n="description">Bezeichnung</th><th data-i18n="location">Lagerplatz</th><th data-i18n="stock">Bestand</th><th data-i18n="minStock">Minimum</th><th data-i18n="warningStock">Warnbestand</th><th></th></tr></thead><tbody id="cartonRows"></tbody></table></div></div></section>
+<section class="view" id="cartonsView"><div class="panel"><div class="ph"><div><h3 data-i18n="cartons">Kartons</h3><small data-i18n="masterData">Stammdaten & QR-Regalschilder</small></div><div class="actions"><input class="search" id="cartonSearch" placeholder="Suchen…"><button type="button" class="btn primary" id="addCarton" data-admin>+ <span data-i18n="newCarton">Karton</span></button></div></div><div class="taskFilters articleFilters" aria-label="Artikelart filtern"><button type="button" data-article-filter="all" class="active" aria-pressed="true">Alle</button><button type="button" data-article-filter="carton" aria-pressed="false">Kartons</button><button type="button" data-article-filter="plate" aria-pressed="false">Plates</button><button type="button" data-article-filter="container" aria-pressed="false">Container</button></div><div class="tablewrap"><table><thead><tr><th data-i18n="article">Artikel</th><th data-i18n="description">Bezeichnung</th><th data-i18n="location">Lagerplatz</th><th data-i18n="stock">Bestand</th><th data-i18n="minStock">Minimum</th><th data-i18n="warningStock">Warnbestand</th><th></th></tr></thead><tbody id="cartonRows"></tbody></table></div></div></section>
 
-<section class="view" id="instructionsView"><div class="panel"><div class="ph"><div><h3>Packing Instructions</h3><small data-i18n="instructionHelp">Selbst anlegen und Kartonbedarf definieren</small></div><button class="btn primary" id="addInstruction" data-admin>+ <span data-i18n="newInstruction">Instruction</span></button></div><div id="instructionList"></div></div></section>
+<section class="view" id="instructionsView"><div class="panel"><div class="ph"><div><h3>Konfigurationen</h3><small data-i18n="instructionHelp">Selbst anlegen und Kartonbedarf definieren</small></div><button class="btn primary" id="addInstruction" data-admin>+ <span data-i18n="newInstruction">Instruction</span></button></div><div id="instructionList"></div></div></section>
 
-<section class="view" id="plannerView"><div class="panel"><div class="ph"><div><h3 data-i18n="planner">Packing Planner</h3><small data-i18n="plannerHelp">Prüfen, welche Aufträge mit dem aktuellen Bestand möglich sind</small></div></div><div class="body"><div class="plannerTop"><label>Packing Instruction<select id="planInstruction"></select></label><label data-i18n="orderQty">Anzahl Packings<input id="planQty" type="number" min="1" value="1"></label><label data-i18n="orderRef">Auftrag / Referenz<input id="planRef" placeholder="z. B. KT12345"></label><button class="btn primary" id="calculatePlan" data-i18n="calculate">Berechnen</button></div><div id="planResult" class="result"></div></div></div></section>
+<section class="view" id="plannerView"><div class="panel"><div class="ph"><div><h3 data-i18n="planner">Packing Planner</h3><small data-i18n="plannerHelp">Prüfen, welche Aufträge mit dem aktuellen Bestand möglich sind</small></div></div><div class="body"><div class="plannerTop"><label><span data-i18n="configurationLabel">Konfiguration</span><select id="planInstruction"></select></label><label><span id="planQtyLabel">Anzahl Packings</span><input id="planQty" type="number" min="1" value="1"></label><label data-i18n="orderRef">Auftrag / Referenz<input id="planRef" placeholder="z. B. KT12345"></label><button class="btn primary" id="calculatePlan" data-i18n="calculate">Berechnen</button></div><div id="planResult" class="result" aria-live="polite"></div></div></div></section>
 
-<section class="view" id="movementsView"><div class="panel"><div class="ph"><div><h3 data-i18n="movements">Bewegungen</h3><small data-i18n="journal">Nachvollziehbares Buchungsjournal</small></div></div><div class="tablewrap"><table><thead><tr><th data-i18n="time">Zeit</th><th data-i18n="user">Benutzer</th><th data-i18n="article">Artikel</th><th data-i18n="type">Art</th><th data-i18n="quantity">Menge</th><th data-i18n="stockAfter">Bestand danach</th><th data-i18n="reason">Grund</th><th>Sync</th></tr></thead><tbody id="movementRows"></tbody></table></div></div></section>
+<section class="view" id="movementsView"><div class="panel"><div class="ph"><div><h3 data-i18n="movements">Bewegungen</h3><small data-i18n="journal">Nachvollziehbares Buchungsjournal</small></div></div><div class="tablewrap"><table><thead><tr><th data-i18n="time">Zeit</th><th data-i18n="user">Benutzer</th><th data-i18n="article">Artikel</th><th data-i18n="type">Art</th><th data-i18n="quantity">Menge</th><th data-i18n="stockAfter">Bestand danach</th><th data-i18n="reason">Grund</th><th>Referenz / Gegenstelle</th><th>Sync</th></tr></thead><tbody id="movementRows"></tbody></table></div></div></section>
 
 
-<section class="view" id="exportsView"><div class="panel"><div class="ph"><div><h3>Export & Teilen</h3><small>Bestand, Bewegungen und Sicherung lokal erzeugen</small></div><span class="status" id="exportModeBadge">WEB</span></div><div class="body"><div class="quickActions" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))"><button class="quickAction" id="exportStockExcel"><span>▤</span><b>Bestand · Excel</b><small>Excel-kompatible .xls-Datei</small></button><button class="quickAction" id="exportStockCsv"><span>≡</span><b>Bestand · CSV</b><small>Für Excel und weitere Systeme</small></button><button class="quickAction" id="exportMovesCsv"><span>↕</span><b>Bewegungen · CSV</b><small>Buchungsjournal exportieren</small></button><button class="quickAction" id="exportBackupJson" data-admin><span>◇</span><b>Datensicherung · JSON</b><small>Kartons, TINST und Bewegungen</small></button></div><div class="result" style="margin-top:14px"><b>Android</b><div class="note">Dateien werden zusätzlich unter ZeroStock/Exports im privaten App-Speicher gesichert und danach über das Android-Share-Sheet angeboten. So kannst du sie an Outlook, Teams, OneDrive, Dateien oder andere installierte Apps senden.</div></div><div class="result" style="margin-top:10px"><b>PWA / Browser</b><div class="note">Der Export wird als Datei heruntergeladen. Wenn der Browser Dateifreigabe unterstützt, kann zusätzlich das System-Share-Sheet geöffnet werden.</div></div></div></div></section>
+<section class="view" id="exportsView"><div class="panel"><div class="ph"><div><h3>Export & Teilen</h3><small>Bestand, Bewegungen und Sicherung lokal erzeugen</small></div><span class="status" id="exportModeBadge">WEB</span></div><div class="body"><div class="quickActions" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))"><button class="quickAction" id="exportStockExcel"><span>▤</span><b>Bestand · Excel</b><small>Excel-kompatible .xls-Datei</small></button><button class="quickAction" id="exportStockCsv"><span>≡</span><b>Bestand · CSV</b><small>Für Excel und weitere Systeme</small></button><button class="quickAction" id="exportMovesCsv"><span>↕</span><b>Bewegungen · CSV</b><small>Buchungsjournal exportieren</small></button><button class="quickAction" id="exportContainerMovesCsv" data-internal><span>↕</span><b>Container-Bewegungen · CSV</b><small id="containerExportCount">Aktuell geladene Containerbewegungen</small></button><button class="quickAction" id="exportBackupJson" data-admin><span>◇</span><b>Datensicherung · JSON</b><small>Kartons, TINST und Bewegungen</small></button></div><div class="result" style="margin-top:14px"><b>Android</b><div class="note">Dateien werden zusätzlich unter ZeroStock/Exports im privaten App-Speicher gesichert und danach über das Android-Share-Sheet angeboten. So kannst du sie an Outlook, Teams, OneDrive, Dateien oder andere installierte Apps senden.</div></div><div class="result" style="margin-top:10px"><b>PWA / Browser</b><div class="note">Der Export wird als Datei heruntergeladen. Wenn der Browser Dateifreigabe unterstützt, kann zusätzlich das System-Share-Sheet geöffnet werden.</div></div></div></div></section>
 
 <section class="view" id="usersView"><div class="userGrid">
 <div class="panel"><div class="ph"><div><h3>Benutzerverwaltung</h3><small>Accounts, Rollen & Zugriff</small></div><button type="button" class="btn primary" id="openAddUser" data-admin>+ Benutzer</button></div><div class="body"><div id="userList"><div class="empty"><b>Benutzer werden geladen…</b></div></div></div></div>
@@ -443,7 +453,7 @@ aside nav button span:last-child{text-align:center;font-size:18px;grid-column:1;
 
 <section class="view" id="tasksView"><div class="panel"><div class="ph"><div><h3>Aufgaben</h3><small>Bestand, Sync und künftige operative Workflows</small></div><span class="status" id="taskOpenBadge">0 OFFEN</span></div><div class="taskSummary"><div class="taskStat"><small>Offen</small><b id="taskStatOpen">0</b></div><div class="taskStat"><small>Kritisch</small><b id="taskStatCritical">0</b></div><div class="taskStat"><small>Bestand</small><b id="taskStatStock">0</b></div><div class="taskStat"><small>Sync</small><b id="taskStatSync">0</b></div></div><div class="taskFilters"><button data-task-filter="ALL" class="active">Alle</button><button data-task-filter="STOCK">Bestand</button><button data-task-filter="SYNC">Sync</button><button data-task-filter="DELIVERY">Lieferung</button><button data-task-filter="RETURN">Return</button></div><div id="taskList"></div></div></section>
 
-<section class="view" id="moreView"><div class="panel"><div class="ph"><div><h3>Mehr</h3><small>Weitere ZeroStock-Bereiche</small></div></div><div class="body"><div class="moreMenu" id="moreMenu"><button data-goto="instructions"><span><i>≡</i><span><b>Packing Instructions</b><small class="muted">TINST verwalten</small></span></span><span>›</span></button><button data-goto="planner"><span><i>◆</i><span><b>Planner</b><small class="muted">Packing-Kapazität planen</small></span></span><span>›</span></button><button data-goto="movements" data-internal><span><i>↕</i><span><b>Bewegungen</b><small class="muted">Buchungsjournal</small></span></span><span>›</span></button><button data-goto="exports" data-internal><span><i>⇩</i><span><b>Export</b><small class="muted">Excel, CSV & Sicherung</small></span></span><span>›</span></button><button data-goto="users" data-admin><span><i>♙</i><span><b>Benutzer</b><small class="muted">Rollen und Zugriffe</small></span></span><span>›</span></button><button data-goto="settings" data-admin><span><i>⚙</i><span><b>Einstellungen</b><small class="muted">Firebase und Systemstatus</small></span></span><span>›</span></button></div></div></div></section>
+<section class="view" id="moreView"><div class="panel"><div class="ph"><div><h3>Mehr</h3><small>Weitere ZeroStock-Bereiche</small></div></div><div class="body"><div class="moreMenu" id="moreMenu"><button data-goto="instructions"><span><i>≡</i><span><b>Konfigurationen</b><small class="muted">Packing und Plate-Bedarf</small></span></span><span>›</span></button><button data-goto="planner"><span><i>◆</i><span><b>Planner</b><small class="muted">Packing-Kapazität planen</small></span></span><span>›</span></button><button data-goto="movements" data-internal><span><i>↕</i><span><b>Bewegungen</b><small class="muted">Buchungsjournal</small></span></span><span>›</span></button><button data-goto="exports" data-internal><span><i>⇩</i><span><b>Export</b><small class="muted">Excel, CSV & Sicherung</small></span></span><span>›</span></button><button data-goto="users" data-admin><span><i>♙</i><span><b>Benutzer</b><small class="muted">Rollen und Zugriffe</small></span></span><span>›</span></button><button data-goto="settings" data-admin><span><i>⚙</i><span><b>Einstellungen</b><small class="muted">Firebase und Systemstatus</small></span></span><span>›</span></button></div></div></div></section>
 
 <section class="view" id="settingsView"><div class="panel">
 <div class="ph"><div><h3>Firebase / Multiuser</h3><small>Produktivkonfiguration</small></div></div>
@@ -469,11 +479,11 @@ aside nav button span:last-child{text-align:center;font-size:18px;grid-column:1;
 <label>E-Mail<input id="uEmail" type="email" autocomplete="email" inputmode="email" placeholder="marco@firma.ch"></label>
 <label>Rolle<select id="uRole"><option value="employee">Mitarbeiter / Employee</option><option value="admin">Admin</option><option value="customer">Kunde / Customer</option></select></label>
 <label>Sprache<select id="uLanguage"><option value="de">Deutsch</option><option value="en">English</option></select></label>
-</div><div class="result"><b>Automatisch</b><div class="note">ZeroStock erstellt den Firebase-Login über eine getrennte Session, speichert Rolle und UID und sendet eine E-Mail zum Setzen des Passworts. Dein Admin-Login bleibt bestehen.</div></div><div class="authError" id="userCreateError"></div></div><div class="mfoot"><button type="button" class="btn closeModal">Abbrechen</button><button type="button" class="btn primary" id="createUserBtn">Benutzer anlegen</button></div></div></div><div class="modal" id="bookModal"><div class="modalbox"><div class="ph"><div><h3 id="bookTitle">Buchung</h3><small id="bookSubtitle"></small></div></div><div class="mf"><div class="kv"><div><span data-i18n="stock">Bestand</span><strong id="bookStock"></strong></div><div><span data-i18n="warningStock">Warnbestand</span><strong id="bookWarn"></strong></div><div><span data-i18n="minStock">Minimum</span><strong id="bookMin"></strong></div></div><br><div class="formgrid"><label data-i18n="bookingType">Buchungsart<select id="bookType"><option value="in">Eingang / Stock In</option><option value="out">Abgang / Stock Out</option><option value="shrink">Schwund / Shrinkage</option></select></label><label data-i18n="quantity">Menge<input id="bookQty" type="number" min="1" inputmode="numeric"></label><label class="full" id="reasonWrap" style="display:none"><span data-i18n="reason">Grund</span><select id="bookReason"><option value="damaged">Beschädigt / Damaged</option><option value="lost">Verloren / Lost</option><option value="count">Zähldifferenz / Count discrepancy</option><option value="waste">Ausschuss / Waste</option><option value="other">Sonstiges / Other</option></select></label><label class="full"><span data-i18n="note">Notiz</span><textarea id="bookNote"></textarea></label></div><div id="bookPreview" class="result"></div></div><div class="mfoot"><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button class="btn primary" id="confirmBook" data-i18n="post">Buchen</button></div></div></div>
+</div><div class="result"><b>Automatisch</b><div class="note">ZeroStock erstellt den Firebase-Login über eine getrennte Session, speichert Rolle und UID und sendet eine E-Mail zum Setzen des Passworts. Dein Admin-Login bleibt bestehen.</div></div><div class="authError" id="userCreateError"></div></div><div class="mfoot"><button type="button" class="btn closeModal">Abbrechen</button><button type="button" class="btn primary" id="createUserBtn">Benutzer anlegen</button></div></div></div><div class="modal" id="bookModal" role="dialog" aria-modal="true" aria-labelledby="bookTitle"><div class="modalbox"><div class="ph"><div><h3 id="bookTitle">Buchung</h3><small id="bookSubtitle"></small></div></div><div class="mf"><div class="kv"><div><span data-i18n="stock">Bestand</span><strong id="bookStock"></strong></div><div><span data-i18n="warningStock">Warnbestand</span><strong id="bookWarn"></strong></div><div><span data-i18n="minStock">Minimum</span><strong id="bookMin"></strong></div></div><br><div class="formgrid"><label data-i18n="bookingType">Buchungsart<select id="bookType"><option value="in">Eingang / Stock In</option><option value="out">Abgang / Stock Out</option><option value="shrink">Schwund / Shrinkage</option></select></label><label data-i18n="quantity">Menge<input id="bookQty" type="number" min="1" inputmode="numeric"></label><label class="full" id="reasonWrap" style="display:none"><span data-i18n="reason">Grund</span><select id="bookReason"><option value="damaged">Beschädigt / Damaged</option><option value="lost">Verloren / Lost</option><option value="count">Zähldifferenz / Count discrepancy</option><option value="waste">Ausschuss / Waste</option><option value="other">Sonstiges / Other</option></select></label><div id="containerBookingFields" class="full formgrid" hidden><label><span id="bookPartnerLabel">Empfänger / Ziel</span><input id="bookPartner" maxlength="120"></label><label><span data-i18n="reference">Referenz (optional)</span><input id="bookReference" maxlength="200"></label></div><label class="full"><span data-i18n="note">Notiz</span><textarea id="bookNote" maxlength="1000"></textarea></label></div><div id="bookPreview" class="result"></div></div><div class="mfoot"><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button class="btn primary" id="confirmBook" data-i18n="post">Buchen</button></div></div></div>
 
-<div class="modal" id="cartonModal"><div class="modalbox"><div class="ph"><h3 id="cartonModalTitle">Karton</h3></div><div class="mf"><div class="formgrid"><label data-i18n="article">Artikel<input id="cArticle"></label><label data-i18n="description">Bezeichnung<input id="cName"></label><label data-i18n="location">Lagerplatz<input id="cLocation"></label><label data-i18n="stock">Bestand<input id="cStock" type="number" min="0"></label><label data-i18n="warningStock">Warnbestand<input id="cWarn" type="number" min="0"></label><label data-i18n="minStock">Mindestbestand<input id="cMin" type="number" min="0"></label></div><div id="cartonLive" class="livecalc"></div></div><div class="mfoot"><button type="button" class="btn red" id="deleteCartonModal" style="display:none;margin-right:auto">Löschen</button><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button type="button" class="btn primary" id="saveCarton" data-i18n="save">Speichern</button></div></div></div>
+<div class="modal" id="cartonModal" role="dialog" aria-modal="true" aria-labelledby="cartonModalTitle"><div class="modalbox"><div class="ph"><h3 id="cartonModalTitle">Karton</h3></div><div class="mf"><div class="formgrid"><label><span data-i18n="articleType">Artikelart</span><select id="cKind"><option value="carton">Karton</option><option value="plate">Plate</option><option value="container">Container</option></select></label><label><span data-i18n="externalReference">Externe Artikelreferenz (optional)</span><input id="cExternalRef" maxlength="120"><small class="note">Für eine spätere Zuordnung, z. B. zu Container Track.</small></label><label data-i18n="article">Artikel<input id="cArticle"></label><label data-i18n="description">Bezeichnung<input id="cName"></label><label data-i18n="location">Lagerplatz<input id="cLocation"></label><label data-i18n="stock">Bestand<input id="cStock" type="number" min="0"></label><label data-i18n="warningStock">Warnbestand<input id="cWarn" type="number" min="0"></label><label data-i18n="minStock">Mindestbestand<input id="cMin" type="number" min="0"></label></div><div id="cartonLive" class="livecalc"></div></div><div class="mfoot"><button type="button" class="btn red" id="deleteCartonModal" style="display:none;margin-right:auto">Löschen</button><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button type="button" class="btn primary" id="saveCarton" data-i18n="save">Speichern</button></div></div></div>
 
-<div class="modal" id="instructionModal"><div class="modalbox"><div class="ph"><h3 id="instructionModalTitle">Packing Instruction</h3></div><div class="mf"><div class="formgrid"><label>Instruction / Name<input id="iName"></label><label data-i18n="description">Beschreibung<input id="iDesc"></label><label data-i18n="version">Version<input id="iVersion" value="1.0"></label><label data-i18n="active">Status<select id="iActive"><option value="true">Aktiv / Active</option><option value="false">Inaktiv / Inactive</option></select></label></div><br><b data-i18n="requiredCartons">Benötigte Kartons pro Packing</b><div class="materialRows" id="materialRows"></div><button class="btn" id="addMaterialRow">+ <span data-i18n="addCarton">Karton hinzufügen</span></button><div id="instructionLive" class="livecalc"></div></div><div class="mfoot"><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button class="btn primary" id="saveInstruction" data-i18n="save">Speichern</button></div></div></div>
+<div class="modal" id="instructionModal" role="dialog" aria-modal="true" aria-labelledby="instructionModalTitle"><div class="modalbox"><div class="ph"><h3 id="instructionModalTitle">Packing Instruction</h3></div><div class="mf"><div class="formgrid"><label><span data-i18n="configurationType">Konfigurationsart</span><select id="iKind"><option value="packing">Packing Instruction</option><option value="container">Container-Konfiguration</option></select></label><label id="iContainerWrap" hidden><span data-i18n="targetContainer">Containertyp</span><select id="iContainer"></select></label><label>Instruction / Name<input id="iName"></label><label data-i18n="description">Beschreibung<input id="iDesc"></label><label data-i18n="version">Version<input id="iVersion" value="1.0"></label><label data-i18n="active">Status<select id="iActive"><option value="true">Aktiv / Active</option><option value="false">Inaktiv / Inactive</option></select></label></div><br><b id="iMaterialsLabel">Benötigte Kartons pro Packing</b><div class="materialRows" id="materialRows"></div><button class="btn" id="addMaterialRow">+ <span id="addMaterialText">Karton hinzufügen</span></button><div id="instructionLive" class="livecalc"></div></div><div class="mfoot"><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button class="btn primary" id="saveInstruction" data-i18n="save">Speichern</button></div></div></div>
 
 <div class="modal" id="quickBookModal"><div class="modalbox"><div class="ph"><div><h3 id="quickBookTitle">Schnellbuchung</h3><small>Artikel auswählen</small></div></div><div class="mf"><input class="search" id="quickBookSearch" placeholder="Artikel, Bezeichnung oder Lagerplatz…" style="width:100%;margin-bottom:10px"><div class="quickBookSelectList" id="quickBookList"></div></div><div class="mfoot"><button class="btn closeModal">Abbrechen</button></div></div></div>
 <div class="modal" id="scanModal"><div class="modalbox"><div class="ph"><h3 data-i18n="scanQR">QR scannen</h3></div><div class="mf"><div class="camera"><video id="scanVideo" playsinline></video><div class="guide"></div></div><br><button class="btn" id="stopScan" data-i18n="cancel">Abbrechen</button></div></div></div>
@@ -525,6 +535,7 @@ function ensureQRCodeLibrary(){
   return ZS_QR_PROMISE;
 }
 </script>
+<script src="./articles.js"></script>
 <script src="./native-scanner.js"></script>
 <script src="./offline-core.js"></script>
 <script src="./native-firebase.js"></script>
@@ -554,17 +565,74 @@ function toast(a,b=''){$('toastTitle').textContent=a;$('toastText').textContent=
 function status(c){if(+c.stock<=+c.min)return{key:'crit',txt:lang==='de'?'KRITISCH':'CRITICAL'};if(+c.stock<=+c.warn)return{key:'warn',txt:lang==='de'?'WARNUNG':'WARNING'};return{key:'ok',txt:'OK'}}
 function canWrite(){return !!S.user&&['admin','employee'].includes(S.user.role)}function isAdmin(){return S.user?.role==='admin'}
 function canOfflineBook(){return !!S.native&&!!S.offlineReady&&canWrite()}
-async function refreshOfflineStats(){if(!S.offlineReady||!window.ZeroStockOffline)return;try{S.offlineStats=await window.ZeroStockOffline.stats()}catch(e){console.warn('offline stats',e)}}
-async function loadOfflineData(){if(!S.offlineReady)return;try{const [cartons,instructions,movements]=await Promise.all([window.ZeroStockOffline.getCartons(),window.ZeroStockOffline.getInstructions(),window.ZeroStockOffline.getMovements(200)]);if(cartons.length)S.cartons=cartons;if(instructions.length)S.instructions=instructions;if(movements.length)S.movements=movements;await refreshOfflineStats()}catch(e){console.error('loadOfflineData',e)}}
+async function refreshOfflineStats(){
+  if(!canWrite()||!S.offlineReady||!window.ZeroStockOffline)return;
+  const uid=S.user.uid;
+  try{const stats=await window.ZeroStockOffline.stats();if(canWrite()&&S.user.uid===uid)S.offlineStats=stats}catch(e){console.warn('offline stats',e)}
+}
+async function loadOfflineData(){
+  if(!S.offlineReady||!S.user)return;
+  const uid=S.user.uid,internal=canWrite();
+  if(!internal){clearPrivateState();S.instructions=await window.ZeroStockOffline.getInstructions();return;}
+  try{
+    const [cartons,instructions,movements]=await Promise.all([window.ZeroStockOffline.getCartons(),window.ZeroStockOffline.getInstructions(),window.ZeroStockOffline.getMovements(200)]);
+    if(!canWrite()||S.user.uid!==uid)return;
+    S.cartons=cartons;S.instructions=instructions;S.movements=movements;await refreshOfflineStats();
+  }catch(e){console.error('loadOfflineData',e)}
+}
 async function initOfflineCore(){S.native=!!window.Capacitor?.isNativePlatform?.();if(!S.native||!window.ZeroStockOffline)return false;try{const r=await window.ZeroStockOffline.init();S.offlineReady=!!r?.available;await refreshOfflineStats();return S.offlineReady}catch(e){console.error('SQLite init failed',e);S.offlineReady=false;return false}}
+const ArticleModel=window.ZeroStockArticles;
+let editingCartonStock=0;
+Object.assign(D.de,{configurationLabel:'Konfiguration',cartons:'Artikel',newCarton:'Artikel',masterData:'Kartons, Plates und Container',noCartons:'Noch keine Artikel angelegt',firstCreateCarton:'Lege zuerst mindestens einen Artikel an.',addFirstCarton:'Ersten Artikel anlegen',newInstruction:'Konfiguration',noInstructions:'Noch keine Konfiguration angelegt',instructionHelp:'Packing und Plate-Bedarf je Container konfigurieren',requiredCartons:'Benötigte Artikel pro Packing',addCarton:'Artikel hinzufügen',articleType:'Artikelart',externalReference:'Externe Artikelreferenz (optional)',configurationType:'Konfigurationsart',targetContainer:'Containertyp',configurations:'Konfigurationen',reference:'Referenz (optional)'});
+Object.assign(D.en,{configurationLabel:'Configuration',cartons:'Articles',newCarton:'Article',masterData:'Cartons, plates and containers',noCartons:'No articles created yet',firstCreateCarton:'Create at least one article first.',addFirstCarton:'Add first article',newInstruction:'Configuration',noInstructions:'No configuration created yet',instructionHelp:'Configure packing and plates per container',requiredCartons:'Required articles per packing',addCarton:'Add article',articleType:'Article type',externalReference:'External article reference (optional)',configurationType:'Configuration type',targetContainer:'Container type',configurations:'Configurations',reference:'Reference (optional)'});
+
+function openArticleModal(id,focusId){
+  closeAll();const modal=$(id);modal.classList.add('open');modal.style.removeProperty('display');modal.setAttribute('aria-hidden','false');
+  $(focusId)?.focus();
+}
+
+function instructionRows(){
+  return [...document.querySelectorAll('.matrow')].map(row=>({cartonId:row.querySelector('.matCarton').value,qty:Number(row.querySelector('.matQty').value)}));
+}
+
+function updateInstructionForm(reset=true){
+  const container=$('iKind').value==='container',previous=$('iContainer').value;
+  $('iContainerWrap').hidden=!container;
+  $('iContainer').innerHTML=`<option value="">${lang==='de'?'Containertyp wählen':'Select container type'}</option>`+S.cartons.filter(c=>c.active!==false&&ArticleModel.articleKind(c)==='container').map(c=>`<option value="${esc(c.id)}">${esc(c.article)} · ${esc(c.name)}</option>`).join('');
+  if(previous)$('iContainer').value=previous;
+  $('iMaterialsLabel').textContent=container?(lang==='de'?'Plates je Container':'Plates per container'):(lang==='de'?'Benötigte Artikel pro Packing':'Required articles per packing');
+  $('addMaterialText').textContent=container?(lang==='de'?'Plate hinzufügen':'Add plate'):(lang==='de'?'Artikel hinzufügen':'Add article');
+  if(reset){$('materialRows').innerHTML='';$('materialRows').append(matRow());}
+  instructionLive();
+}
+
+async function exportContainerMovesCsv(){
+  if(!S.user||!['admin','employee'].includes(S.user.role))return;
+  const rows=ArticleModel.containerMovementRows([...S.movements].sort((a,b)=>(b.ts||0)-(a.ts||0)),S.cartons).map(m=>[
+    m.id,m.articleId,m.article,m.externalRef,m.direction,m.quantity,m.ts?new Date(m.ts).toISOString():'',m.userName,m.partner,m.reference,m.stockAfter,
+  ]);
+  return exportTextFile(`ZeroStock_Containerbewegungen_${zsDateStamp()}.csv`,makeCsv(['Bewegungs-ID','Artikel-ID','Artikelnummer','Externe Referenz','Richtung','Menge','Zeit','Benutzer','Gegenstelle','Referenz','Bestand danach'],rows),'text/csv;charset=utf-8','Geladene Containerbewegungen');
+}
+
 function normalizeMaterials(ms=[]){const map=new Map();for(const m of ms){const id=String(m.cartonId||'').trim(),q=Number(m.qty)||0;if(!id||q<=0)continue;map.set(id,(map.get(id)||0)+q)}return[...map].map(([cartonId,qty])=>({cartonId,qty}))}
-function capacity(i){let max=Infinity,bottle='—';const mats=normalizeMaterials(i.materials||[]);if(!mats.length)return{max:0,bottle};for(const m of mats){const c=S.cartons.find(x=>x.id===m.cartonId),cap=c?Math.floor((+c.stock||0)/m.qty):0;if(cap<max){max=cap;bottle=c?.article||m.cartonId}}return{max:Number.isFinite(max)?max:0,bottle}}
+function capacity(i){
+  if(i.kind==='container'){
+    try{const r=ArticleModel.calculateConfiguration(i,S.cartons,1);return {max:r.capacity,bottle:S.cartons.find(c=>c.id===r.bottleneck)?.article||r.bottleneck};}
+    catch(e){return {max:0,bottle:lang==='de'?'Konfiguration prüfen':'Check configuration',error:e.message};}
+  }
+  let max=Infinity,bottle='—';const mats=normalizeMaterials(i.materials||[]);
+  if(!mats.length)return {max:0,bottle};
+  for(const m of mats){const c=S.cartons.find(x=>x.id===m.cartonId),cap=c?Math.floor((+c.stock||0)/m.qty):0;if(cap<max){max=cap;bottle=c?.article||m.cartonId;}}
+  return {max:Number.isFinite(max)?max:0,bottle};
+}
+
 function authView(id){document.querySelectorAll('.authView').forEach(v=>v.classList.toggle('active',v.id===id));$('authGate').classList.remove('hidden');$('appShell').classList.add('locked')}
 function unlock(){$('authGate').classList.add('hidden');$('appShell').classList.remove('locked');if(S.native)window.ZeroStockNotifications?.init?.().catch?.(()=>{})}
 function authError(id,msg){const e=$(id);if(!e)return;e.textContent=msg||'';e.classList.toggle('show',!!msg)}
 function currentView(){return document.querySelector('.view.active')?.id.replace('View','')||'dashboard'}
-function show(v){if(S.user?.role==='customer'&&['scan','cartons','movements','tasks','exports','users','settings'].includes(v))v='planner';document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v+'View'));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));document.querySelectorAll('[data-mview]').forEach(b=>b.classList.toggle('active',b.dataset.mview===v));$('pageTitle').textContent={dashboard:t('dashboard'),scan:t('scan'),cartons:t('cartons'),instructions:'Packing Instructions',planner:t('planner'),movements:t('movements'),tasks:'Aufgaben',exports:'Export',more:'Mehr',users:t('users'),settings:t('settings')}[v]||v}
-function applyRole(){const r=S.user?.role||'';document.querySelectorAll('[data-admin]').forEach(e=>e.style.display=isAdmin()?'':'none');document.querySelectorAll('[data-internal]').forEach(e=>e.style.display=r==='customer'?'none':'');document.querySelectorAll('[data-book]').forEach(e=>e.disabled=!canWrite());if($('inventoryPanel'))$('inventoryPanel').style.display=r==='customer'?'none':'';$('roleLabel').textContent=S.user?`${S.user.name} · ${S.user.role}`:'—';$('currentUserName').textContent=S.user?.name||'—';$('currentUserEmail').textContent=S.firebase?.auth?.currentUser?.email||'—';$('currentUserRole').textContent=S.user?.role||'—'}
+function show(v){if(S.user?.role==='customer'&&!['planner','instructions','more'].includes(v))v='planner';document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v+'View'));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));document.querySelectorAll('[data-mview]').forEach(b=>b.classList.toggle('active',b.dataset.mview===v));$('pageTitle').textContent={dashboard:t('dashboard'),scan:t('scan'),cartons:t('cartons'),instructions:t('configurations'),planner:t('planner'),movements:t('movements'),tasks:'Aufgaben',exports:'Export',more:'Mehr',users:t('users'),settings:t('settings')}[v]||v}
+function clearPrivateState(){S.cartons=[];S.movements=[];S.users=[];S.tasks=[];S.offlineStats={pending:0,conflicts:0,failed:0,syncing:0,cartons:0,movements:0};}
+function applyRole(){if(!canWrite())clearPrivateState();const r=S.user?.role||'';document.querySelectorAll('[data-admin]').forEach(e=>e.style.display=isAdmin()?'':'none');document.querySelectorAll('[data-internal]').forEach(e=>e.style.setProperty('display',canWrite()?'':'none',canWrite()?'':'important'));document.querySelectorAll('[data-book]').forEach(e=>e.disabled=!canWrite());if($('inventoryPanel'))$('inventoryPanel').style.display=r==='customer'?'none':'';$('roleLabel').textContent=S.user?`${S.user.name} · ${S.user.role}`:'—';$('currentUserName').textContent=S.user?.name||'—';$('currentUserEmail').textContent=S.firebase?.auth?.currentUser?.email||'—';$('currentUserRole').textContent=S.user?.role||'—'}
 function setI18nText(el,text){
   if(!el)return;
   // Simple text-only element: normal replacement is safe.
@@ -626,6 +694,7 @@ function movementLabel(m){return m.type==='in'?(lang==='de'?'Eingang':'Stock In'
 function renderMobileHome(){
   const recent=$('mobileRecentMoves'), warnings=$('mobileWarnings');
   if(!recent||!warnings)return;
+  if(!canWrite()){recent.textContent='';warnings.textContent='';return;}
   const moves=[...S.movements].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,5);
   recent.innerHTML=moves.map(m=>`<div class="mobileMove"><div><b>${esc(m.article||m.cartonId||'—')}</b><small>${movementLabel(m)} · ${m.ts?new Date(m.ts).toLocaleTimeString(lang==='de'?'de-CH':'en-GB',{hour:'2-digit',minute:'2-digit'}):'—'} · ${esc(m.userName||'—')}</small></div><div class="mobileMoveQty ${m.type==='in'?'in':'out'}">${m.type==='in'?'+':'-'}${m.qty||0}</div></div>`).join('')||`<div class="empty"><b>Noch keine Buchungen</b><span>Die letzten Bewegungen erscheinen hier.</span></div>`;
   const ws=S.cartons.filter(c=>status(c).key!=='ok').sort((a,b)=>{const A=status(a).key==='crit'?0:1,B=status(b).key==='crit'?0:1;return A-B||(+a.stock)-(+b.stock)}).slice(0,3);
@@ -745,30 +814,121 @@ async function deleteCarton(id){
     toast(lang==='de'?'Löschen nicht möglich':'Delete failed',e.message||String(e));
   }
 }
-function renderCartons(){const q=(($('cartonSearch')?.value||$('dashSearch')?.value)||'').toLowerCase(),list=S.cartons.filter(c=>(c.article+' '+c.name+' '+c.location).toLowerCase().includes(q));$('dashRows').innerHTML=list.map(c=>{const s=status(c);return`<tr><td><b>${esc(c.article)}</b><br><span class="muted">${esc(c.name)}</span></td><td>${esc(c.location)}</td><td>${c.stock}</td><td><span class="status ${s.key}">${s.txt}</span></td><td><button class="btn book" data-id="${c.id}" ${canWrite()?'':'disabled'}>${lang==='de'?'Buchen':'Post'}</button></td></tr>`}).join('')||`<tr><td colspan="5"><div class="empty"><b>${t('noCartons')}</b></div></td></tr>`;$('cartonRows').innerHTML=list.map(c=>`<tr><td><b>${esc(c.article)}</b></td><td>${esc(c.name)}</td><td>${esc(c.location)}</td><td>${c.stock}</td><td>${c.min}</td><td>${c.warn}</td><td><div class="actions"><button class="btn label" data-id="${c.id}">QR</button>${isAdmin()?`<button class="btn editC" data-id="${c.id}">${lang==='de'?'Bearbeiten':'Edit'}</button><button class="btn red deleteC" data-id="${c.id}">${lang==='de'?'Löschen':'Delete'}</button>`:''}</div></td></tr>`).join('')||`<tr><td colspan="7"><div class="empty"><b>${t('noCartons')}</b></div></td></tr>`;document.querySelectorAll('.book').forEach(b=>b.onclick=()=>openBook(b.dataset.id));document.querySelectorAll('.editC').forEach(b=>b.onclick=()=>openCarton(b.dataset.id));document.querySelectorAll('.deleteC').forEach(b=>b.onclick=()=>deleteCarton(b.dataset.id));document.querySelectorAll('.label').forEach(b=>b.onclick=()=>openLabel(b.dataset.id))}
-function renderInstructions(){$('instructionList').innerHTML=S.instructions.map(i=>{const c=S.user.role==='customer'?(S.customerSummary[i.id]||{capacity:0}):capacity(i),max=c.capacity??c.max??0;return`<div class="instruction"><div><b>${esc(i.name)}</b> <span class="status ${i.active?'ok':'crit'}">${i.active?(lang==='de'?'AKTIV':'ACTIVE'):(lang==='de'?'INAKTIV':'INACTIVE')}</span><small>${esc(i.description||'')} · v${esc(i.version||'1.0')}${S.user.role==='customer'?'':` · ${(i.materials||[]).length} ${t('cartons')}`}</small></div><div><strong class="${max===0?'red':max<5?'yellow':'green'}">${max}</strong> <small>${t('packingPossible')}</small>${isAdmin()?`<div class="actions" style="margin-top:6px"><button class="btn editI" data-id="${i.id}">${lang==='de'?'Bearbeiten':'Edit'}</button><button class="btn dupI" data-id="${i.id}">${lang==='de'?'Duplizieren':'Duplicate'}</button></div>`:''}</div></div>`}).join('')||`<div class="empty"><b>${t('noInstructions')}</b></div>`;document.querySelectorAll('.editI').forEach(b=>b.onclick=()=>openInstruction(b.dataset.id));document.querySelectorAll('.dupI').forEach(b=>b.onclick=()=>duplicateInstruction(b.dataset.id))}
-function renderCapacity(){$('capacityList').innerHTML=S.instructions.filter(i=>i.active).map(i=>{const c=S.user.role==='customer'?(S.customerSummary[i.id]||{capacity:0}):capacity(i),max=c.capacity??c.max??0,b=S.user.role==='customer'?'—':(c.bottle||'—');return`<div class="instruction"><div><b>${esc(i.name)}</b><small>${S.user.role==='customer'?'':`${t('bottleneck')}: ${esc(b)}`}</small></div><div><strong class="${max===0?'red':max<5?'yellow':'green'}">${max}</strong> <small>${t('packingPossible')}</small></div></div>`}).join('')||`<div class="empty"><b>${t('noInstructions')}</b></div>`}
-function renderPlanSelect(){
-const sel=$('planInstruction'),qty=$('planQty'),btn=$('calculatePlan');
-if(!sel||!qty||!btn){console.warn('ZeroStock: Planner DOM not ready');return}
-const v=sel.value,act=S.instructions.filter(i=>i.active);
-sel.innerHTML=act.map(i=>`<option value="${i.id}">${esc(i.name)}</option>`).join('');
-sel.disabled=!act.length;qty.disabled=!act.length;btn.disabled=!act.length;
-if(act.some(x=>x.id===v))sel.value=v;
-calcPlan()
+function renderCartons(){
+  const matches=(c,q)=>(`${c.article} ${c.name} ${c.location}`).toLowerCase().includes(q);
+  const dash=S.cartons.filter(c=>matches(c,($('dashSearch')?.value||'').toLowerCase()));
+  const q=($('cartonSearch')?.value||'').toLowerCase(),filter=S.articleFilter||'all';
+  const list=S.cartons.filter(c=>matches(c,q)&&(filter==='all'||ArticleModel.articleKind(c)===filter));
+  const badge=c=>`<span class="articleKind">${esc(ArticleModel.kindLabel(ArticleModel.articleKind(c),lang))}</span>`;
+  $('dashRows').innerHTML=dash.map(c=>{const st=status(c);return `<tr><td><b>${esc(c.article)}</b> ${badge(c)}<br><span class="muted">${esc(c.name)}</span></td><td>${esc(c.location)}</td><td>${c.stock}</td><td><span class="status ${st.key}">${st.txt}</span></td><td><button class="btn book" data-id="${esc(c.id)}" ${canWrite()?'':'disabled'}>${lang==='de'?'Buchen':'Post'}</button></td></tr>`;}).join('')||`<tr><td colspan="5"><div class="empty"><b>${t('noCartons')}</b></div></td></tr>`;
+  $('cartonRows').innerHTML=list.map(c=>`<tr><td><b>${esc(c.article)}</b> ${badge(c)}</td><td>${esc(c.name)}</td><td>${esc(c.location)}</td><td>${c.stock}</td><td>${c.min}</td><td>${c.warn}</td><td><div class="actions"><button class="btn book" data-id="${esc(c.id)}" ${canWrite()?'':'disabled'}>${lang==='de'?'Buchen':'Post'}</button><button class="btn label" data-id="${esc(c.id)}">QR</button>${isAdmin()?`<button class="btn editC" data-id="${esc(c.id)}">${lang==='de'?'Bearbeiten':'Edit'}</button><button class="btn red deleteC" data-id="${esc(c.id)}">${lang==='de'?'Löschen':'Delete'}</button>`:''}</div></td></tr>`).join('')||`<tr><td colspan="7"><div class="empty"><b>${S.cartons.length?(lang==='de'?'Keine passenden Artikel':'No matching articles'):t('noCartons')}</b></div></td></tr>`;
+  document.querySelectorAll('[data-article-filter]').forEach(b=>{const selected=b.dataset.articleFilter===filter;b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));b.onclick=()=>{S.articleFilter=b.dataset.articleFilter;renderCartons();};});
+  document.querySelectorAll('.book').forEach(b=>b.onclick=()=>openBook(b.dataset.id));
+  document.querySelectorAll('.editC').forEach(b=>b.onclick=()=>openCarton(b.dataset.id));
+  document.querySelectorAll('.deleteC').forEach(b=>b.onclick=()=>deleteCarton(b.dataset.id));
+  document.querySelectorAll('.label').forEach(b=>b.onclick=()=>openLabel(b.dataset.id));
 }
+
+function renderInstructions(){
+  $('instructionList').innerHTML=S.instructions.map(i=>{
+    const r=S.user.role==='customer'?(S.customerSummary[i.id]||{capacity:0}):capacity(i),max=r.capacity??r.max??0;
+    return `<div class="instruction"><div><b>${esc(i.name)}</b> <span class="articleKind">${i.kind==='container'?'Container':'Packing'}</span> <span class="status ${i.active?'ok':'crit'}">${i.active?(lang==='de'?'AKTIV':'ACTIVE'):(lang==='de'?'INAKTIV':'INACTIVE')}</span><small>${esc(i.description||'')} · v${esc(i.version||'1.0')}${r.error?` · ${esc(r.error)}`:''}</small></div><div><strong class="${max===0?'red':max<5?'yellow':'green'}">${max}</strong> <small>${i.kind==='container'?'Container':t('packingPossible')}</small>${isAdmin()?`<div class="actions" style="margin-top:6px"><button class="btn editI" data-id="${esc(i.id)}">${lang==='de'?'Bearbeiten':'Edit'}</button><button class="btn dupI" data-id="${esc(i.id)}">${lang==='de'?'Duplizieren':'Duplicate'}</button></div>`:''}</div></div>`;
+  }).join('')||`<div class="empty"><b>${t('noInstructions')}</b></div>`;
+  document.querySelectorAll('.editI').forEach(b=>b.onclick=()=>openInstruction(b.dataset.id));document.querySelectorAll('.dupI').forEach(b=>b.onclick=()=>duplicateInstruction(b.dataset.id));
+}
+
+function renderCapacity(){
+  $('capacityList').innerHTML=S.instructions.filter(i=>i.active).map(i=>{
+    const r=S.user.role==='customer'?(S.customerSummary[i.id]||{capacity:0}):capacity(i),max=r.capacity??r.max??0;
+    return `<div class="instruction"><div><b>${esc(i.name)}</b><small>${S.user.role==='customer'?'':`${t('bottleneck')}: ${esc(r.bottle||'—')}`}</small></div><div><strong class="${max===0?'red':max<5?'yellow':'green'}">${max}</strong> <small>${i.kind==='container'?'Container':t('packingPossible')}</small></div></div>`;
+  }).join('')||`<div class="empty"><b>${t('noInstructions')}</b></div>`;
+}
+
+function renderPlanSelect(){
+  const select=$('planInstruction'),active=S.instructions.filter(i=>i.active),previous=select.value;
+  select.innerHTML=['packing','container'].map(kind=>{
+    const items=active.filter(i=>(i.kind==='container'?'container':'packing')===kind);
+    return items.length?`<optgroup label="${kind==='container'?(lang==='de'?'Container-Konfigurationen':'Container configurations'):'Packing Instructions'}">${items.map(i=>`<option value="${esc(i.id)}">${esc(i.name)}</option>`).join('')}</optgroup>`:'';
+  }).join('');
+  select.disabled=!active.length;$('planQty').disabled=!active.length;$('calculatePlan').disabled=!active.length;
+  if(active.some(i=>i.id===previous))select.value=previous;
+  calcPlan();
+}
+
 function calcPlan(){
-const sel=$('planInstruction'),qtyEl=$('planQty'),refEl=$('planRef'),out=$('planResult');
-if(!sel||!qtyEl||!refEl||!out){console.warn('ZeroStock: Planner elements missing');return}
-const i=S.instructions.find(x=>x.id===sel.value)||S.instructions.find(x=>x.active);if(!i){out.innerHTML=`<div class="empty"><b>${t('noInstructions')}</b></div>`;return}const q=Math.max(1,+$('planQty').value||1),ref=$('planRef').value.trim();if(S.user.role==='customer'){const s=S.customerSummary[i.id]||{capacity:0},ok=(s.capacity||0)>=q;$('planResult').innerHTML=`<span class="status ${ok?'ok':'crit'}">${ok?t('possible'):t('notPossible')}</span> <b>${esc(ref||i.name)}</b><div style="margin-top:8px">${i.name}: <b>${s.capacity||0}</b> ${t('packingPossible')}</div>`;return}let ok=true;const rows=(i.materials||[]).map(m=>{const c=S.cartons.find(x=>x.id===m.cartonId),need=(+m.qty||1)*q,have=+c?.stock||0,miss=Math.max(0,need-have);if(miss)ok=false;return`<div class="req"><b>${esc(c?.article||m.cartonId)}</b><small>${esc(c?.name||'')}</small><div>${t('needed')}: <b>${need}</b></div><div>${t('available')}: <b>${have}</b></div>${miss?`<div class="red">${t('missing')}: ${miss}</div>`:''}</div>`}).join(''),cap=capacity(i);$('planResult').innerHTML=`<span class="status ${ok?'ok':'crit'}">${ok?t('possible'):t('notPossible')}</span> <b>${esc(ref||i.name)}</b><div style="margin-top:8px">${i.name}: <b>${cap.max}</b> ${t('packingPossible')} · ${t('bottleneck')}: <b>${esc(cap.bottle)}</b></div><div class="reqgrid">${rows}</div>`}
+  const i=S.instructions.find(x=>x.id===$('planInstruction').value)||S.instructions.find(x=>x.active),out=$('planResult');
+  $('planQtyLabel').textContent=i?.kind==='container'?(lang==='de'?'Anzahl Container':'Number of containers'):t('orderQty');
+  if(!i){out.innerHTML=`<div class="empty"><b>${t('noInstructions')}</b></div>`;return;}
+  const quantity=Number($('planQty').value),reference=$('planRef').value.trim();
+  if(!Number.isSafeInteger(quantity)||quantity<1){out.textContent=lang==='de'?'Bitte eine positive ganze Anzahl eingeben.':'Enter a positive whole quantity.';return;}
+  if(S.user.role==='customer'){
+    const available=Number(S.customerSummary[i.id]?.capacity)||0;
+    out.innerHTML=`<span class="status ${available>=quantity?'ok':'crit'}">${available>=quantity?t('possible'):t('notPossible')}</span> <b>${esc(reference||i.name)}</b><p>${lang==='de'?'Verfügbar':'Available'}: <b>${available}</b> ${i.kind==='container'?'Container':'Packings'}</p>`;return;
+  }
+  if(i.kind==='container'){
+    try{
+      const result=ArticleModel.calculateConfiguration(i,S.cartons,quantity);
+      out.innerHTML=`<span class="status ${result.canFulfill?'ok':'crit'}">${result.canFulfill?t('possible'):t('notPossible')}</span> <b>${esc(reference||i.name)}</b><p class="configCapacity">${lang==='de'?'Maximal':'Maximum'} <strong>${result.capacity}</strong> Container</p><p class="note">${lang==='de'?'Bedarfsplanung: Container und Plates werden separat gebucht.':'Planning only: containers and plates are booked separately.'}</p><div class="reqgrid">${result.lines.map(line=>`<div class="req" data-article-id="${esc(line.id)}"><b>${esc(line.article)}</b><small>${esc(line.name)} · ${esc(ArticleModel.kindLabel(line.kind,lang))}</small><div>${t('needed')}: <b>${line.required}</b></div><div>${t('available')}: <b>${line.available}</b></div>${line.missing?`<div class="red">${t('missing')}: ${line.missing}</div>`:''}</div>`).join('')}</div>`;
+    }catch(e){out.textContent=e.message;}
+    return;
+  }
+  let possible=true;
+  const rows=(i.materials||[]).map(m=>{const c=S.cartons.find(x=>x.id===m.cartonId),needed=Number(m.qty)*quantity,have=Number(c?.stock)||0,missing=Math.max(0,needed-have);if(missing||!Number.isSafeInteger(needed))possible=false;return `<div class="req"><b>${esc(c?.article||m.cartonId)}</b><small>${esc(c?.name||'')}</small><div>${t('needed')}: <b>${Number.isSafeInteger(needed)?needed:'—'}</b></div><div>${t('available')}: <b>${have}</b></div>${missing?`<div class="red">${t('missing')}: ${missing}</div>`:''}</div>`;}).join('');
+  const cap=capacity(i);out.innerHTML=`<span class="status ${possible?'ok':'crit'}">${possible?t('possible'):t('notPossible')}</span> <b>${esc(reference||i.name)}</b><p>${cap.max} ${t('packingPossible')} · ${t('bottleneck')}: <b>${esc(cap.bottle)}</b></p><div class="reqgrid">${rows}</div>`;
+}
+
 function syncLabel(m){const x=String(m.syncStatus||'SYNCED').toUpperCase();return x==='SYNCED'?'✓ Sync':x==='SYNCING'?'↻ Sync':x==='CONFLICT'?'! Konflikt':x==='FAILED'?'! Fehler':'○ Offen'}
-function renderMoves(){$('movementRows').innerHTML=[...S.movements].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,200).map(m=>`<tr><td>${new Date(m.ts).toLocaleString(lang==='de'?'de-CH':'en-GB')}</td><td>${esc(m.userName||'—')}</td><td>${esc(m.article)}</td><td>${m.type==='in'?(lang==='de'?'Eingang':'Stock In'):m.type==='out'?(lang==='de'?'Abgang':'Stock Out'):(lang==='de'?'Schwund':'Shrinkage')}</td><td class="${m.type==='in'?'green':'red'}">${m.type==='in'?'+':'-'}${m.qty}</td><td>${m.stockAfter}</td><td>${esc(m.reason||'')}</td><td><span class="status ${m.syncStatus==='CONFLICT'||m.syncStatus==='FAILED'?'crit':m.syncStatus==='PENDING'||m.syncStatus==='SYNCING'?'warn':'ok'}">${syncLabel(m)}</span></td></tr>`).join('')}
-function openBook(id){if(!canWrite())return;if(!S.connected&&!canOfflineBook())return toast('ZeroStock',lang==='de'?'Keine Live-Verbindung und SQLite ist nicht bereit.':'No live connection and SQLite is not ready.');bookCarton=S.cartons.find(c=>c.id===id);if(!bookCarton)return;$('bookTitle').textContent=`${bookCarton.article} · ${bookCarton.name}`;$('bookSubtitle').textContent=bookCarton.location;$('bookStock').textContent=bookCarton.stock;$('bookWarn').textContent=bookCarton.warn;$('bookMin').textContent=bookCarton.min;$('bookQty').value='';$('bookNote').value='';$('bookType').value='out';bookPreview();$('bookModal').classList.add('open')}
-function bookPreview(){if(!bookCarton)return;const type=$('bookType').value,q=Math.max(0,+$('bookQty').value||0),next=Math.max(0,+bookCarton.stock+(type==='in'?q:-q));$('reasonWrap').style.display=type==='shrink'?'grid':'none';$('bookPreview').innerHTML=`${t('stock')}: <b>${bookCarton.stock}</b> → <b>${next}</b>`}
-async function confirmBook(){if(S.bookSubmitting)return;const q=Math.floor(+$('bookQty').value),type=$('bookType').value;if(!q||q<1)return toast('ZeroStock',lang==='de'?'Menge eingeben.':'Enter quantity.');if(type!=='in'&&q>+bookCarton.stock)return toast('ZeroStock',lang==='de'?'Menge ist grösser als Bestand.':'Quantity exceeds stock.');const reason=type==='shrink'?$('bookReason').value:'',note=$('bookNote').value.trim(),btn=$('confirmBook');S.bookSubmitting=true;if(btn)btn.disabled=true;try{
-if(S.native&&S.offlineReady){const move=await window.ZeroStockOffline.recordMovement({cartonId:bookCarton.id,type,qty:q,reason,note,userId:S.user.uid,userName:S.user.name});const c=S.cartons.find(x=>x.id===bookCarton.id);if(c)c.stock=move.stockAfter;S.movements=[move,...S.movements.filter(x=>x.id!==move.id)];await refreshOfflineStats();closeAll();render();if(S.connected){scheduleSync(50);toast('✓ ZeroStock',lang==='de'?'Lokal gespeichert · Synchronisierung läuft.':'Saved locally · synchronization running.')}else toast('✓ Offline gespeichert',lang==='de'?'Buchung wartet auf Synchronisierung.':'Transaction is waiting for synchronization.');return}
-if(S.connected){await firebaseBook(bookCarton.id,type,q,reason,note);closeAll();toast('✓ ZeroStock',lang==='de'?'Buchung gespeichert.':'Transaction saved.');return}
-throw Error(lang==='de'?'Offline-Datenbank nicht verfügbar.':'Offline database unavailable.')}catch(e){const msg=String(e?.message||e);toast('ZeroStock',msg==='INSUFFICIENT_STOCK'?(lang==='de'?'Menge ist grösser als Bestand.':'Quantity exceeds stock.'):msg)}finally{S.bookSubmitting=false;if(btn)btn.disabled=false}}
+function renderMoves(){
+  $('movementRows').innerHTML=[...S.movements].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,200).map(m=>{
+    const kind=m.articleKind||ArticleModel.articleKind(S.cartons.find(c=>c.id===m.cartonId));
+    return `<tr><td>${new Date(m.ts).toLocaleString(lang==='de'?'de-CH':'en-GB')}</td><td>${esc(m.userName||'—')}</td><td>${esc(m.article)}<br><span class="articleKind">${esc(ArticleModel.kindLabel(kind,lang))}</span></td><td>${m.type==='in'?(lang==='de'?'Eingang':'Stock In'):m.type==='out'?(lang==='de'?'Abgang':'Stock Out'):(lang==='de'?'Schwund':'Shrinkage')}</td><td class="${m.type==='in'?'green':'red'}">${m.type==='in'?'+':'-'}${m.qty}</td><td>${m.stockAfter}</td><td>${esc(m.reason||'')}</td><td><b>${esc(m.reference||'')}</b><br><span class="muted">${esc(m.partner||'')}</span></td><td><span class="status ${m.syncStatus==='CONFLICT'||m.syncStatus==='FAILED'?'crit':m.syncStatus==='PENDING'||m.syncStatus==='SYNCING'?'warn':'ok'}">${syncLabel(m)}</span></td></tr>`;
+  }).join('');
+  if($('containerExportCount'))$('containerExportCount').textContent=lang==='de'?`${ArticleModel.containerMovementRows(S.movements,S.cartons).length} aktuell geladene Containerbewegungen`:`${ArticleModel.containerMovementRows(S.movements,S.cartons).length} loaded container transactions`;
+}
+
+function openBook(id){
+  if(!canWrite())return;
+  if(!S.connected&&!canOfflineBook())return toast('ZeroStock',lang==='de'?'Keine Live-Verbindung und SQLite ist nicht bereit.':'No live connection and SQLite is not ready.');
+  bookCarton=S.cartons.find(c=>c.id===id);if(!bookCarton)return;
+  $('bookTitle').textContent=`${bookCarton.article} · ${bookCarton.name}`;
+  $('bookSubtitle').textContent=`${ArticleModel.kindLabel(ArticleModel.articleKind(bookCarton),lang)} · ${bookCarton.location}`;
+  $('bookStock').textContent=bookCarton.stock;$('bookWarn').textContent=bookCarton.warn;$('bookMin').textContent=bookCarton.min;
+  $('bookQty').value='';$('bookNote').value='';$('bookType').value='out';$('bookPartner').value='';$('bookReference').value='';
+  $('containerBookingFields').hidden=ArticleModel.articleKind(bookCarton)!=='container';
+  bookPreview();openArticleModal('bookModal','bookQty');
+}
+
+function bookPreview(){
+  if(!bookCarton)return;
+  const type=$('bookType').value,quantity=Math.max(0,Number($('bookQty').value)||0),next=Math.max(0,Number(bookCarton.stock)+(type==='in'?quantity:-quantity));
+  $('reasonWrap').style.display=type==='shrink'?'grid':'none';
+  $('bookPartnerLabel').textContent=type==='in'?(lang==='de'?'Herkunft / Gegenstelle':'Origin / partner'):(lang==='de'?'Empfänger / Ziel':'Recipient / destination');
+  $('bookPreview').innerHTML=`${t('stock')}: <b>${bookCarton.stock}</b> → <b>${next}</b>${ArticleModel.articleKind(bookCarton)==='container'?`<p class="note">${lang==='de'?'Diese Buchung verändert nur den Containerbestand.':'This transaction changes container stock only.'}</p>`:''}`;
+}
+
+async function confirmBook(){
+  if(S.bookSubmitting)return;
+  const q=Number($('bookQty').value),type=$('bookType').value;
+  if(!Number.isSafeInteger(q)||q<1)return toast('ZeroStock',lang==='de'?'Eine positive ganze Menge eingeben.':'Enter a positive whole quantity.');
+  if(type!=='in'&&q>Number(bookCarton.stock))return toast('ZeroStock',lang==='de'?'Menge ist grösser als Bestand.':'Quantity exceeds stock.');
+  const reason=type==='shrink'?$('bookReason').value:'',note=$('bookNote').value.trim();
+  const options=ArticleModel.articleKind(bookCarton)==='container'?{partner:$('bookPartner').value,reference:$('bookReference').value}:{};
+  const button=$('confirmBook');S.bookSubmitting=true;button.disabled=true;
+  try{
+    ArticleModel.createMovementMetadata(bookCarton,options);
+    if(S.native&&S.offlineReady){
+      const move=await window.ZeroStockOffline.recordMovement({cartonId:bookCarton.id,type,qty:q,reason,note,userId:S.user.uid,userName:S.user.name,...options});
+      const c=S.cartons.find(x=>x.id===bookCarton.id);if(c)c.stock=move.stockAfter;
+      S.movements=[move,...S.movements.filter(x=>x.id!==move.id)];await refreshOfflineStats();closeAll();render();
+      if(S.connected){scheduleSync(50);toast('✓ ZeroStock',lang==='de'?'Lokal gespeichert · Synchronisierung läuft.':'Saved locally · synchronization running.');}
+      else toast('✓ Offline',lang==='de'?'Buchung wartet auf Synchronisierung.':'Transaction is waiting for synchronization.');return;
+    }
+    if(S.connected){const result=await firebaseBook(bookCarton.id,type,q,reason,note,options);closeAll();toast('✓ ZeroStock',result.pending?(lang==='de'?'Buchung vorgemerkt · Synchronisierung wird wiederholt.':'Transaction queued · synchronization will retry.'):(lang==='de'?'Buchung gespeichert.':'Transaction saved.'));return;}
+    throw Error(lang==='de'?'Offline-Datenbank nicht verfügbar.':'Offline database unavailable.');
+  }catch(e){toast('ZeroStock',e.message||String(e));}
+  finally{S.bookSubmitting=false;button.disabled=false;}
+}
+
 function cartonLive(){
   const stockEl=$('cStock'),warnEl=$('cWarn'),minEl=$('cMin'),out=$('cartonLive');
   if(!stockEl||!warnEl||!minEl||!out)return;
@@ -779,72 +939,109 @@ function cartonLive(){
   out.innerHTML=`<small>${t('liveCalculation')}</small><br><span class="status ${key}">${txt}</span> &nbsp; ${t('stock')}: <strong>${stock}</strong> · ${t('warningStock')}: ${warn} · ${t('minStock')}: ${min}`;
 }
 function openCarton(id=null){
-  try{
-    if(!isAdmin()){
-      toast('ZeroStock',lang==='de'?'Nur Admins können Karton-Stammdaten anlegen oder bearbeiten.':'Only admins can create or edit carton master data.');
-      return;
-    }
-    const modal=$('cartonModal');
-    if(!modal)throw new Error('Karton-Dialog fehlt');
-    editingCarton=id;
-    const c=id?S.cartons.find(x=>x.id===id):null;
-    const delBtn=$('deleteCartonModal');
-    if(delBtn){
-      delBtn.style.display=c?'':'none';
-      delBtn.textContent=lang==='de'?'Löschen':'Delete';
-      delBtn.onclick=c?()=>deleteCarton(c.id):null;
-    }
-    const fields={
-      cartonModalTitle:c?(lang==='de'?'Karton bearbeiten':'Edit carton'):(lang==='de'?'Neuer Karton':'New carton'),
-      cArticle:c?.article||'',cName:c?.name||'',cLocation:c?.location||'',
-      cStock:c?.stock??0,cWarn:c?.warn??0,cMin:c?.min??0
-    };
-    for(const [key,val] of Object.entries(fields)){
-      const el=$(key); if(!el)throw new Error(`UI-Feld fehlt: ${key}`);
-      if(key==='cartonModalTitle')el.textContent=val; else el.value=val;
-    }
-    cartonLive();
-    modal.classList.add('open');
-    modal.style.display='grid';
-    modal.setAttribute('aria-hidden','false');
-    setTimeout(()=>$('cArticle')?.focus(),50);
-  }catch(e){
-    console.error('openCarton',e);
-    toast('Karton',e.message||String(e));
-  }
+  if(!isAdmin())return toast('ZeroStock',lang==='de'?'Nur Admins können Artikel verwalten.':'Only administrators can manage articles.');
+  editingCarton=id;const c=id?S.cartons.find(x=>x.id===id):null;
+  editingCartonStock=c?.stock??0;
+  $('cartonModalTitle').textContent=c?(lang==='de'?'Artikel bearbeiten':'Edit article'):(lang==='de'?'Neuer Artikel':'New article');
+  for(const [key,value] of Object.entries({cArticle:c?.article||'',cName:c?.name||'',cLocation:c?.location||'',cStock:c?.stock??0,cWarn:c?.warn??0,cMin:c?.min??0,cKind:ArticleModel.articleKind(c),cExternalRef:c?.externalRef||''}))$(key).value=value;
+  $('cKind').disabled=!!c?.kind;$('cArticle').disabled=!!c;
+  $('deleteCartonModal').style.display=c?'':'none';$('deleteCartonModal').onclick=c?()=>deleteCarton(c.id):null;
+  cartonLive();openArticleModal('cartonModal',c?'cName':'cArticle');
 }
+
 async function saveCarton(){
-  const saveBtn=$('saveCarton');
-  if(saveBtn)saveBtn.disabled=true;
+  if(S.articleSubmitting)return;S.articleSubmitting=true;const button=$('saveCarton');button.disabled=true;
   try{
-    if(!isAdmin())throw new Error(lang==='de'?'Keine Admin-Berechtigung.':'Admin permission required.');
-    if(!S.connected)throw new Error(lang==='de'?'Keine Live-Verbindung zu Firebase.':'No live Firebase connection.');
-    if(!S.db||!S.firebase)throw new Error(lang==='de'?'Firebase ist noch nicht bereit.':'Firebase is not ready.');
-    const article=$('cArticle')?.value.trim()||'',name=$('cName')?.value.trim()||'',location=$('cLocation')?.value.trim()||'';
-    const stock=Number($('cStock')?.value),warn=Number($('cWarn')?.value),min=Number($('cMin')?.value);
-    if(!article||!name||!location)throw new Error(lang==='de'?'Artikel, Bezeichnung und Lagerplatz sind Pflicht.':'Article, description and location are required.');
-    if([stock,warn,min].some(v=>!Number.isFinite(v)||v<0))throw new Error(lang==='de'?'Bestände und Schwellen müssen 0 oder grösser sein.':'Stock values must be zero or greater.');
-    if(warn<min)throw new Error(lang==='de'?'Warnbestand muss mindestens so gross sein wie Mindestbestand.':'Warning stock must be at least minimum stock.');
-    const id=editingCarton||article.replace(/[.#$/\[\]]/g,'_');
-    if(!editingCarton&&S.cartons.some(c=>c.id===id))throw new Error(lang==='de'?'Artikel existiert bereits.':'Article already exists.');
-    const o={id,article,name,location,stock,warn,min,updatedAt:Date.now()};
-    await S.firebase.set(S.firebase.ref(S.db,`cartons/${id}`),o);
-    scheduleSummary();
-    closeAll();
-    toast('✓ ZeroStock',lang==='de'?'Karton gespeichert – Regalschild ist bereit.':'Carton saved – shelf label is ready.');
-    setTimeout(()=>openLabel(id),180);
-  }catch(e){
-    console.error('saveCarton',e);
-    toast('Karton',e.message||String(e));
-  }finally{
-    if(saveBtn)saveBtn.disabled=false;
-  }
+    if(!isAdmin()||!S.connected||!S.db||!S.firebase)throw Error(lang==='de'?'Admin-Berechtigung und Live-Verbindung erforderlich.':'Administrator permission and a live connection are required.');
+    const previous=editingCarton?S.cartons.find(x=>x.id===editingCarton):null;
+    const article=$('cArticle').value.trim(),id=editingCarton||article.replace(/[.#$/\[\]]/g,'_');
+    const input=ArticleModel.validateArticle({id,article,name:$('cName').value,location:$('cLocation').value,stock:$('cStock').value,warn:$('cWarn').value,min:$('cMin').value,kind:$('cKind').value,externalRef:$('cExternalRef').value},previous);
+    const editing=!!editingCarton,stockWasEdited=input.stock!==Number(editingCartonStock);
+    let conflict='';
+    const result=await S.firebase.runTransaction(S.firebase.ref(S.db,`cartons/${id}`),current=>{
+      if(!editing&&current){conflict=lang==='de'?'Artikel existiert bereits.':'Article already exists.';return;}
+      if(editing&&!current){conflict=lang==='de'?'Artikel wurde inzwischen entfernt.':'Article has been removed.';return;}
+      if(editing&&current.article!==input.article){conflict='Die Artikelnummer kann nach dem Anlegen nicht geändert werden.';return;}
+      if(current?.kind&&current.kind!==input.kind){conflict=lang==='de'?'Artikelart wurde inzwischen festgelegt. Bitte neu öffnen.':'Article category has changed. Reopen the dialog.';return;}
+      if(editing&&stockWasEdited&&Number(current.stock)!==Number(editingCartonStock)){conflict=lang==='de'?'Der Bestand hat sich inzwischen geändert. Bitte neu öffnen.':'Stock has changed. Reopen the dialog.';return;}
+      return {...current,...input,stock:editing&&!stockWasEdited?current.stock:input.stock,updatedAt:Date.now()};
+    });
+    if(!result.committed)throw Error(conflict||(lang==='de'?'Artikel konnte nicht gespeichert werden.':'Article could not be saved.'));
+    scheduleSummary();closeAll();toast('✓ ZeroStock',lang==='de'?'Artikel gespeichert.':'Article saved.');setTimeout(()=>openLabel(id),180);
+  }catch(e){toast(lang==='de'?'Artikel':'Article',e.message||String(e));}
+  finally{S.articleSubmitting=false;button.disabled=false;}
 }
-function matRow(m={cartonId:S.cartons[0]?.id||'',qty:1}){const d=document.createElement('div');d.className='matrow';d.innerHTML=`<label>${t('cartons')}<select class="matCarton">${S.cartons.map(c=>`<option value="${c.id}" ${c.id===m.cartonId?'selected':''}>${esc(c.article)} · ${esc(c.name)} · ${c.stock}</option>`).join('')}</select></label><label>${t('quantity')}<input class="matQty" type="number" min="1" value="${m.qty||1}"></label><button class="iconbtn rm">×</button>`;d.querySelector('.rm').onclick=()=>{d.remove();instructionLive()};d.querySelector('.matCarton').onchange=instructionLive;d.querySelector('.matQty').oninput=instructionLive;return d}
-function instructionLive(){const rows=[...document.querySelectorAll('.matrow')];if(!rows.length){$('instructionLive').innerHTML='—';return}let max=Infinity,b='—';for(const r of rows){const id=r.querySelector('.matCarton').value,q=Math.max(1,+r.querySelector('.matQty').value||1),c=S.cartons.find(x=>x.id===id),cap=c?Math.floor((+c.stock||0)/q):0;if(cap<max){max=cap;b=c?.article||id}}$('instructionLive').innerHTML=`<small>${t('liveCalculation')}</small><br>${t('capacityNow')}: <strong>${Number.isFinite(max)?max:0}</strong> · ${t('bottleneck')}: <b>${esc(b)}</b>`}
-function openInstruction(id=null){if(!S.cartons.length)return toast('ZeroStock',t('firstCreateCarton'));editingInstruction=id;const i=id?S.instructions.find(x=>x.id===id):null;$('instructionModalTitle').textContent=i?(lang==='de'?'Instruction bearbeiten':'Edit instruction'):(lang==='de'?'Neue Packing Instruction':'New Packing Instruction');$('iName').value=i?.name||'';$('iDesc').value=i?.description||'';$('iVersion').value=i?.version||'1.0';$('iActive').value=String(i?.active??true);$('materialRows').innerHTML='';(i?.materials?.length?i.materials:[{cartonId:S.cartons[0]?.id,qty:1}]).forEach(m=>$('materialRows').append(matRow(m)));instructionLive();$('instructionModal').classList.add('open')}
-async function saveInstruction(){if(!S.connected)return toast('ZeroStock',lang==='de'?'Keine Live-Verbindung.':'No live connection.');const name=$('iName').value.trim();if(!name)return toast('ZeroStock','Instruction Name');const raw=[...document.querySelectorAll('.matrow')].map(r=>({cartonId:r.querySelector('.matCarton').value,qty:Number(r.querySelector('.matQty').value)}));if(raw.some(m=>!m.cartonId||!Number.isInteger(m.qty)||m.qty<=0))return toast('ZeroStock',lang==='de'?'Jede Kartonmenge muss eine ganze Zahl grösser 0 sein.':'Each quantity must be a whole number greater than zero.');if(new Set(raw.map(m=>m.cartonId)).size!==raw.length)return toast('ZeroStock',lang==='de'?'Ein Karton darf pro Instruction nur einmal vorkommen.':'A carton may only appear once per instruction.');const id=editingInstruction||name.replace(/[.#$/\[\]]/g,'_');if(!editingInstruction&&S.instructions.some(i=>i.id===id))return toast('ZeroStock',lang==='de'?'Instruction existiert bereits.':'Instruction already exists.');const o={id,name,description:$('iDesc').value.trim(),version:$('iVersion').value.trim()||'1.0',active:$('iActive').value==='true',materials:normalizeMaterials(raw),updatedAt:Date.now()};await S.firebase.set(S.firebase.ref(S.db,`instructions/${id}`),o);scheduleSummary();closeAll()}
-function duplicateInstruction(id){const i=S.instructions.find(x=>x.id===id);if(!i)return;editingInstruction=null;openInstruction();$('iName').value=i.name+' COPY';$('iDesc').value=i.description||'';$('iVersion').value=i.version||'1.0';$('materialRows').innerHTML='';i.materials.forEach(m=>$('materialRows').append(matRow(m)));instructionLive()}
+
+function matRow(m={}){
+  const isContainer=$('iKind').value==='container';
+  const choices=S.cartons.filter(c=>c.active!==false&&(!isContainer||ArticleModel.articleKind(c)==='plate'));
+  const selected=m.cartonId??choices[0]?.id??'';
+  const missing=!!selected&&!choices.some(c=>c.id===selected);
+  const d=document.createElement('div');d.className='matrow';
+  d.innerHTML=`<label>${isContainer?'Plate':t('article')}<select class="matCarton">${missing?`<option value="${esc(selected)}" selected>${esc(selected)} · ${lang==='de'?'nicht verfügbar':'unavailable'}</option>`:''}${!choices.length&&!missing?`<option value="">${lang==='de'?'Zuerst passende Artikel anlegen':'Create matching articles first'}</option>`:''}${choices.map(c=>`<option value="${esc(c.id)}" ${c.id===selected?'selected':''}>${esc(c.article)} · ${esc(c.name)} · ${c.stock}</option>`).join('')}</select></label><label>${t('quantity')}<input class="matQty" type="number" min="1" step="1" inputmode="numeric" value="${Number(m.qty)||1}"></label><button type="button" class="iconbtn rm" aria-label="${lang==='de'?'Komponente entfernen':'Remove component'}">×</button>`;
+  d.querySelector('.rm').onclick=()=>{d.remove();instructionLive();};d.querySelector('.matCarton').onchange=instructionLive;d.querySelector('.matQty').oninput=instructionLive;return d;
+}
+
+function instructionLive(){
+  try{
+    const rows=instructionRows();if(!rows.length)throw Error(lang==='de'?'Mindestens einen Artikel hinzufügen.':'Add at least one article.');
+    let result;
+    if($('iKind').value==='container'){
+      const materials=ArticleModel.configurationMaterials($('iContainer').value,rows,S.cartons);
+      const r=ArticleModel.calculateConfiguration({kind:'container',containerId:$('iContainer').value,materials},S.cartons,1);
+      result={max:r.capacity,bottle:S.cartons.find(c=>c.id===r.bottleneck)?.article||r.bottleneck};
+    }else result=capacity({materials:rows});
+    $('instructionLive').innerHTML=`<small>${t('liveCalculation')}</small><br>${lang==='de'?'Aktuell möglich':'Currently possible'}: <strong>${result.max}</strong> ${$('iKind').value==='container'?'Container':'Packings'} · ${t('bottleneck')}: <b>${esc(result.bottle)}</b>`;
+  }catch(e){$('instructionLive').textContent=e.message;}
+}
+
+function openInstruction(id=null){
+  if(!isAdmin())return toast('ZeroStock',lang==='de'?'Nur Admins können Konfigurationen verwalten.':'Only administrators can manage configurations.');
+  editingInstruction=id;const i=id?S.instructions.find(x=>x.id===id):null;
+  $('instructionModalTitle').textContent=i?(lang==='de'?'Konfiguration bearbeiten':'Edit configuration'):(lang==='de'?'Neue Konfiguration':'New configuration');
+  $('iName').value=i?.name||'';$('iDesc').value=i?.description||'';$('iVersion').value=i?.version||'1.0';$('iActive').value=String(i?.active??true);
+  $('iKind').value=i?.kind==='container'?'container':'packing';$('iKind').disabled=!!i?.kind;
+  updateInstructionForm(false);
+  if(i?.containerId)$('iContainer').value=i.containerId;
+  $('materialRows').innerHTML='';
+  const materials=i?(i.materials||[]).filter(m=>i.kind!=='container'||m.cartonId!==i.containerId):[{}];
+  materials.forEach(m=>$('materialRows').append(matRow(m)));
+  instructionLive();openArticleModal('instructionModal','iName');
+}
+
+async function saveInstruction(){
+  if(S.instructionSubmitting)return;S.instructionSubmitting=true;$('saveInstruction').disabled=true;
+  try{
+    if(!isAdmin()||!S.connected||!S.firebase||!S.db)throw Error(lang==='de'?'Admin-Berechtigung und Live-Verbindung erforderlich.':'Administrator permission and a live connection are required.');
+    const name=$('iName').value.trim();if(!name||name.length>200)throw Error(lang==='de'?'Bitte einen Namen mit maximal 200 Zeichen eingeben.':'Enter a name of at most 200 characters.');
+    const kind=$('iKind').value,raw=instructionRows();let materials;
+    if(kind==='container')materials=ArticleModel.configurationMaterials($('iContainer').value,raw,S.cartons);
+    else{
+      if(!raw.length||raw.some(m=>!Number.isSafeInteger(m.qty)||m.qty<1||!S.cartons.some(c=>c.id===m.cartonId&&c.active!==false)))throw Error(lang==='de'?'Bitte verfügbare Artikel und positive ganze Mengen angeben.':'Select available articles and positive whole quantities.');
+      if(new Set(raw.map(m=>m.cartonId)).size!==raw.length)throw Error(lang==='de'?'Jeder Artikel darf nur einmal vorkommen.':'Each article may appear only once.');
+      materials=normalizeMaterials(raw);
+    }
+    const id=editingInstruction||name.replace(/[.#$/\[\]]/g,'_'),editing=!!editingInstruction;
+    const description=$('iDesc').value.trim(),version=$('iVersion').value.trim()||'1.0';
+    if(description.length>1000||version.length>80)throw Error(lang==='de'?'Beschreibung oder Version ist zu lang.':'Description or version is too long.');
+    const o={id,name,description,version,active:$('iActive').value==='true',kind,materials,updatedAt:Date.now(),...(kind==='container'?{containerId:$('iContainer').value}:{})};
+    const tx=await S.firebase.runTransaction(S.firebase.ref(S.db,`instructions/${id}`),current=>{
+      if((!editing&&current)||(editing&&!current)||(current?.kind&&current.kind!==kind))return;
+      return {...current,...o};
+    });
+    if(!tx.committed)throw Error(lang==='de'?'Konfiguration existiert bereits oder hat sich geändert. Bitte neu öffnen.':'Configuration already exists or has changed. Reopen the dialog.');
+    scheduleSummary();closeAll();toast('✓ ZeroStock',lang==='de'?'Konfiguration gespeichert.':'Configuration saved.');
+  }catch(e){toast(lang==='de'?'Konfiguration':'Configuration',e.message||String(e));}
+  finally{S.instructionSubmitting=false;$('saveInstruction').disabled=false;}
+}
+
+function duplicateInstruction(id){
+  const i=S.instructions.find(x=>x.id===id);if(!i||!isAdmin())return;
+  openInstruction(id);editingInstruction=null;$('iKind').disabled=false;
+  $('instructionModalTitle').textContent=lang==='de'?'Konfiguration duplizieren':'Duplicate configuration';
+  $('iName').value=i.name+(lang==='de'?' Kopie':' Copy');
+}
+
 async function openLabel(id){
   const c=S.cartons.find(x=>x.id===id);
   if(!c)return toast('QR',lang==='de'?'Karton nicht gefunden.':'Carton not found.');
@@ -923,26 +1120,49 @@ function scheduleSummary(){if(!canWrite())return;clearTimeout(S.summaryTimer);S.
 async function publishSummary(){if(!canWrite()||!S.db)return;const sum={};for(const i of S.instructions.filter(x=>x.active)){const c=capacity(i);sum[i.id]={name:i.name,description:i.description||'',version:i.version||'',capacity:c.max,updatedAt:Date.now()}}const h=JSON.stringify(sum);if(h===S.lastSummary)return;S.lastSummary=h;await S.firebase.set(S.firebase.ref(S.db,'customerSummary'),sum)}
 function syncBackoff(attempts){return Math.min(300000,2000*Math.pow(2,Math.max(0,(Number(attempts)||1)-1)))}
 function withTimeout(promise,ms=20000,label='TIMEOUT'){let timer;return Promise.race([Promise.resolve(promise).finally(()=>clearTimeout(timer)),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(label)),ms)})])}
-function scheduleSync(delay=250){if(!S.native||!S.offlineReady)return;clearTimeout(S.syncTimer);S.syncTimer=setTimeout(()=>runSyncEngine().catch(e=>console.error('sync engine',e)),delay)}
-function classifySyncError(e){const m=String(e?.code||e?.message||e||'SYNC_FAILED');if(/permission|auth|user-disabled|PERMISSION_DENIED/i.test(m))return'CONFLICT';if(/INSUFFICIENT|CARTON_NOT_FOUND|ID_COLLISION|MOVEMENT_MISMATCH/i.test(m))return'CONFLICT';return'RETRY'}
-async function syncOneMovement(move){
+function scheduleSync(delay=250){
+  clearTimeout(S.syncTimer);
+  S.syncTimer=setTimeout(()=>{
+    const sync=S.native&&S.offlineReady?runSyncEngine():retryWebBookings();
+    sync.catch(e=>console.error('sync engine',e));
+  },delay);
+}
+function classifySyncError(e){const m=String(e?.code||e?.message||e||'SYNC_FAILED');if(m==='AUTH_ACTOR_MISMATCH')return'RETRY';if(/permission|auth|user-disabled|PERMISSION_DENIED/i.test(m))return'CONFLICT';if(/INSUFFICIENT|CARTON_NOT_FOUND|ID_COLLISION|MOVEMENT_MISMATCH|INVALID_/i.test(m))return'CONFLICT';return'RETRY'}
+const inFlightMovements=new Map();
+function syncOneMovement(move){
+  const key=JSON.stringify([move.userId,move.id]);
+  if(inFlightMovements.has(key))return inFlightMovements.get(key);
+  const apply=()=>applyMovementOnce(move);
+  const attempt=navigator.locks?.request?navigator.locks.request('zs-movement:'+key,apply):apply();
+  const pending=attempt.finally(()=>inFlightMovements.delete(key));
+  inFlightMovements.set(key,pending);
+  return pending;
+}
+async function applyMovementOnce(move){
   const F=S.firebase;if(!F||!S.db)throw Error('FIREBASE_NOT_READY');
+  move=ArticleModel.validateMovement(move);
+  const actor=()=>canWrite()&&S.user.uid===move.userId&&F.auth?.currentUser?.uid===move.userId;
+  if(!actor())throw Error('AUTH_ACTOR_MISMATCH');
+  const metadata=ArticleModel.movementMetadata(move);
   const movementRef=F.ref(S.db,`movements/${move.id}`);
   const existingSnap=await F.get(movementRef);
   if(existingSnap.exists()){
     const ex=existingSnap.val()||{};
     const same=String(ex.userId||'')===String(move.userId||'')&&String(ex.cartonId||'')===String(move.cartonId||'')&&String(ex.type||'')===String(move.type||'')&&Number(ex.qty)===Number(move.qty);
-    if(!same)throw Error('ID_COLLISION_OR_MOVEMENT_MISMATCH');
+    if(!same||['articleKind','externalRef','partner','reference'].some(k=>String(ex[k]??'')!==String(metadata[k]??'')))throw Error('ID_COLLISION_OR_MOVEMENT_MISMATCH');
     return {stockAfter:Number(ex.stockAfter)||0,recovered:true};
   }
   const cartonRef=F.ref(S.db,`cartons/${move.cartonId}`), markerKey=String(move.id);
   const tx=await F.runTransaction(cartonRef,c=>{
+    if(!actor())throw Error('AUTH_ACTOR_MISMATCH');
     if(!c)return;
+    if(c.article!==move.article)throw Error('INVALID_ARTICLE_REFERENCE');
     const applied=c._zsApplied||{};
     if(applied[markerKey])return c;
     const cur=Number(c.stock)||0;
     if(move.type!=='in'&&Number(move.qty)>cur)return;
-    const after=Math.max(0,cur+(move.type==='in'?Number(move.qty):-Number(move.qty)));
+    const after=cur+(move.type==='in'?Number(move.qty):-Number(move.qty));
+    if(!Number.isSafeInteger(cur)||cur<0||!Number.isSafeInteger(after)||after<0)throw Error('INVALID_STOCK');
     c.stock=after;c.updatedAt=Date.now();
     c._zsApplied={...applied,[markerKey]:{stockAfter:after,appliedAt:Date.now(),userId:move.userId}};
     return c;
@@ -953,24 +1173,33 @@ async function syncOneMovement(move){
     throw Error('TRANSACTION_NOT_COMMITTED');
   }
   const c=tx.snapshot.val()||{}, marker=c._zsApplied?.[markerKey], stockAfter=Number(marker?.stockAfter??c.stock)||0;
-  await F.set(movementRef,{ts:Number(move.ts)||Date.now(),clientTs:Number(move.ts)||Date.now(),syncedAt:F.serverTimestamp(),userId:move.userId,userName:move.userName,cartonId:move.cartonId,article:move.article,type:move.type,qty:Number(move.qty)||0,reason:move.reason||'',note:move.note||'',stockAfter});
-  // Marker is only needed for crash recovery between carton transaction and movement creation.
-  // Once the movement exists, its UUID itself is the durable idempotency key.
-  try{await F.set(F.ref(S.db,`cartons/${move.cartonId}/_zsApplied/${markerKey}`),null)}catch(e){console.warn('sync marker cleanup',e)}
+  if(!actor())throw Error('AUTH_ACTOR_MISMATCH');
+  await F.set(movementRef,{ts:Number(move.ts)||Date.now(),clientTs:Number(move.ts)||Date.now(),syncedAt:F.serverTimestamp(),userId:move.userId,userName:move.userName,cartonId:move.cartonId,article:move.article,type:move.type,qty:Number(move.qty)||0,reason:move.reason||'',note:move.note||'',stockAfter,...metadata});
   return {stockAfter,recovered:false};
+}
+async function removeSyncedMovementMarker(move){
+  // Cache listeners need this marker until the local queue acknowledges the server stock.
+  const F=S.firebase;
+  try{await F.set(F.ref(S.db,`cartons/${move.cartonId}/_zsApplied/${move.id}`),null)}
+  catch(e){console.warn('sync marker cleanup',e)}
 }
 async function runSyncEngine({manual=false}={}){
   if(S.syncRunning||!S.native||!S.offlineReady||!S.connected||!S.db||!S.firebase||!canWrite())return {processed:0};
   S.syncRunning=true;let processed=0,synced=0,conflicts=0,failed=0;
   try{
-    const batch=await window.ZeroStockOffline.getSyncBatch(20);
+    await retryWebBookings();
+    if(!S.connected||!canWrite())return {processed:0};
+    const actor=S.user.uid;
+    const batch=await window.ZeroStockOffline.getSyncBatch(20,actor);
     for(const move of batch){
-      if(!S.connected)break;
+      if(!S.connected||!canWrite()||S.user.uid!==actor||S.firebase.auth?.currentUser?.uid!==actor)break;
       processed++;
       try{
         await window.ZeroStockOffline.markSyncing(move.id);await refreshOfflineStats();render();
         const result=await withTimeout(syncOneMovement(move),20000,'SYNC_TIMEOUT');
-        await window.ZeroStockOffline.markSynced(move.id,{serverId:move.id,stockAfter:result.stockAfter});synced++;
+        await window.ZeroStockOffline.markSynced(move.id,{serverId:move.id,stockAfter:result.stockAfter});
+        await removeSyncedMovementMarker(move);
+        synced++;
       }catch(e){
         console.error('sync movement',move.id,e);const kind=classifySyncError(e);
         if(kind==='CONFLICT'){await window.ZeroStockOffline.markConflict(move.id,e?.message||String(e));conflicts++}
@@ -983,9 +1212,52 @@ async function runSyncEngine({manual=false}={}){
     return {processed,synced,conflicts,failed};
   }finally{S.syncRunning=false}
 }
-async function renderSyncQueue(){const root=$('syncQueueList');if(!root)return;if(!S.native||!S.offlineReady){root.innerHTML='<div class="note">SQLite-Sync ist nur in der Android-App aktiv.</div>';return}try{const rows=await window.ZeroStockOffline.queueDetails(20);root.innerHTML=rows.filter(r=>r.status!=='SYNCED').map(r=>`<div class="result" style="margin-top:8px"><b>${esc(r.entity_id)} · ${esc(r.status)}</b><div class="note">Versuche: ${Number(r.attempts)||0}${r.last_error?` · ${esc(r.last_error)}`:''}</div></div>`).join('')||'<div class="note">Keine offenen Sync-Vorgänge.</div>'}catch(e){root.innerHTML=`<div class="note">${esc(e.message||String(e))}</div>`}}
+async function renderSyncQueue(){const root=$('syncQueueList');if(!root)return;if(!canWrite()){root.textContent='';return;}if(!S.native||!S.offlineReady){root.innerHTML='<div class="note">SQLite-Sync ist nur in der Android-App aktiv.</div>';return}try{const uid=S.user.uid,rows=await window.ZeroStockOffline.queueDetails(20);if(!canWrite()||S.user.uid!==uid)return;root.innerHTML=rows.filter(r=>r.status!=='SYNCED').map(r=>`<div class="result" style="margin-top:8px"><b>${esc(r.entity_id)} · ${esc(r.status)}</b><div class="note">Versuche: ${Number(r.attempts)||0}${r.last_error?` · ${esc(r.last_error)}`:''}</div></div>`).join('')||'<div class="note">Keine offenen Sync-Vorgänge.</div>'}catch(e){root.innerHTML=`<div class="note">${esc(e.message||String(e))}</div>`}}
 
-async function firebaseBook(id,type,q,reason,note){const F=S.firebase,r=F.ref(S.db,`cartons/${id}`);const out=await F.runTransaction(r,c=>{if(!c)return c;const cur=+c.stock||0;if(type!=='in'&&q>cur)return;c.stock=Math.max(0,cur+(type==='in'?q:-q));c.updatedAt=Date.now();return c});if(!out.committed)throw Error(lang==='de'?'Buchung konnte nicht ausgeführt werden.':'Transaction could not be completed.');const c=out.snapshot.val(),key=F.push(F.ref(S.db,'movements')).key;await F.set(F.ref(S.db,`movements/${key}`),{ts:F.serverTimestamp(),userId:S.user.uid,userName:S.user.name,cartonId:id,article:c.article,type,qty:q,reason,note,stockAfter:c.stock});scheduleSummary()}
+function readWebBookings(uid){
+  const prefix='zs-web-booking:'+encodeURIComponent(uid)+':',items=[];
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);if(key?.startsWith(prefix))items.push(JSON.parse(localStorage.getItem(key)));
+  }
+  return items.sort((a,b)=>a.ts-b.ts);
+}
+function saveWebBooking(uid,move){localStorage.setItem('zs-web-booking:'+encodeURIComponent(uid)+':'+move.id,JSON.stringify(move));}
+function removeWebBooking(uid,id){localStorage.removeItem('zs-web-booking:'+encodeURIComponent(uid)+':'+id);}
+async function retryWebBookings(){
+  if(S.webSyncRunning||!canWrite()||!S.connected||!S.db||!S.firebase)return;
+  const uid=S.user.uid;S.webSyncRunning=true;
+  try{
+    for(const move of readWebBookings(uid)){
+      if(!canWrite()||S.user.uid!==uid||!S.connected)break;
+      try{await completeWebBooking(uid,move);}
+      catch(e){if(classifySyncError(e)==='RETRY')scheduleSync(5000);break;}
+    }
+  }finally{S.webSyncRunning=false;}
+}
+async function completeWebBooking(uid,move){
+  await syncOneMovement(move);
+  removeWebBooking(uid,move.id);
+  await removeSyncedMovementMarker(move);
+  scheduleSummary();
+}
+async function firebaseBook(id,type,q,reason,note,options={}){
+  if(!canWrite()||S.firebase?.auth?.currentUser?.uid!==S.user.uid)throw Error('INVALID_BOOKING');
+  const article=S.cartons.find(c=>c.id===id);if(!article)throw Error('CARTON_NOT_FOUND');
+  const uid=S.user.uid,F=S.firebase;
+  const move=ArticleModel.validateMovement({id:F.push(F.ref(S.db,'movements')).key,ts:Date.now(),
+    userId:uid,userName:S.user.name,cartonId:id,article:article.article,type,qty:q,reason,note,
+    ...ArticleModel.createMovementMetadata(article,options)});
+  await retryWebBookings();
+  if(readWebBookings(uid).length)throw Error(lang==='de'?'Eine frühere Buchung wartet noch auf Synchronisierung. Bitte später erneut versuchen.':'An earlier transaction is still waiting for synchronization. Please try later.');
+  // Durable intent is written before the server stock transaction. The same ID
+  // recovers both a page restart and a failed journal write without a second debit.
+  saveWebBooking(uid,move);
+  try{await completeWebBooking(uid,move);return {pending:false};}
+  catch(e){
+    if(/INSUFFICIENT_STOCK_SERVER|CARTON_NOT_FOUND|INVALID_ARTICLE_REFERENCE|INVALID_STOCK/.test(String(e.message))){removeWebBooking(uid,move.id);throw e;}
+    scheduleSync(5000);return {pending:true};
+  }
+}
 async function readRoleViaRest(user){
   const token=await user.getIdToken(true);
   const url=`${FIREBASE_BASE_CONFIG.databaseURL}/users/${encodeURIComponent(user.uid)}/role.json?auth=${encodeURIComponent(token)}`;
@@ -1070,7 +1342,7 @@ unlock();
 try{
   if(S.offlineReady)await loadOfflineData();
   subscribe();
-  if(S.native&&S.offlineReady&&S.connected)scheduleSync(500);
+  if(S.connected)scheduleSync(500);
   const deep=new URLSearchParams(location.search).get('box');
   if(deep&&S.user.role!=='customer')setTimeout(()=>handleScan(deep),120);
   else show(S.user.role==='customer'?'planner':'dashboard');
@@ -1093,12 +1365,12 @@ if($('gateRoleDb'))$('gateRoleDb').textContent=FIREBASE_BASE_CONFIG.databaseURL;
 authView('authNoRole')
 }}
 function clearSubs(){S.unsubs.forEach(u=>{try{u()}catch{}});S.unsubs=[]}
-function subscribe(){clearSubs();const F=S.firebase;
+function subscribe(){clearSubs();const F=S.firebase,uid=S.user.uid;const internal=()=>canWrite()&&S.user.uid===uid;
 if(isAdmin())S.unsubs.push(F.onValue(F.ref(S.db,'users'),s=>{S.users=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));renderUsers()},e=>{console.error('users subscription',e);renderUsers()}));else S.users=[];
 if(S.user.role==='customer'){S.cartons=[];S.movements=[];S.unsubs.push(F.onValue(F.ref(S.db,'instructions'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));S.instructions=S.offlineReady?await window.ZeroStockOffline.cacheInstructions(list):list;render()}));S.unsubs.push(F.onValue(F.ref(S.db,'customerSummary'),s=>{S.customerSummary=s.val()||{};render()}));return}
-S.unsubs.push(F.onValue(F.ref(S.db,'cartons'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));S.cartons=S.offlineReady?await window.ZeroStockOffline.cacheCartons(list):list;await refreshOfflineStats();render();scheduleSummary()}));
+S.unsubs.push(F.onValue(F.ref(S.db,'cartons'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));if(!internal())return;const cached=S.offlineReady?await window.ZeroStockOffline.cacheCartons(list):list;if(!internal())return;S.cartons=cached;await refreshOfflineStats();render();scheduleSummary()}));
 S.unsubs.push(F.onValue(F.ref(S.db,'instructions'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));S.instructions=S.offlineReady?await window.ZeroStockOffline.cacheInstructions(list):list;render();scheduleSummary()}));
-S.unsubs.push(F.onValue(F.query(F.ref(S.db,'movements'),F.limitToLast(200)),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));S.movements=S.offlineReady?await window.ZeroStockOffline.cacheMovements(list):list;await refreshOfflineStats();render()}))}
+S.unsubs.push(F.onValue(F.query(F.ref(S.db,'movements'),F.limitToLast(200)),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));if(!internal())return;const cached=S.offlineReady?await window.ZeroStockOffline.cacheMovements(list):list;if(!internal())return;S.movements=cached;await refreshOfflineStats();render()}))}
 async function loadFirebaseModules(){if(S.native&&window.ZeroStockFirebaseNative)return window.ZeroStockFirebaseNative;return{app:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-app.js`),auth:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-auth.js`),database:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-database.js`)}}
 async function initFirebase(){authView('authLoading');try{const M=await loadFirebaseModules(),A=M.app,U=M.auth,R=M.database,app=A.initializeApp(FIREBASE_BASE_CONFIG),auth=U.getAuth(app);try{await U.setPersistence(auth,U.browserLocalPersistence)}catch{}S.firebase={...U,...R,app,auth};U.onAuthStateChanged(auth,async user=>{clearSubs();S.user=null;S.cartons=[];S.instructions=[];S.movements=[];S.users=[];S.customerSummary={};S.connected=false;S.db=null;S.offlineSession=false;if(!user){authView('authLogin');return}await connectDb(user)})}catch(e){console.error(e);if(S.native&&S.offlineReady)authError('gateLoginError',lang==='de'?'Keine gespeicherte Anmeldung verfügbar. Für die erste Anmeldung ist Internet erforderlich.':'No cached sign-in available. Internet is required for the first sign-in.');else authError('gateLoginError',lang==='de'?'Firebase konnte nicht geladen werden. Internet prüfen.':'Firebase could not be loaded. Check internet.');authView('authLogin')}}
 function safeAuthMessage(err){const c=String(err?.code||'');if(/invalid-credential|wrong-password|user-not-found|invalid-email/i.test(c))return lang==='de'?'Anmeldung fehlgeschlagen. E-Mail oder Passwort prüfen.':'Sign-in failed. Check email or password.';if(/too-many-requests/i.test(c))return lang==='de'?'Zu viele Versuche. Bitte später erneut versuchen.':'Too many attempts. Try again later.';if(/network-request-failed/i.test(c))return lang==='de'?'Keine Verbindung. Netzwerk prüfen.':'No connection. Check network.';return lang==='de'?'Anmeldung konnte nicht abgeschlossen werden.':'Sign-in could not be completed.'}
@@ -1111,11 +1383,31 @@ function spreadsheetSafeText(v){let x=String(v??'');if(/^[=+@-]/.test(x)||/^[\t\
 function csvCell(v){const x=spreadsheetSafeText(v).replace(/"/g,'""');return /[;"\n\r]/.test(x)?`"${x}"`:x}
 function makeCsv(headers,rows){return '\ufeff'+[headers,...rows].map(r=>r.map(csvCell).join(';')).join('\r\n')}
 function xmlCell(v,type='String'){const raw=type==='Number'?String(v??''):spreadsheetSafeText(v);const x=raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');return `<Cell><Data ss:Type="${type}">${x}</Data></Cell>`}
-function makeStockExcelXml(){const rows=S.cartons.map(c=>[c.article,c.name,c.location,+c.stock||0,+c.min||0,+c.warn||0,status(c).txt]);const header=['Artikel','Bezeichnung','Lagerplatz','Bestand','Minimum','Warnbestand','Status'];const body=[header,...rows].map((r,ri)=>`<Row>${r.map((v,i)=>xmlCell(v,ri>0&&[3,4,5].includes(i)?'Number':'String')).join('')}</Row>`).join('');return `<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Bestand"><Table>${body}</Table></Worksheet></Workbook>`}
+function makeStockExcelXml(){
+  const rows=S.cartons.map(c=>[c.article,c.name,c.location,+c.stock||0,+c.min||0,+c.warn||0,status(c).txt,ArticleModel.kindLabel(ArticleModel.articleKind(c),lang),c.externalRef||'']);
+  const header=['Artikel','Bezeichnung','Lagerplatz','Bestand','Minimum','Warnbestand','Status','Artikelart','Externe Referenz'];
+  const body=[header,...rows].map((r,ri)=>`<Row>${r.map((v,i)=>xmlCell(v,ri>0&&[3,4,5].includes(i)?'Number':'String')).join('')}</Row>`).join('');
+  return `<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Bestand"><Table>${body}</Table></Worksheet></Workbook>`;
+}
+
 async function exportTextFile(filename,data,mime,title){try{const r=await window.ZeroStockFiles?.saveAndShareText?.({filename,data,mime,title,text:`ZeroStock · ${title}`});toast('✓ Export',S.native?'Datei gespeichert · Share-Sheet geöffnet.':'Datei wurde erstellt.');return r}catch(e){console.error('export',e);toast('Export',e.message||String(e))}}
-async function exportStockExcel(){return exportTextFile(`ZeroStock_Bestand_${zsDateStamp()}.xls`,makeStockExcelXml(),'application/vnd.ms-excel','Bestand Excel')}
-async function exportStockCsv(){const rows=S.cartons.map(c=>[c.article,c.name,c.location,c.stock,c.min,c.warn,status(c).txt]);return exportTextFile(`ZeroStock_Bestand_${zsDateStamp()}.csv`,makeCsv(['Artikel','Bezeichnung','Lagerplatz','Bestand','Minimum','Warnbestand','Status'],rows),'text/csv;charset=utf-8','Bestand CSV')}
-async function exportMovesCsv(){const rows=[...S.movements].sort((a,b)=>(b.ts||0)-(a.ts||0)).map(m=>[new Date(m.ts||Date.now()).toISOString(),m.userName||'',m.article||'',m.type||'',m.qty??'',m.stockAfter??'',m.reason||'',m.note||'',m.syncStatus||'SYNCED',m.id||'']);return exportTextFile(`ZeroStock_Bewegungen_${zsDateStamp()}.csv`,makeCsv(['Zeit','Benutzer','Artikel','Typ','Menge','Bestand danach','Grund','Notiz','Sync','ID'],rows),'text/csv;charset=utf-8','Bewegungen CSV')}
+async function exportStockExcel(){
+  if(!S.user||S.user.role==='customer')return;
+  return exportTextFile(`ZeroStock_Bestand_${zsDateStamp()}.xls`,makeStockExcelXml(),'application/vnd.ms-excel','Bestand Excel');
+}
+
+async function exportStockCsv(){
+  if(!S.user||S.user.role==='customer')return;
+  const rows=S.cartons.map(c=>[c.article,c.name,c.location,c.stock,c.min,c.warn,status(c).txt,ArticleModel.kindLabel(ArticleModel.articleKind(c),lang),c.externalRef||'']);
+  return exportTextFile(`ZeroStock_Bestand_${zsDateStamp()}.csv`,makeCsv(['Artikel','Bezeichnung','Lagerplatz','Bestand','Minimum','Warnbestand','Status','Artikelart','Externe Referenz'],rows),'text/csv;charset=utf-8','Bestand CSV');
+}
+
+async function exportMovesCsv(){
+  if(!S.user||S.user.role==='customer')return;
+  const rows=[...S.movements].sort((a,b)=>(b.ts||0)-(a.ts||0)).map(m=>[new Date(m.ts||Date.now()).toISOString(),m.userName||'',m.article||'',m.type||'',m.qty??'',m.stockAfter??'',m.reason||'',m.note||'',m.syncStatus||'SYNCED',m.id||'',m.articleKind||ArticleModel.articleKind(S.cartons.find(c=>c.id===m.cartonId)),m.partner||'',m.reference||'',m.externalRef||'']);
+  return exportTextFile(`ZeroStock_Bewegungen_${zsDateStamp()}.csv`,makeCsv(['Zeit','Benutzer','Artikel','Typ','Menge','Bestand danach','Grund','Notiz','Sync','ID','Artikelart','Gegenstelle','Referenz','Externe Referenz'],rows),'text/csv;charset=utf-8','Bewegungen CSV');
+}
+
 async function exportBackupJson(){if(!isAdmin())return;const payload={format:'ZeroStock Backup',version:'5.0-phase11',createdAt:new Date().toISOString(),cartons:S.cartons,instructions:S.instructions,movements:S.movements};return exportTextFile(`ZeroStock_Backup_${zsDateStamp()}.json`,JSON.stringify(payload,null,2),'application/json;charset=utf-8','ZeroStock Datensicherung')}
 async function shareCurrentLabel(){try{const box=$('qrBox'),canvas=box?.querySelector('canvas'),img=box?.querySelector('img');let dataUrl=canvas?.toDataURL?.('image/png')||img?.src;if(!dataUrl||!String(dataUrl).startsWith('data:image/'))throw Error(lang==='de'?'QR-Code ist noch nicht bereit.':'QR code is not ready.');const article=$('labelContent')?.querySelector('h2')?.textContent?.trim()||'QR';await window.ZeroStockFiles?.shareDataUrl?.({filename:`ZeroStock_QR_${article.replace(/[^A-Za-z0-9_-]+/g,'_')}.png`,dataUrl,title:'ZeroStock QR'});toast('✓ QR',S.native?'QR gespeichert · Share-Sheet geöffnet.':'QR wurde heruntergeladen.')}catch(e){toast('QR',e.message||String(e))}}
 function refreshExportMode(){const b=$('exportModeBadge');if(b){b.textContent=S.native?'ANDROID · SHARE':'WEB · DOWNLOAD';b.className='status ok'}}
@@ -1165,6 +1457,18 @@ document.addEventListener('click',e=>{
   if(del){e.preventDefault();deleteCarton(del.dataset.id);return}
 });
 
+$('iKind').onchange=()=>updateInstructionForm(true);$('iContainer').onchange=instructionLive;
+document.addEventListener('keydown',e=>{
+  const modal=[...document.querySelectorAll('.modal.open')].find(m=>m.getClientRects().length);
+  if(!modal)return;
+  if(e.key==='Escape'){e.preventDefault();closeAll();return;}
+  if(e.key!=='Tab')return;
+  const fields=[...modal.querySelectorAll('button,input,select,textarea,[tabindex]')].filter(x=>!x.disabled&&x.tabIndex>=0&&x.getClientRects().length);
+  if(!fields.length)return;
+  if(e.shiftKey&&document.activeElement===fields[0]){e.preventDefault();fields.at(-1).focus();}
+  else if(!e.shiftKey&&document.activeElement===fields.at(-1)){e.preventDefault();fields[0].focus();}
+});
+
 // UI events
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>show(b.dataset.view));document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>show(b.dataset.goto));document.querySelectorAll('[data-mview]').forEach(b=>b.onclick=()=>show(b.dataset.mview));document.querySelectorAll('[data-quick-type]').forEach(b=>b.onclick=()=>openQuickBook(b.dataset.quickType));document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{lang=b.dataset.lang;localStorage.setItem('zs-lang',lang);applyLang()});document.querySelectorAll('.closeModal').forEach(b=>b.onclick=closeAll);if($('notificationToggle'))$('notificationToggle').onchange=async e=>{try{await window.ZeroStockNotifications?.setEnabled?.(!!e.target.checked);if(e.target.checked)await window.ZeroStockNotifications?.init?.();refreshNotificationSettingsUI();scheduleNativeNotificationEvaluation(50)}catch(err){toast('ZeroStock',err.message||String(err))}};
 window.addEventListener('online',()=>{if(S.native&&S.offlineReady){scheduleSync(150);refreshOfflineStats().then(render).catch(()=>{})}});
@@ -1177,7 +1481,7 @@ $('dashSearch').oninput=renderCartons;if($('quickBookSearch'))$('quickBookSearch
       }
       window.print();
     };$('logoutBtn').onclick=async()=>{const uid=S.user?.uid;try{if(uid&&window.ZeroStockSecure)await window.ZeroStockSecure.removeUser(uid)}catch{};await S.firebase?.signOut(S.firebase.auth)};$('fabScan').onclick=()=>show('scan');
-if($('exportStockExcel'))$('exportStockExcel').onclick=exportStockExcel;if($('exportStockCsv'))$('exportStockCsv').onclick=exportStockCsv;if($('exportMovesCsv'))$('exportMovesCsv').onclick=exportMovesCsv;if($('exportBackupJson'))$('exportBackupJson').onclick=exportBackupJson;if($('shareLabel'))$('shareLabel').onclick=shareCurrentLabel;refreshExportMode();if($('openAddUser'))$('openAddUser').onclick=openAddUser;if($('createUserBtn'))$('createUserBtn').onclick=createZeroStockUser;if($('syncNowBtn'))$('syncNowBtn').onclick=()=>runSyncEngine({manual:true});if($('saveUpdateSource'))$('saveUpdateSource').onclick=saveUpdateSource;if($('checkUpdateBtn'))$('checkUpdateBtn').onclick=()=>checkForUpdate(true,false);loadUpdateSettings();$('gateLogin').onclick=login;$('gateReset').onclick=resetPassword;
+if($('exportContainerMovesCsv'))$('exportContainerMovesCsv').onclick=exportContainerMovesCsv;if($('exportStockExcel'))$('exportStockExcel').onclick=exportStockExcel;if($('exportStockCsv'))$('exportStockCsv').onclick=exportStockCsv;if($('exportMovesCsv'))$('exportMovesCsv').onclick=exportMovesCsv;if($('exportBackupJson'))$('exportBackupJson').onclick=exportBackupJson;if($('shareLabel'))$('shareLabel').onclick=shareCurrentLabel;refreshExportMode();if($('openAddUser'))$('openAddUser').onclick=openAddUser;if($('createUserBtn'))$('createUserBtn').onclick=createZeroStockUser;if($('syncNowBtn'))$('syncNowBtn').onclick=()=>runSyncEngine({manual:true});if($('saveUpdateSource'))$('saveUpdateSource').onclick=saveUpdateSource;if($('checkUpdateBtn'))$('checkUpdateBtn').onclick=()=>checkForUpdate(true,false);loadUpdateSettings();$('gateLogin').onclick=login;$('gateReset').onclick=resetPassword;
 $('gateRetryRole').onclick=async()=>{const u=S.firebase?.auth?.currentUser;if(u){$('gateRoleState').textContent='erneute Prüfung…';$('gateRoleValue').textContent='—';$('gateRoleSource').textContent='—';$('gateRoleDb').textContent=FIREBASE_BASE_CONFIG.databaseURL;await connectDb(u)}};
 $('gateLogoutRole').onclick=()=>S.firebase?.signOut(S.firebase.auth);$('gatePassword').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;$('installBar').classList.add('show')});$('installBtn').onclick=async()=>{if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice}catch{}deferredInstallPrompt=null;$('installBar').classList.remove('show')};$('installDismiss').onclick=()=>$('installBar').classList.remove('show');window.addEventListener('appinstalled',()=>$('installBar').classList.remove('show'));

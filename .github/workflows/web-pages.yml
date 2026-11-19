@@ -5,6 +5,7 @@ on:
     branches:
       - v5-web-main
       - v5-ui-web
+      - feat/plates-container-quantities
       - main
   workflow_dispatch:
 
@@ -15,26 +16,32 @@ permissions:
 jobs:
   preview:
     runs-on: ubuntu-24.04
+    container:
+      image: mcr.microsoft.com/playwright/python:v1.56.0-noble
+      options: --ipc=host
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Verify canonical Android web assets
         run: python3 .github/scripts/web-assets.py
-      - name: Install isolated browser test runtime
+      - name: Install the Python client matching the packaged browsers
         run: |
-          python3 -m venv "$RUNNER_TEMP/web-qa"
-          "$RUNNER_TEMP/web-qa/bin/python" -m pip install --disable-pip-version-check playwright==1.56.0
-          "$RUNNER_TEMP/web-qa/bin/python" -m playwright install --with-deps --only-shell chromium
+          python -m pip install --disable-pip-version-check --target "$RUNNER_TEMP/web-qa" playwright==1.56.0
+          echo "PYTHONPATH=$RUNNER_TEMP/web-qa" >> "$GITHUB_ENV"
       - name: Test desktop and mobile web preview
         env:
           ZEROSTOCK_TEST_EMAIL: ${{ secrets.ZEROSTOCK_TEST_EMAIL }}
           ZEROSTOCK_TEST_PASSWORD: ${{ secrets.ZEROSTOCK_TEST_PASSWORD }}
-        run: '"$RUNNER_TEMP/web-qa/bin/python" .github/scripts/web-smoke.py'
+        run: 'python .github/scripts/web-smoke.py'
+      - name: Test article and container controllers with isolated fixtures
+        run: |
+          python .github/scripts/articles-ui.py --root .
+          python .github/scripts/articles-regressions.py --root .
       - name: Test content readability and Android safe areas with isolated fixtures
-        run: '"$RUNNER_TEMP/web-qa/bin/python" .github/scripts/ui-readability.py'
+        run: 'python .github/scripts/ui-readability.py'
       - name: Test public website after Pages deployment
         if: github.ref == 'refs/heads/main'
         env:
           ZEROSTOCK_TEST_EMAIL: ${{ secrets.ZEROSTOCK_TEST_EMAIL }}
           ZEROSTOCK_TEST_PASSWORD: ${{ secrets.ZEROSTOCK_TEST_PASSWORD }}
-        run: '"$RUNNER_TEMP/web-qa/bin/python" .github/scripts/web-smoke.py --url https://samkruw.github.io/Zerostock/'
+        run: 'python .github/scripts/web-smoke.py --url https://samkruw.github.io/Zerostock/'

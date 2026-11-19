@@ -124,13 +124,13 @@
           const addListener = createPluginMethodWrapper("addListener");
           const removeListener = createPluginMethodWrapper("removeListener");
           const addListenerNative = (eventName, callback) => {
-            const call = addListener({ eventName }, callback);
+            const call = addListener({ eventName }, callback).then((callbackId) => callbackId);
             const remove = async () => {
               const callbackId = await call;
-              removeListener({
+              await removeListener({
                 eventName,
                 callbackId
-              }, callback);
+              });
             };
             const p = new Promise((resolve) => call.then(() => resolve({ remove })));
             p.remove = async () => {

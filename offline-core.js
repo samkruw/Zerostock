@@ -1008,6 +1008,86 @@
     electron: () => window.CapacitorCustomPlatform.plugins.CapacitorSQLite
   });
 
+  // src/articles.mjs
+  var ARTICLE_KINDS = Object.freeze(["carton", "plate", "container"]);
+  var messages = {
+    INVALID_KIND: "Bitte eine g\xFCltige Artikelart w\xE4hlen.",
+    INVALID_BOOKING: "Die Buchungsdaten sind ung\xFCltig. Bitte Menge und Textfelder pr\xFCfen.",
+    IMMUTABLE_ARTICLE: "Die Artikelnummer kann nach dem Anlegen nicht ge\xE4ndert werden.",
+    IMMUTABLE_KIND: "Die bereits festgelegte Artikelart kann nicht ge\xE4ndert werden.",
+    REQUIRED_TEXT: "Artikelnummer, Bezeichnung und Lagerplatz sind erforderlich.",
+    INVALID_TEXT: "Ein Textfeld ist ung\xFCltig oder zu lang.",
+    INVALID_QUANTITY: "Mengen m\xFCssen sichere ganze Zahlen ab null sein.",
+    INVALID_THRESHOLDS: "Der Warnbestand muss mindestens dem Mindestbestand entsprechen.",
+    INVALID_ORDER: "Die gew\xFCnschte Anzahl muss eine positive ganze Zahl sein.",
+    INVALID_CONTAINER: "Bitte einen vorhandenen, aktiven Containerartikel w\xE4hlen.",
+    INVALID_PLATE: "Eine Plate-Komponente fehlt, ist inaktiv oder hat eine andere Artikelart.",
+    EMPTY_COMPONENTS: "Mindestens eine Plate-Komponente ist erforderlich.",
+    DUPLICATE_COMPONENT: "Jeder Plate-Artikel darf nur einmal vorkommen.",
+    INVALID_COMPONENT: "Jede Plate-Menge muss eine positive ganze Zahl sein.",
+    INVALID_CONFIGURATION: "Die Container-Konfiguration ist ung\xFCltig. Bitte pr\xFCfen und erneut speichern.",
+    QUANTITY_OVERFLOW: "Die angefragte Menge ist zu gross f\xFCr eine sichere Berechnung."
+  };
+  function fail(code) {
+    const error = new Error(messages[code]);
+    error.code = code;
+    throw error;
+  }
+  function text(value, maximum, required = false) {
+    if (value == null) value = "";
+    if (typeof value !== "string") fail("INVALID_TEXT");
+    const result = value.trim();
+    if (result.length > maximum) fail("INVALID_TEXT");
+    if (required && !result) fail("REQUIRED_TEXT");
+    return result;
+  }
+  function whole(value, positive = false, code = "INVALID_QUANTITY") {
+    if (typeof value === "string" && !value.trim()) fail(code);
+    if (!["string", "number"].includes(typeof value)) fail(code);
+    const n = Number(value);
+    if (!Number.isSafeInteger(n) || n < (positive ? 1 : 0)) fail(code);
+    return n;
+  }
+  function articleKind(article) {
+    if (article?.kind == null || article.kind === "") return "carton";
+    return ARTICLE_KINDS.includes(article.kind) ? article.kind : "unknown";
+  }
+  function movementMetadata(record = {}) {
+    const result = {};
+    if (record.articleKind != null) {
+      if (!ARTICLE_KINDS.includes(record.articleKind)) fail("INVALID_KIND");
+      result.articleKind = record.articleKind;
+    }
+    for (const [key, maximum] of [["externalRef", 120], ["partner", 120], ["reference", 200]]) {
+      if (record[key] == null) continue;
+      const value = text(record[key], maximum);
+      if (value || key === "externalRef") result[key] = value;
+    }
+    return result;
+  }
+  function createMovementMetadata(article, options = {}) {
+    return movementMetadata({
+      articleKind: articleKind(article),
+      externalRef: article.externalRef || "",
+      partner: options.partner,
+      reference: options.reference
+    });
+  }
+  function validateMovement(move) {
+    if (!["in", "out", "shrink"].includes(move.type)) fail("INVALID_BOOKING");
+    return {
+      ...move,
+      ...movementMetadata(move),
+      qty: whole(move.qty, true, "INVALID_BOOKING"),
+      cartonId: text(move.cartonId, 120, true),
+      article: text(move.article, 120, true),
+      userId: text(move.userId, 128, true),
+      userName: text(move.userName, 120),
+      reason: text(move.reason, 500),
+      note: text(move.note, 1e3)
+    };
+  }
+
   // src/offline-core.js
   var DB = "zerostock";
   var DB_VERSION = 3;
@@ -1154,14 +1234,22 @@
     ready = true;
     return { available: true };
   }
-  async function pendingDeltas() {
-    const rows = await query(`SELECT carton_id, SUM(CASE WHEN type='in' THEN qty ELSE -qty END) AS delta
-                          FROM movements WHERE sync_status IN ('PENDING','SYNCING','FAILED','CONFLICT') GROUP BY carton_id`);
-    return new Map(rows.map((r) => [String(r.carton_id), Number(r.delta) || 0]));
+  async function pendingDeltas(cartons) {
+    const applied = new Map(cartons.map((c) => [String(c.id), c._zsApplied]));
+    const rows = await query(`SELECT id,carton_id,type,qty FROM movements
+                          WHERE sync_status IN ('PENDING','SYNCING','FAILED','CONFLICT')`);
+    const deltas = /* @__PURE__ */ new Map();
+    for (const row of rows) {
+      const cartonId = String(row.carton_id);
+      if (applied.get(cartonId)?.[row.id]) continue;
+      const delta = row.type === "in" ? Number(row.qty) : -Number(row.qty);
+      deltas.set(cartonId, (deltas.get(cartonId) || 0) + delta);
+    }
+    return deltas;
   }
   async function cacheCartons(cartons = []) {
     await init();
-    const deltas = await pendingDeltas();
+    const deltas = await pendingDeltas(cartons);
     for (const c of cartons) {
       const id = String(c.id || "");
       if (!id) continue;
@@ -1175,6 +1263,10 @@
       server_updated_at=excluded.server_updated_at,local_updated_at=excluded.local_updated_at,payload_json=excluded.payload_json`,
         [id, String(c.article || id), String(c.name || ""), String(c.location || ""), effective, Number(c.min) || 0, Number(c.warn) || 0, c.active === false ? 0 : 1, Number(c.updatedAt) || 0, now(), JSON.stringify(c)]
       );
+    }
+    const present = new Set(cartons.map((c) => String(c.id)));
+    for (const row of await query("SELECT id FROM cartons")) {
+      if (!present.has(String(row.id))) await run("DELETE FROM cartons WHERE id=?", [row.id]);
     }
     await run(`INSERT OR REPLACE INTO metadata(key,value,updated_at) VALUES(?,?,?)`, ["cartons_cached_at", String(now()), now()]);
     return getCartons();
@@ -1205,6 +1297,10 @@
       ON CONFLICT(id) DO UPDATE SET name=excluded.name,active=excluded.active,updated_at=excluded.updated_at,payload_json=excluded.payload_json`,
         [id, String(i.name || ""), i.active === false ? 0 : 1, Number(i.updatedAt) || now(), JSON.stringify(i)]
       );
+    }
+    const present = new Set(items.map((i) => String(i.id)));
+    for (const row of await query("SELECT id FROM instructions")) {
+      if (!present.has(String(row.id))) await run("DELETE FROM instructions WHERE id=?", [row.id]);
     }
     return getInstructions();
   }
@@ -1255,10 +1351,10 @@
       syncStatus: r.sync_status
     }));
   }
-  async function recordMovement({ cartonId, type, qty, reason = "", note = "", userId = "", userName = "" }) {
+  async function recordMovement({ cartonId, type, qty, reason = "", note = "", userId = "", userName = "", partner = "", reference = "" }) {
     await init();
-    const q = Math.floor(Number(qty) || 0);
-    if (q < 1) throw new Error("INVALID_QUANTITY");
+    const q = Number(qty);
+    if (!Number.isSafeInteger(q) || q < 1) throw new Error("INVALID_QUANTITY");
     if (!["in", "out", "shrink"].includes(type)) throw new Error("INVALID_TYPE");
     const rows = await query(`SELECT * FROM cartons WHERE id=? LIMIT 1`, [String(cartonId)]);
     const c = rows[0];
@@ -1266,8 +1362,10 @@
     const before = Number(c.stock) || 0;
     if (type !== "in" && q > before) throw new Error("INSUFFICIENT_STOCK");
     const after = Math.max(0, before + (type === "in" ? q : -q));
+    if (!Number.isSafeInteger(before) || before < 0 || !Number.isSafeInteger(after)) throw new Error("Die Menge oder der lokale Bestand ist f\xFCr diese Buchung ung\xFCltig. Bitte Bestand und Synchronisierung pr\xFCfen.");
     const id = uuid(), ts = now();
-    const payload = { id, cartonId: String(cartonId), article: c.article, type, qty: q, reason, note, userId, userName, stockBefore: before, stockAfter: after, ts, syncStatus: "PENDING" };
+    const metadata = createMovementMetadata(safeJson(c.payload_json) || {}, { partner, reference });
+    const payload = validateMovement({ id, cartonId: String(cartonId), article: c.article, type, qty: q, reason, note, userId, userName, stockBefore: before, stockAfter: after, ts, syncStatus: "PENDING", ...metadata });
     await CapacitorSQLite.beginTransaction({ database: DB });
     try {
       await run(`UPDATE cartons SET stock=?,local_updated_at=? WHERE id=?`, [after, ts, String(cartonId)]);
@@ -1293,16 +1391,16 @@
     if (!statuses.length) return [];
     const marks = statuses.map(() => "?").join(",");
     const rows = await query(`SELECT * FROM movements WHERE sync_status IN (${marks}) ORDER BY created_at ASC`, statuses);
-    return rows.map((r) => ({ id: r.id, ts: Number(r.ts) || 0, userId: r.user_id || "", userName: r.user_name || "", cartonId: r.carton_id, article: r.article || "", type: r.type, qty: Number(r.qty) || 0, reason: r.reason || "", note: r.note || "", stockBefore: Number(r.stock_before) || 0, stockAfter: Number(r.stock_after) || 0, syncStatus: r.sync_status }));
+    return rows.map((r) => ({ ...movementMetadata(safeJson(r.payload_json) || {}), id: r.id, ts: Number(r.ts) || 0, userId: r.user_id || "", userName: r.user_name || "", cartonId: r.carton_id, article: r.article || "", type: r.type, qty: Number(r.qty) || 0, reason: r.reason || "", note: r.note || "", stockBefore: Number(r.stock_before) || 0, stockAfter: Number(r.stock_after) || 0, syncStatus: r.sync_status }));
   }
-  async function getSyncBatch(limit = 20) {
+  async function getSyncBatch(limit = 20, userId = null) {
     await init();
     const t = now();
     const rows = await query(`SELECT q.*,m.ts,m.user_id,m.user_name,m.carton_id,m.article,m.type,m.qty,m.reason,m.note,m.stock_before,m.stock_after,m.sync_status
     FROM sync_queue q JOIN movements m ON m.id=q.entity_id
     WHERE q.entity_type='movement' AND q.status IN ('PENDING','FAILED') AND (q.next_retry_at IS NULL OR q.next_retry_at<=?)
-    ORDER BY q.created_at ASC LIMIT ?`, [t, Number(limit) || 20]);
-    return rows.map((r) => ({ id: r.id, entityId: r.entity_id, status: r.status, attempts: Number(r.attempts) || 0, ts: Number(r.ts) || 0, userId: r.user_id || "", userName: r.user_name || "", cartonId: r.carton_id, article: r.article || "", type: r.type, qty: Number(r.qty) || 0, reason: r.reason || "", note: r.note || "", stockBefore: Number(r.stock_before) || 0, stockAfter: Number(r.stock_after) || 0, syncStatus: r.sync_status }));
+    AND (? IS NULL OR m.user_id=?) ORDER BY q.created_at ASC LIMIT ?`, [t, userId, userId, Number(limit) || 20]);
+    return rows.map((r) => ({ ...movementMetadata(safeJson(r.payload_json) || {}), id: r.id, entityId: r.entity_id, status: r.status, attempts: Number(r.attempts) || 0, ts: Number(r.ts) || 0, userId: r.user_id || "", userName: r.user_name || "", cartonId: r.carton_id, article: r.article || "", type: r.type, qty: Number(r.qty) || 0, reason: r.reason || "", note: r.note || "", stockBefore: Number(r.stock_before) || 0, stockAfter: Number(r.stock_after) || 0, syncStatus: r.sync_status }));
   }
   async function markSyncing(id) {
     await init();
