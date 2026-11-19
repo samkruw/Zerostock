@@ -1,6 +1,6 @@
 # Plates und Container: Mengenverwaltung und Konfigurationsberechnung
 
-Stand: 19.11.2026. Entwurf zur Abstimmung, noch keine implementierte oder veröffentlichte Funktion.
+Stand: 19.11.2026. Vom Benutzer mit „Ja passt so“ zur Umsetzung bestätigt; noch keine veröffentlichte Funktion.
 
 ## Ziel und vereinbarter Umfang
 
@@ -19,9 +19,9 @@ Technischer Vorschlag: die vorhandenen Artikel-, Instruction- und Bewegungsdaten
 
 ## Buchungswirkung: offener Punkt mit vorgeschlagenem Standard
 
-**Vorgeschlagener Standard:** Die Konfiguration ist eine Bedarfsplanung. Berechnen und Speichern einer Konfiguration verändern keine Bestände. Ein Container-Ausgang bucht die eingegebene Menge dieses Containerartikels; Plates werden über eigene Eingangs-/Abgangsbuchungen geführt.
+**Bestätigte Buchungswirkung:** Die Konfiguration ist eine Bedarfsplanung. Berechnen und Speichern einer Konfiguration verändern keine Bestände. Ein Container-Ausgang bucht die eingegebene Menge dieses Containerartikels; Plates werden über eigene Eingangs-/Abgangsbuchungen geführt.
 
-Eine separate Rückfrage ist gestellt, ob Container und Plates stattdessen gemeinsam gebucht werden sollen. Bis zu einer anderen ausdrücklichen Entscheidung gilt der vorstehende Standard als Vorschlag, nicht als bereits bestätigter Benutzerwunsch. Eine gemeinsame Mehrartikelbuchung darf nicht als Folge unabhängiger Einzelbuchungen umgesetzt werden: Ein Fehler dürfte sonst nur einen Teil des Bestands verändern. Falls der Benutzer diese Variante wählt, muss der Entwurf vor Umsetzung um einen konsistenten Mehrartikel-Buchungsvorgang ergänzt werden.
+Der Benutzer hat diesen Entwurf einschliesslich separater Bestandsbuchung bestätigt. Gemeinsame Mehrartikelbuchungen sind kein Teil dieser Umsetzung.
 
 ## Artikel und bestehende Daten
 
@@ -139,4 +139,4 @@ Dem Implementierenden überlassen: genaue Aufteilung von Modulen und Formularfel
 
 ## Entwurfsprüfung
 
-Eine unabhängige technische Prüfung des Entwurfs hat als einzige wesentliche offene Entscheidung die Bestandswirkung der Containerbuchung benannt. Diese Frage ist oben mit dem vorgeschlagenen Standard beschrieben und dem Benutzer bereits gestellt. Mengenverwaltung statt Einzelverfolgung und eine spätere, separat zu spezifizierende Container-Track-Anbindung sind entschieden. Vor der Implementierung werden der Entwurf und die Buchungswirkung bestätigt.
+Eine unabhängige technische Prüfung des Entwurfs hat als einzige wesentliche offene Entscheidung die Bestandswirkung der Containerbuchung benannt. Diese Frage ist oben mit dem vorgeschlagenen Standard beschrieben und dem Benutzer bereits gestellt. Mengenverwaltung statt Einzelverfolgung und eine spätere, separat zu spezifizierende Container-Track-Anbindung sind entschieden. Der Benutzer hat danach den Entwurf und die separate Buchungswirkung bestätigt.
