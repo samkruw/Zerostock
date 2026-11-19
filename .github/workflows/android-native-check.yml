@@ -1,0 +1,56 @@
+name: ZeroStock native Android check
+on:
+  push:
+    branches: [feat/plates-container-quantities]
+    paths:
+      - cloud-build/**
+      - .github/workflows/android-native-check.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Restore candidate source
+        run: |
+          node cloud-build/restore-source.mjs "$RUNNER_TEMP/zerostock-native" 5.1.0
+          echo "ZS_SRC=$RUNNER_TEMP/zerostock-native" >> "$GITHUB_ENV"
+      - name: Prepare native project without signing credentials
+        working-directory: ${{ env.ZS_SRC }}
+        run: |
+          npm install --no-audit --no-fund
+          npm run web:build
+          npx cap add android
+          npm run android:configure
+          npx cap sync android
+      - name: Compile native release and expose a bounded failure summary
+        working-directory: ${{ env.ZS_SRC }}/android
+        run: |
+          if ./gradlew --no-daemon assembleRelease > "$RUNNER_TEMP/native-build.log" 2>&1; then
+            echo '::notice::Unsigned native Android compilation passed; no signing secrets used.'
+          else
+            python3 - <<'PY'
+          import os,re
+          from pathlib import Path
+          lines=Path(os.environ['RUNNER_TEMP'],'native-build.log').read_text().splitlines()
+          capture=False;summary=[]
+          for line in lines:
+              line=re.sub(r'\x1b\[[0-9;]*m','',line)
+              if '* What went wrong:' in line:capture=True;continue
+              if capture and line.startswith('* Try:'):break
+              if capture and line.strip():summary.append(line)
+          if not summary:summary=[line for line in lines if re.search(r'exception|error|failure|could not',line,re.I)][-10:]
+          for line in summary[:12]:print('::error::Native Gradle: '+line[:500].replace('%','%25').replace('\r','%0D'))
+          PY
+            exit 1
+          fi
