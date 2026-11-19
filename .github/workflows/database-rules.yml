@@ -8,6 +8,7 @@ on:
       - cloud-build/rules-tests/**
       - .github/workflows/database-rules.yml
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read

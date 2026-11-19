@@ -1,0 +1,165 @@
+name: ZeroStock V5 Android APK
+
+on:
+  push:
+    branches: [main, v5-cloud-build, feat/plates-container-quantities]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  ZEROSTOCK_RELEASE_VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '5.1.0' }}
+
+concurrency:
+  group: zerostock-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  database-rules:
+    uses: ./.github/workflows/database-rules.yml
+
+  verify-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify release preparation and source restoration
+        run: node --test cloud-build/prepare-release.test.mjs cloud-build/restore-source.test.mjs
+      - name: Restore verified feature source
+        run: |
+          node cloud-build/restore-source.mjs "$RUNNER_TEMP/zerostock-v5/src" "$ZEROSTOCK_RELEASE_VERSION"
+          echo "ZS_SRC=$RUNNER_TEMP/zerostock-v5/src" >> "$GITHUB_ENV"
+      - name: Install source dependencies
+        working-directory: ${{ env.ZS_SRC }}
+        run: npm install --no-audit --no-fund
+      - name: Build and test application
+        working-directory: ${{ env.ZS_SRC }}
+        run: |
+          npm run web:build
+          npm run test:all
+      - name: Verify actual UI controllers and readability with isolated fixtures
+        run: |
+          python3 -m venv "$RUNNER_TEMP/ui-qa"
+          "$RUNNER_TEMP/ui-qa/bin/python" -m pip install --disable-pip-version-check playwright==1.56.0
+          "$RUNNER_TEMP/ui-qa/bin/python" -m playwright install --with-deps --only-shell chromium
+          "$RUNNER_TEMP/ui-qa/bin/python" .github/scripts/articles-ui.py --root "$ZS_SRC/www"
+          "$RUNNER_TEMP/ui-qa/bin/python" .github/scripts/ui-readability.py --root "$ZS_SRC/www"
+      - name: Archive tested source and resolved dependency lock
+        run: tar --exclude='./node_modules' --exclude='./android' -czf "$RUNNER_TEMP/tested-source.tar.gz" -C "$ZS_SRC" .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tested-source-${{ github.run_id }}
+          path: ${{ runner.temp }}/tested-source.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+
+  build-release:
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    needs: [verify-source, database-rules]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate existing signing secrets
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          test -n "$KEYSTORE_B64"
+          test -n "$KEY_ALIAS"
+          test -n "$KEYSTORE_PASSWORD"
+          test -n "$KEY_PASSWORD"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/download-artifact@v4
+        with:
+          name: tested-source-${{ github.run_id }}
+          path: ${{ runner.temp }}/tested-source
+      - name: Restore exact tested source
+        run: |
+          mkdir -p "$RUNNER_TEMP/zerostock-v5/src"
+          tar -xzf "$RUNNER_TEMP/tested-source/tested-source.tar.gz" -C "$RUNNER_TEMP/zerostock-v5/src"
+          echo "ZS_SRC=$RUNNER_TEMP/zerostock-v5/src" >> "$GITHUB_ENV"
+      - name: Install locked dependencies and create Android project
+        working-directory: ${{ env.ZS_SRC }}
+        run: |
+          npm ci --no-audit --no-fund
+          npx cap add android
+          npm run android:configure
+          npx cap sync android
+      - name: Set increasing Android version
+        working-directory: ${{ env.ZS_SRC }}
+        env:
+          ZEROSTOCK_VERSION_CODE: ${{ github.run_number }}
+        run: |
+          export ZEROSTOCK_VERSION_NAME="${ZEROSTOCK_RELEASE_VERSION#v}"
+          test "$ZEROSTOCK_VERSION_CODE" -gt 29
+          node scripts/configure-release.mjs
+      - name: Build unsigned release APK
+        working-directory: ${{ env.ZS_SRC }}/android
+        run: ./gradlew --no-daemon assembleRelease
+      - name: Decode temporary keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          umask 077
+          printf '%s' "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/zerostock-release.jks"
+      - name: Sign and verify package, version and existing certificate
+        working-directory: ${{ env.ZS_SRC }}
+        env:
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          UNSIGNED="android/app/build/outputs/apk/release/app-release-unsigned.apk"
+          OUT="ZeroStock-${GITHUB_REF_NAME}.apk"
+          "$BUILD_TOOLS/apksigner" sign --ks "$RUNNER_TEMP/zerostock-release.jks" --ks-key-alias "$KEY_ALIAS" --ks-pass env:KEYSTORE_PASSWORD --key-pass env:KEY_PASSWORD --out "$OUT" "$UNSIGNED"
+          "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$OUT" > "$RUNNER_TEMP/apk-signature.txt"
+          cat "$RUNNER_TEMP/apk-signature.txt"
+          grep -Fq 'Signer #1 certificate SHA-256 digest: ea278794174af099e57faae01bc8c209a0fbc4fd95dfb3b702d8fa75a9436f8a' "$RUNNER_TEMP/apk-signature.txt"
+          BADGING="$("$BUILD_TOOLS/aapt" dump badging "$OUT")"
+          PACKAGE="$(printf '%s\n' "$BADGING" | sed -n '1p')"
+          [[ "$PACKAGE" == *"name='ch.zerogen.zerostock'"* ]]
+          [[ "$PACKAGE" == *"versionName='${GITHUB_REF_NAME#v}'"* ]]
+          [[ "$PACKAGE" == *"versionCode='${GITHUB_RUN_NUMBER}'"* ]]
+          if printf '%s\n' "$BADGING" | grep -q 'application-debuggable'; then exit 1; fi
+          sha256sum "$OUT" > "$OUT.sha256"
+          sha256sum -c "$OUT.sha256"
+      - name: Remove temporary keystore
+        if: ${{ always() }}
+        run: rm -f "$RUNNER_TEMP/zerostock-release.jks"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ZeroStock-${{ github.ref_name }}
+          path: |
+            ${{ env.ZS_SRC }}/ZeroStock-${{ github.ref_name }}.apk
+            ${{ env.ZS_SRC }}/ZeroStock-${{ github.ref_name }}.apk.sha256
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish immutable GitHub release
+        working-directory: ${{ env.ZS_SRC }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PRE=""
+          case "$GITHUB_REF_NAME" in *-rc.*) PRE="--prerelease" ;; esac
+          gh release create "$GITHUB_REF_NAME" \
+            "ZeroStock-${GITHUB_REF_NAME}.apk" "ZeroStock-${GITHUB_REF_NAME}.apk.sha256" \
+            --repo "$GITHUB_REPOSITORY" --verify-tag \
+            --title "ZeroStock ${GITHUB_REF_NAME}" \
+            --notes-file "RELEASE-NOTES-${GITHUB_REF_NAME}.md" $PRE

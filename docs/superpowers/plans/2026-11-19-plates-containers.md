@@ -35,10 +35,10 @@
 
 **Interfaces:** `articleKind(article) -> 'carton'|'plate'|'container'`; `validateArticle(input, previous?) -> normalized record`; `configurationMaterials(containerId, plates, articles) -> materials[]`; `calculateConfiguration(configuration, articles, quantity) -> {capacity, canFulfill, lines, bottleneck}`; `createMovementMetadata(article, options) -> metadata`; `movementMetadata(record) -> only validated optional metadata` (absence preserved); `containerMovementRows(movements, articles) -> export rows`.
 
-- [ ] Write failing Node tests for the 10/30/20 stock example, input boundaries, wrong/missing types, duplicates, no input mutation, immutable explicit category, optional metadata and legacy absence.
-- [ ] Implement the pure functions and run `node --test cloud-build/overrides/scripts/test-articles.mjs` until green.
-- [ ] Restore existing source into a new owned directory, apply overlays/build scripts and normalize all selected release metadata. New `articles.js` bundle is part of copy/cache lists.
-- [ ] Extend real version tests to 5.1.0; run all preparation tests and commit the domain/source task.
+- [x] Write failing Node tests for the 10/30/20 stock example, input boundaries, wrong/missing types, duplicates, no input mutation, immutable explicit category, optional metadata and legacy absence.
+- [x] Implement the pure functions and run `node --test cloud-build/overrides/scripts/test-articles.mjs` until green.
+- [x] Restore existing source into a new owned directory, apply overlays/build scripts and normalize all selected release metadata. New `articles.js` bundle is part of copy/cache lists.
+- [x] Extend real version tests to 5.1.0; run all preparation tests and commit the domain/source task.
 
 ### Task 2: Persistent quantities, movement metadata and rule compatibility
 
@@ -46,10 +46,10 @@
 
 **Interfaces:** native `recordMovement({...core, partner?, reference?})` returns a payload with trusted article metadata; `getSyncBatch`, `getMovementsByStatus`, `getMovements` preserve optional metadata while authoritative columns still own core values. Use Task 1 metadata helpers. Firebase article/instruction paths remain unchanged.
 
-- [ ] Write failing integration tests using real SQLite for typed-cache/config round trips, separate container booking, metadata through queue/batch/retry, and old movements without metadata.
-- [ ] Implement metadata persistence and validation without changing the SQLite schema or manufacturing defaults on old queued movements.
-- [ ] Add backward-compatible field validation and staff immutability to the supplied Firebase rules. Exercise actual rules with an isolated local emulator in CI; never a production project.
-- [ ] Run the existing security/stability gates plus domain/SQLite/rule checks and commit.
+- [x] Write failing integration tests using real SQLite for typed-cache/config round trips, separate container booking, metadata through queue/batch/retry, and old movements without metadata.
+- [x] Implement metadata persistence and validation without changing the SQLite schema or manufacturing defaults on old queued movements.
+- [x] Add backward-compatible field validation and staff immutability to the supplied Firebase rules. Exercise actual rules with an isolated local emulator in CI; never a production project.
+- [x] Run the existing security/stability gates plus domain/SQLite/rule checks and commit.
 
 ### Task 3: Article, configuration, planner, booking and export UI
 
@@ -57,10 +57,10 @@
 
 **Interfaces:** controllers consume Task 1 helpers and Task 2 metadata. Existing DOM IDs remain compatible; add category filters, `cKind`, `cExternalRef`, configuration kind/target controls and optional booking partner/reference controls.
 
-- [ ] Add failing browser flows for typed article creation/filtering, configuration creation/edit/duplicate, expected shortage/capacity, no stock effects during planning, separate container booking, and customer restrictions.
-- [ ] Implement administrator forms and metadata-preserving article transactions, including safe handling of stock changes while the edit dialog is open.
-- [ ] Implement container configurations containing one target-container row and plate rows, dynamic planner labels/results, journal metadata and neutral CSV of currently loaded container movements. Preserve formula neutralization.
-- [ ] Run browser flows at phone/desktop sizes, the existing readability sweep and the full app suite. Capture a bounded visual batch, fix actual defects, and commit.
+- [x] Add failing browser flows for typed article creation/filtering, configuration creation/edit/duplicate, expected shortage/capacity, no stock effects during planning, separate container booking, and customer restrictions.
+- [x] Implement administrator forms and metadata-preserving article transactions, including safe handling of stock changes while the edit dialog is open.
+- [x] Implement container configurations containing one target-container row and plate rows, dynamic planner labels/results, journal metadata and neutral CSV of currently loaded container movements. Preserve formula neutralization.
+- [x] Run browser flows at phone/desktop sizes, the existing readability sweep and the full app suite. Capture a bounded visual batch, fix actual defects, and commit.
 
 ### Task 4: Whole-branch review and release
 

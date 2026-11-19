@@ -8,7 +8,7 @@ import { spawnSync } from 'node:child_process';
 const cloud = path.dirname(fileURLToPath(import.meta.url));
 const repository = path.dirname(cloud);
 const destination = path.resolve(process.argv[2] || '');
-const version = process.argv[3] || '5.1.0';
+const version = (process.argv[3] || '5.1.0').replace(/^v/, '');
 if (!process.argv[2] || destination === repository ||
     (fs.existsSync(destination) && fs.readdirSync(destination).length)) {
   throw new Error('Supply a new or empty build directory; existing source is never overwritten.');
