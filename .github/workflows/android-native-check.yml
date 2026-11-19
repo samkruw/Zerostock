@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 jobs:
   native:
     runs-on: ubuntu-24.04
@@ -21,18 +22,26 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - name: Restore candidate source
+      - uses: actions/download-artifact@v4
+        with:
+          name: tested-source-44503579434
+          run-id: 44503579434
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/original-source
+      - name: Restore exact tested source from failed release
         run: |
-          node cloud-build/restore-source.mjs "$RUNNER_TEMP/zerostock-native" 5.1.0
+          mkdir -p "$RUNNER_TEMP/zerostock-native"
+          tar -xzf "$RUNNER_TEMP/original-source/tested-source.tar.gz" -C "$RUNNER_TEMP/zerostock-native"
           echo "ZS_SRC=$RUNNER_TEMP/zerostock-native" >> "$GITHUB_ENV"
       - name: Prepare native project without signing credentials
         working-directory: ${{ env.ZS_SRC }}
         run: |
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
           npm run web:build
           npx cap add android
           npm run android:configure
           npx cap sync android
+          ZEROSTOCK_VERSION_NAME=5.1.0 ZEROSTOCK_VERSION_CODE=33 node scripts/configure-release.mjs
       - name: Compile native release and expose a bounded failure summary
         working-directory: ${{ env.ZS_SRC }}/android
         run: |
