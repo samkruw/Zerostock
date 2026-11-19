@@ -19,6 +19,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/v5.1.1
+      - name: Check the approved rule source
+        run: test "$(git rev-parse HEAD)" = d856c4f3eda0d932b3fbfe34b6b8f658b19d376e
       - uses: actions/setup-node@v4
         with:
           node-version: 22
