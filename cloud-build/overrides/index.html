@@ -588,7 +588,7 @@ Object.assign(D.en,{configurationLabel:'Configuration',cartons:'Articles',newCar
 
 function openArticleModal(id,focusId){
   closeAll();const modal=$(id);modal.classList.add('open');modal.style.removeProperty('display');modal.setAttribute('aria-hidden','false');
-  setTimeout(()=>{if(modal.classList.contains('open'))$(focusId)?.focus();},30);
+  $(focusId)?.focus();
 }
 
 function instructionRows(){

@@ -21,6 +21,9 @@ class Regressions(unittest.TestCase):
     def test_rejected_note_never_changes_stock(self):
         result=self.page.evaluate("""async()=>{let rejected=false;try{await firebaseBook('C','out',1,'','x'.repeat(1001))}catch{rejected=true}return {rejected,stock:uiFixture.data.cartons.C.stock,moves:Object.keys(uiFixture.data.movements).length}}""")
         self.assertEqual(result,{'rejected':True,'stock':10,'moves':0})
+    def test_opening_a_dialog_does_not_steal_focus_after_the_user_moves(self):
+        active=self.page.evaluate("""async()=>{openBook('C');document.getElementById('bookReference').focus();await new Promise(resolve=>setTimeout(resolve,65));return document.activeElement.id}""")
+        self.assertEqual(active,'bookReference')
     def test_interrupted_journal_is_durable_and_retries_same_id_once(self):
         result=self.page.evaluate("""async()=>{
             const original=S.firebase.set;let fail=true;

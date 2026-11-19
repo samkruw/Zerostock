@@ -22,6 +22,12 @@ server=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(QuietHa
 threading.Thread(target=server.serve_forever,daemon=True).start()
 base=f'http://127.0.0.1:{server.server_port}/'
 stage='start'
+def wait_closed(page,selector):
+    try:page.locator(selector).wait_for(state='hidden',timeout=5000)
+    except Exception:
+        print('UI failure state:',page.evaluate("({toast:document.getElementById('toast').innerText,submitting:S.articleSubmitting,bookSubmitting:S.bookSubmitting,role:S.user?.role,bookQty:document.getElementById('bookQty').value,article:document.getElementById('cArticle').value,stock:document.getElementById('cStock').value})"))
+        raise
+
 try:
     with sync_playwright() as p:
         options={'headless':True}
@@ -39,9 +45,9 @@ try:
             assert page.locator('#cKind').count()==1,'Article category control is missing'
             for field,value in [('cArticle','PL-R'),('cName','Plate R'),('cLocation','L5'),('cStock','15'),('cMin','0'),('cWarn','2'),('cExternalRef','CT-R')]:page.locator('#'+field).fill(value)
             page.locator('#cKind').select_option('plate');page.locator('#saveCarton').click()
-            page.locator('#cartonModal').wait_for(state='hidden');page.evaluate('closeAll()')
+            wait_closed(page,'#cartonModal');page.evaluate('closeAll()')
             page.wait_for_timeout(220);page.evaluate('closeAll()')
-            assert page.evaluate("uiFixture.data.cartons['PL-R'].kind")=='plate'
+            assert page.evaluate("uiFixture.data.cartons['PL-R']?.kind")== 'plate',page.evaluate("({toast:document.getElementById('toast').innerText,article:document.getElementById('cArticle').value})")
             stage=label+':filtering'
             page.locator('[data-article-filter="container"]').click()
             assert page.locator('#cartonRows tr').count()==1
@@ -54,15 +60,15 @@ try:
             page.locator('.matrow .matCarton').first.select_option('P');page.locator('.matrow .matQty').first.fill('4')
             page.locator('#addMaterialRow').click()
             page.locator('.matrow .matCarton').nth(1).select_option('Q');page.locator('.matrow .matQty').nth(1).fill('2')
-            page.locator('#saveInstruction').click();page.locator('#instructionModal').wait_for(state='hidden')
+            page.locator('#saveInstruction').click();wait_closed(page,'#instructionModal')
             cfg=page.evaluate("Object.values(uiFixture.data.instructions).find(i=>i.kind==='container').id")
             page.locator('.editI[data-id="'+cfg+'"]').click()
             assert page.locator('.matrow').count()==2
-            page.locator('#saveInstruction').click();page.locator('#instructionModal').wait_for(state='hidden')
+            page.locator('#saveInstruction').click();wait_closed(page,'#instructionModal')
             assert page.evaluate("Object.values(uiFixture.data.instructions).find(i=>i.kind==='container').materials.filter(m=>m.cartonId==='C').length")==1
             page.locator('.dupI[data-id="'+cfg+'"]').click()
             page.locator('#iName').fill('Container A Kopie');page.locator('#saveInstruction').click()
-            page.locator('#instructionModal').wait_for(state='hidden')
+            wait_closed(page,'#instructionModal')
             assert page.evaluate("Object.values(uiFixture.data.instructions).filter(i=>i.kind==='container').length")==2
             stage=label+':planner'
             before=page.evaluate('JSON.stringify(uiFixture.data.cartons)')
@@ -75,7 +81,7 @@ try:
             page.evaluate("show('cartons')");page.locator('#cartonRows .editC[data-id="C"]').click()
             assert page.locator('#cKind').is_disabled()
             page.evaluate("uiFixture.data.cartons.C.stock=9;uiFixture.data.cartons.C._zsApplied={retained:{stockAfter:9}};uiFixture.emit()")
-            page.locator('#cName').fill('Container A bearbeitet');page.locator('#saveCarton').click();page.locator('#cartonModal').wait_for(state='hidden')
+            page.locator('#cName').fill('Container A bearbeitet');page.locator('#saveCarton').click();wait_closed(page,'#cartonModal')
             page.wait_for_timeout(220);page.evaluate('closeAll()')
             assert page.evaluate('uiFixture.data.cartons.C.stock')==9
             assert page.evaluate('Boolean(uiFixture.data.cartons.C._zsApplied.retained)')
@@ -90,7 +96,7 @@ try:
             page.locator('#cartonRows .book[data-id="C"]').click();page.locator('#bookType').select_option('out')
             page.locator('#bookQty').fill('3');page.locator('#bookPartner').fill('=SUM(1+1)');page.locator('#bookReference').fill('REF-3')
             page.evaluate("document.getElementById('confirmBook').click();document.getElementById('confirmBook').click()")
-            page.locator('#bookModal').wait_for(state='hidden')
+            wait_closed(page,'#bookModal')
             assert page.evaluate('uiFixture.data.cartons.C.stock')==6
             assert page.evaluate('uiFixture.data.cartons.P.stock')==30
             assert page.evaluate('Object.keys(uiFixture.data.movements).length')==1
