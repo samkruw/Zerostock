@@ -1121,11 +1121,24 @@ async function publishSummary(){if(!canWrite()||!S.db)return;const sum={};for(co
 function syncBackoff(attempts){return Math.min(300000,2000*Math.pow(2,Math.max(0,(Number(attempts)||1)-1)))}
 function withTimeout(promise,ms=20000,label='TIMEOUT'){let timer;return Promise.race([Promise.resolve(promise).finally(()=>clearTimeout(timer)),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(label)),ms)})])}
 function scheduleSync(delay=250){
-  if(!S.native){clearTimeout(S.syncTimer);S.syncTimer=setTimeout(()=>retryWebBookings().catch(e=>console.error('web recovery',e)),delay);return;}
-  if(!S.offlineReady)return;clearTimeout(S.syncTimer);S.syncTimer=setTimeout(()=>runSyncEngine().catch(e=>console.error('sync engine',e)),delay);
+  clearTimeout(S.syncTimer);
+  S.syncTimer=setTimeout(()=>{
+    const sync=S.native&&S.offlineReady?runSyncEngine():retryWebBookings();
+    sync.catch(e=>console.error('sync engine',e));
+  },delay);
 }
 function classifySyncError(e){const m=String(e?.code||e?.message||e||'SYNC_FAILED');if(m==='AUTH_ACTOR_MISMATCH')return'RETRY';if(/permission|auth|user-disabled|PERMISSION_DENIED/i.test(m))return'CONFLICT';if(/INSUFFICIENT|CARTON_NOT_FOUND|ID_COLLISION|MOVEMENT_MISMATCH|INVALID_/i.test(m))return'CONFLICT';return'RETRY'}
-async function syncOneMovement(move){
+const inFlightMovements=new Map();
+function syncOneMovement(move){
+  const key=JSON.stringify([move.userId,move.id]);
+  if(inFlightMovements.has(key))return inFlightMovements.get(key);
+  const apply=()=>applyMovementOnce(move);
+  const attempt=navigator.locks?.request?navigator.locks.request('zs-movement:'+key,apply):apply();
+  const pending=attempt.finally(()=>inFlightMovements.delete(key));
+  inFlightMovements.set(key,pending);
+  return pending;
+}
+async function applyMovementOnce(move){
   const F=S.firebase;if(!F||!S.db)throw Error('FIREBASE_NOT_READY');
   move=ArticleModel.validateMovement(move);
   const actor=()=>canWrite()&&S.user.uid===move.userId&&F.auth?.currentUser?.uid===move.userId;
@@ -1162,15 +1175,20 @@ async function syncOneMovement(move){
   const c=tx.snapshot.val()||{}, marker=c._zsApplied?.[markerKey], stockAfter=Number(marker?.stockAfter??c.stock)||0;
   if(!actor())throw Error('AUTH_ACTOR_MISMATCH');
   await F.set(movementRef,{ts:Number(move.ts)||Date.now(),clientTs:Number(move.ts)||Date.now(),syncedAt:F.serverTimestamp(),userId:move.userId,userName:move.userName,cartonId:move.cartonId,article:move.article,type:move.type,qty:Number(move.qty)||0,reason:move.reason||'',note:move.note||'',stockAfter,...metadata});
-  // Marker is only needed for crash recovery between carton transaction and movement creation.
-  // Once the movement exists, its UUID itself is the durable idempotency key.
-  try{await F.set(F.ref(S.db,`cartons/${move.cartonId}/_zsApplied/${markerKey}`),null)}catch(e){console.warn('sync marker cleanup',e)}
   return {stockAfter,recovered:false};
+}
+async function removeSyncedMovementMarker(move){
+  // Cache listeners need this marker until the local queue acknowledges the server stock.
+  const F=S.firebase;
+  try{await F.set(F.ref(S.db,`cartons/${move.cartonId}/_zsApplied/${move.id}`),null)}
+  catch(e){console.warn('sync marker cleanup',e)}
 }
 async function runSyncEngine({manual=false}={}){
   if(S.syncRunning||!S.native||!S.offlineReady||!S.connected||!S.db||!S.firebase||!canWrite())return {processed:0};
   S.syncRunning=true;let processed=0,synced=0,conflicts=0,failed=0;
   try{
+    await retryWebBookings();
+    if(!S.connected||!canWrite())return {processed:0};
     const actor=S.user.uid;
     const batch=await window.ZeroStockOffline.getSyncBatch(20,actor);
     for(const move of batch){
@@ -1179,7 +1197,9 @@ async function runSyncEngine({manual=false}={}){
       try{
         await window.ZeroStockOffline.markSyncing(move.id);await refreshOfflineStats();render();
         const result=await withTimeout(syncOneMovement(move),20000,'SYNC_TIMEOUT');
-        await window.ZeroStockOffline.markSynced(move.id,{serverId:move.id,stockAfter:result.stockAfter});synced++;
+        await window.ZeroStockOffline.markSynced(move.id,{serverId:move.id,stockAfter:result.stockAfter});
+        await removeSyncedMovementMarker(move);
+        synced++;
       }catch(e){
         console.error('sync movement',move.id,e);const kind=classifySyncError(e);
         if(kind==='CONFLICT'){await window.ZeroStockOffline.markConflict(move.id,e?.message||String(e));conflicts++}
@@ -1204,15 +1224,21 @@ function readWebBookings(uid){
 function saveWebBooking(uid,move){localStorage.setItem('zs-web-booking:'+encodeURIComponent(uid)+':'+move.id,JSON.stringify(move));}
 function removeWebBooking(uid,id){localStorage.removeItem('zs-web-booking:'+encodeURIComponent(uid)+':'+id);}
 async function retryWebBookings(){
-  if(S.native||S.webSyncRunning||!canWrite()||!S.connected||!S.db||!S.firebase)return;
+  if(S.webSyncRunning||!canWrite()||!S.connected||!S.db||!S.firebase)return;
   const uid=S.user.uid;S.webSyncRunning=true;
   try{
     for(const move of readWebBookings(uid)){
       if(!canWrite()||S.user.uid!==uid||!S.connected)break;
-      try{await syncOneMovement(move);removeWebBooking(uid,move.id);scheduleSummary();}
+      try{await completeWebBooking(uid,move);}
       catch(e){if(classifySyncError(e)==='RETRY')scheduleSync(5000);break;}
     }
   }finally{S.webSyncRunning=false;}
+}
+async function completeWebBooking(uid,move){
+  await syncOneMovement(move);
+  removeWebBooking(uid,move.id);
+  await removeSyncedMovementMarker(move);
+  scheduleSummary();
 }
 async function firebaseBook(id,type,q,reason,note,options={}){
   if(!canWrite()||S.firebase?.auth?.currentUser?.uid!==S.user.uid)throw Error('INVALID_BOOKING');
@@ -1226,7 +1252,7 @@ async function firebaseBook(id,type,q,reason,note,options={}){
   // Durable intent is written before the server stock transaction. The same ID
   // recovers both a page restart and a failed journal write without a second debit.
   saveWebBooking(uid,move);
-  try{await syncOneMovement(move);removeWebBooking(uid,move.id);scheduleSummary();return {pending:false};}
+  try{await completeWebBooking(uid,move);return {pending:false};}
   catch(e){
     if(/INSUFFICIENT_STOCK_SERVER|CARTON_NOT_FOUND|INVALID_ARTICLE_REFERENCE|INVALID_STOCK/.test(String(e.message))){removeWebBooking(uid,move.id);throw e;}
     scheduleSync(5000);return {pending:true};

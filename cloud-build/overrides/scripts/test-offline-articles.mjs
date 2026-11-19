@@ -121,3 +121,11 @@ test('journal text rejected by Firebase cannot enter the local stock transaction
   assert.equal((await f.offline.getCartons()).find(c=>c.id==='C').stock,10);
   assert.equal((await f.offline.getSyncBatch()).length,0);
 });
+test('server-applied pending movements are not subtracted a second time in cached stock',async t=>{
+  const f=fixture(t);await f.offline.cacheCartons(articles);
+  const first=await f.offline.recordMovement({cartonId:'C',type:'out',qty:2,userId:'a'});
+  const snapshot={...articles[0],stock:8,_zsApplied:{[first.id]:{stockAfter:8,userId:'a'}}};
+  assert.equal((await f.offline.cacheCartons([snapshot])).find(c=>c.id==='C').stock,8);
+  await f.offline.recordMovement({cartonId:'C',type:'out',qty:1,userId:'b'});
+  assert.equal((await f.offline.cacheCartons([snapshot])).find(c=>c.id==='C').stock,7);
+});

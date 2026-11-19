@@ -143,15 +143,23 @@ async function init(){
   return {available:true};
 }
 
-async function pendingDeltas(){
-  const rows=await query(`SELECT carton_id, SUM(CASE WHEN type='in' THEN qty ELSE -qty END) AS delta
-                          FROM movements WHERE sync_status IN ('PENDING','SYNCING','FAILED','CONFLICT') GROUP BY carton_id`);
-  return new Map(rows.map(r=>[String(r.carton_id),Number(r.delta)||0]));
+async function pendingDeltas(cartons){
+  const applied=new Map(cartons.map(c=>[String(c.id),c._zsApplied]));
+  const rows=await query(`SELECT id,carton_id,type,qty FROM movements
+                          WHERE sync_status IN ('PENDING','SYNCING','FAILED','CONFLICT')`);
+  const deltas=new Map();
+  for(const row of rows){
+    const cartonId=String(row.carton_id);
+    if(applied.get(cartonId)?.[row.id])continue;
+    const delta=row.type==='in'?Number(row.qty):-Number(row.qty);
+    deltas.set(cartonId,(deltas.get(cartonId)||0)+delta);
+  }
+  return deltas;
 }
 
 async function cacheCartons(cartons=[]){
   await init();
-  const deltas=await pendingDeltas();
+  const deltas=await pendingDeltas(cartons);
   for(const c of cartons){
     const id=String(c.id||''); if(!id) continue;
     const serverStock=Number(c.stock)||0;

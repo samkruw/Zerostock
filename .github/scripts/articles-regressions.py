@@ -34,6 +34,23 @@ class Regressions(unittest.TestCase):
             return {pending:result.pending,after,stock:uiFixture.data.cartons.C.stock,moves:Object.keys(uiFixture.data.movements).length,pendingCount:readWebBookings('ui-admin').length};
         }""")
         self.assertEqual(result,{'pending':True,'after':8,'stock':8,'moves':1,'pendingCount':0})
+    def test_native_without_sqlite_can_recover_its_browser_fallback_intent(self):
+        result=self.page.evaluate("""async()=>{
+            S.native=true;S.offlineReady=false;const original=S.firebase.set;let fail=true;
+            S.firebase.set=async(r,v)=>{if(fail&&r.path.startsWith('movements/'))throw Error('TEST_NETWORK');return original(r,v)};
+            await firebaseBook('C','out',2,'','fallback');fail=false;
+            await retryWebBookings();return {stock:uiFixture.data.cartons.C.stock,moves:Object.keys(uiFixture.data.movements).length,pending:readWebBookings(S.user.uid).length};
+        }""")
+        self.assertEqual(result,{'stock':8,'moves':1,'pending':0})
+    def test_overlapping_retries_share_one_stock_and_append_only_journal_attempt(self):
+        result=self.page.evaluate("""async()=>{
+            const move={id:'overlapping-retries',userId:S.user.uid,userName:S.user.name,cartonId:'C',article:'CON-A',type:'out',qty:2,ts:1};
+            const original=S.firebase.set;let writes=0;
+            S.firebase.set=async(r,v)=>{if(r.path.startsWith('movements/')&&v){writes++;if(uiFixture.data.movements[move.id])throw Error('PERMISSION_DENIED')}return original(r,v)};
+            const attempts=await Promise.allSettled([syncOneMovement(move),syncOneMovement({...move})]);
+            return {stock:uiFixture.data.cartons.C.stock,moves:Object.keys(uiFixture.data.movements).length,writes,fulfilled:attempts.filter(x=>x.status==='fulfilled').length};
+        }""")
+        self.assertEqual(result,{'stock':8,'moves':1,'writes':1,'fulfilled':2})
     def test_wrong_actor_never_applies_queued_stock(self):
         result=self.page.evaluate("""async()=>{S.user={uid:'employee-b',role:'employee'};S.firebase.auth.currentUser.uid='employee-b';let rejected=false;try{await syncOneMovement({id:'queued-a',userId:'employee-a',userName:'A',cartonId:'C',article:'CON-A',type:'out',qty:2,ts:1})}catch{rejected=true}return {rejected,stock:uiFixture.data.cartons.C.stock}}""")
         self.assertEqual(result,{'rejected':True,'stock':10})
@@ -57,6 +74,16 @@ class Regressions(unittest.TestCase):
         self.page.locator('#saveCarton').click()
         self.assertEqual(self.page.evaluate('uiFixture.data.cartons.C.article'),'CON-A')
         self.assertTrue(self.page.locator('#cartonModal').is_visible())
+    def test_native_marker_is_removed_after_local_queue_is_marked_synced(self):
+        result=self.page.evaluate("""async()=>{
+            const move={id:'cleanup-order',userId:S.user.uid,userName:S.user.name,cartonId:'C',article:'CON-A',type:'out',qty:2,ts:1};
+            let state='pending';const cleanup=[];S.native=true;S.offlineReady=true;
+            const set=S.firebase.set;S.firebase.set=async(r,v)=>{if(r.path.includes('/_zsApplied/'))cleanup.push(state);return set(r,v)};
+            window.ZeroStockOffline={getSyncBatch:async()=>state==='synced'?[]:[move],markSyncing:async()=>{state='syncing'},markSynced:async()=>{state='synced'},markRetry:async()=>{},markConflict:async()=>{},
+                stats:async()=>({pending:state==='synced'?0:1,conflicts:0}),getCartons:async()=>Object.values(uiFixture.data.cartons),getInstructions:async()=>Object.values(uiFixture.data.instructions),getMovements:async()=>[]};
+            await runSyncEngine();return {cleanup,stock:uiFixture.data.cartons.C.stock,moves:Object.keys(uiFixture.data.movements).length};
+        }""")
+        self.assertEqual(result,{'cleanup':['synced'],'stock':8,'moves':1})
     def test_cached_customer_session_does_not_load_employee_inventory(self):
         result=self.page.evaluate("""async()=>{
             const cache=JSON.parse(JSON.stringify(uiFixture.data.cartons));let privateReads=0;
