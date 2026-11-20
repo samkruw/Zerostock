@@ -1,4 +1,7 @@
 /** Pure article, container-configuration and movement metadata rules. No storage. */
+import { parseSerialNumbers } from './container-serials.mjs';
+export { parseSerialNumbers, unassignedStock, assignContainerUnits, applyStockMovement } from './container-serials.mjs';
+
 export const ARTICLE_KINDS = Object.freeze(['carton', 'plate', 'container']);
 
 const messages = {
@@ -112,16 +115,22 @@ export function movementMetadata(record = {}) {
     const value = text(record[key], maximum);
     if (value || key === 'externalRef') result[key] = value;
   }
+  if (record.serialNumbers !== undefined) {
+    if (record.articleKind !== 'container') fail('INVALID_BOOKING');
+    result.serialNumbers = parseSerialNumbers(record.serialNumbers);
+  }
   return result;
 }
 export function createMovementMetadata(article, options = {}) {
   return movementMetadata({articleKind:articleKind(article), externalRef:article.externalRef || '',
-    partner:options.partner, reference:options.reference});
+    partner:options.partner, reference:options.reference, serialNumbers:options.serialNumbers});
 }
 /** Validate the complete journal payload before either storage system changes stock. */
 export function validateMovement(move) {
   if (!['in','out','shrink'].includes(move.type)) fail('INVALID_BOOKING');
-  return {...move, ...movementMetadata(move), qty:whole(move.qty,true,'INVALID_BOOKING'),
+  const metadata = movementMetadata(move), qty = whole(move.qty,true,'INVALID_BOOKING');
+  if (metadata.serialNumbers && metadata.serialNumbers.length !== qty) fail('INVALID_BOOKING');
+  return {...move, ...metadata, qty,
     cartonId:text(move.cartonId,120,true), article:text(move.article,120,true),
     userId:text(move.userId,128,true), userName:text(move.userName,120),
     reason:text(move.reason,500), note:text(move.note,1000)};
@@ -134,6 +143,6 @@ export function containerMovementRows(movements, articles) {
     return {id:m.id, articleId:m.cartonId, article:m.article || article?.article || '',
       externalRef:meta.externalRef ?? (m.articleKind ? '' : article?.externalRef || ''),
       direction:m.type, quantity:Number(m.qty), ts:Number(m.ts) || 0, userName:m.userName || '',
-      partner:meta.partner || '', reference:meta.reference || '', stockAfter:Number(m.stockAfter)};
+      partner:meta.partner || '', reference:meta.reference || '', serialNumbers:meta.serialNumbers || [], stockAfter:Number(m.stockAfter)};
   });
 }

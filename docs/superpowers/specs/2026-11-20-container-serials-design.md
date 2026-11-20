@@ -4,7 +4,7 @@ Der Auftrag ergänzt die veröffentlichte Mengenverwaltung um die Identität der
 
 ## Erfassung und Bestand
 
-Vorgesehen ist die Nummer vom Containeretikett. Mitarbeitende können sie eingeben oder scannen. Eine automatische Nummernvergabe ist eine offene Präferenz. Die Zuordnung besteht aus Containertyp und Seriennummer. Führende Nullen, Bindestriche und Groß- und Kleinschreibung bleiben erhalten. Bei einer typenübergreifenden Suche müssen mehrdeutige Treffer unterscheidbar bleiben.
+Jede Einheit erhält die bereits auf ihrem Containeretikett aufgedruckte Seriennummer. Mitarbeitende übernehmen sie durch Eingabe oder Scan. Die Zuordnung besteht aus Containertyp und Seriennummer. Führende Nullen, Bindestriche und Groß- und Kleinschreibung bleiben erhalten. Bei einer typenübergreifenden Suche müssen mehrdeutige Treffer unterscheidbar bleiben.
 
 Beim Anlegen eines neuen Containerartikels lassen sich die Seriennummern des Anfangsbestands erfassen. Für bestehende Containerartikel zeigt die App die bereits zugeordneten Stücke und die noch unzugeordnete Menge. Eine Bestandszuordnung erfasst tatsächlich vorhandene Nummern innerhalb dieser Menge. Sie erzeugt keinen Wareneingang. Eine spätere Bearbeitung der Artikelstammdaten darf die erfassten Einheiten nicht aus dem Bestand entfernen.
 

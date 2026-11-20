@@ -4,7 +4,7 @@ import { DatabaseSync } from 'node:sqlite';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { randomUUID } from 'node:crypto';
-import { createMovementMetadata, movementMetadata, validateMovement } from '../src/articles.mjs';
+import { createMovementMetadata, movementMetadata, validateMovement, applyStockMovement } from '../src/articles.mjs';
 
 const source = fs.readFileSync(new URL('../src/offline-core.js',import.meta.url),'utf8')
   .replace(/^import[^\n]*\n/gm,'');
@@ -27,7 +27,7 @@ function fixture(t) {
   };
   function load() {
     const context=vm.createContext({console,window:{},crypto:{randomUUID},
-      Capacitor:{isNativePlatform:()=>true},CapacitorSQLite:sqlite,createMovementMetadata,movementMetadata,validateMovement});
+      Capacitor:{isNativePlatform:()=>true},CapacitorSQLite:sqlite,createMovementMetadata,movementMetadata,validateMovement,applyStockMovement});
     vm.runInContext(source,context);
     return context.window.ZeroStockOffline;
   }
@@ -128,4 +128,23 @@ test('server-applied pending movements are not subtracted a second time in cache
   assert.equal((await f.offline.cacheCartons([snapshot])).find(c=>c.id==='C').stock,8);
   await f.offline.recordMovement({cartonId:'C',type:'out',qty:1,userId:'b'});
   assert.equal((await f.offline.cacheCartons([snapshot])).find(c=>c.id==='C').stock,7);
+});
+
+test('serial state, ordered batch and projection survive restart and server acknowledgement',async t=>{
+  const f=fixture(t);const c={...articles[0],stock:0};await f.offline.cacheCartons([c]);
+  const book={cartonId:'C',userId:'u',qty:1,serialNumbers:['007/a']};
+  const received=await f.offline.recordMovement({...book,type:'in'});
+  await assert.rejects(()=>f.offline.recordMovement({...book,type:'in'}));
+  const exited=await f.offline.recordMovement({...book,type:'out'});
+  const restarted=f.load();await restarted.init();
+  const batch=plain(await restarted.getSyncBatch());
+  assert.deepEqual(batch.map(m=>m.id),[received.id,exited.id]);assert.deepEqual(batch[1].serialNumbers,['007/a']);
+  const refreshed=(await restarted.cacheCartons([c]))[0];
+  assert.equal(refreshed.stock,0);assert.equal(Object.values(refreshed.containerUnits)[0].status,'out');
+  const confirmed={...c,stock:1,containerUnits:{s3030372f61:{number:'007/a',status:'in'}},_zsApplied:{[received.id]:{stockAfter:1}}};
+  const partial=(await restarted.cacheCartons([confirmed]))[0];
+  assert.equal(partial.stock,0);assert.equal(Object.values(partial.containerUnits)[0].moveId,exited.id);
+  f.state.failQueue=true;await assert.rejects(()=>restarted.recordMovement({...book,type:'in'}),/TEST_IO_FAILURE/);
+  assert.equal((await restarted.getCartons())[0].stock,0);
+  assert.equal(Object.values((await restarted.getCartons())[0].containerUnits)[0].status,'out');
 });

@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { CapacitorSQLite } from '@capacitor-community/sqlite';
-import { createMovementMetadata, movementMetadata, validateMovement } from './articles.mjs';
+import { createMovementMetadata, movementMetadata, validateMovement, applyStockMovement } from './articles.mjs';
 
 const DB='zerostock';
 const DB_VERSION=3;
@@ -143,33 +143,45 @@ async function init(){
   return {available:true};
 }
 
-async function pendingDeltas(cartons){
-  const applied=new Map(cartons.map(c=>[String(c.id),c._zsApplied]));
-  const rows=await query(`SELECT id,carton_id,type,qty FROM movements
-                          WHERE sync_status IN ('PENDING','SYNCING','FAILED','CONFLICT')`);
-  const deltas=new Map();
-  for(const row of rows){
-    const cartonId=String(row.carton_id);
-    if(applied.get(cartonId)?.[row.id])continue;
-    const delta=row.type==='in'?Number(row.qty):-Number(row.qty);
-    deltas.set(cartonId,(deltas.get(cartonId)||0)+delta);
-  }
-  return deltas;
+// Keep remote snapshot projection and a native booking from interleaving on the same SQLite connection.
+let stockWrites=Promise.resolve();
+function serializeStockWrite(operation){
+  const result=stockWrites.then(operation);
+  stockWrites=result.catch(()=>{});
+  return result;
 }
 
 async function cacheCartons(cartons=[]){
+  return serializeStockWrite(()=>cacheCartonSnapshot(cartons));
+}
+async function cacheCartonSnapshot(cartons){
   await init();
-  const deltas=await pendingDeltas(cartons);
-  for(const c of cartons){
-    const id=String(c.id||''); if(!id) continue;
-    const serverStock=Number(c.stock)||0;
-    const effective=serverStock+(deltas.get(id)||0);
+  const rows=await query(`SELECT id,carton_id,type,qty,payload_json FROM movements
+    WHERE sync_status IN ('PENDING','SYNCING','FAILED') ORDER BY created_at,rowid`);
+  const pending=new Map();
+  for(const row of rows){
+    const list=pending.get(row.carton_id)||[];
+    list.push({...safeJson(row.payload_json), id:row.id,type:row.type,qty:row.qty});
+    pending.set(row.carton_id,list);
+  }
+  for(const server of cartons){
+    const id=String(server.id||''); if(!id)continue;
+    let c=server;
+    for(const move of pending.get(id)||[]){
+      if(server._zsApplied?.[move.id])continue;
+      try{c=applyStockMovement(c,move);}
+      catch(error){
+        // A different device may already have dispatched this label. The sync engine
+        // checks the live transaction and records the authoritative conflict.
+        if(error.code!=='INVALID_CONTAINER_SERIAL'&&!/INSUFFICIENT_STOCK|INVALID_STOCK/.test(error.message))throw error;
+      }
+    }
     await run(`INSERT INTO cartons(id,article,name,location,stock,min_stock,warn_stock,active,server_updated_at,local_updated_at,payload_json)
       VALUES(?,?,?,?,?,?,?,?,?,?,?)
       ON CONFLICT(id) DO UPDATE SET article=excluded.article,name=excluded.name,location=excluded.location,
       stock=excluded.stock,min_stock=excluded.min_stock,warn_stock=excluded.warn_stock,active=excluded.active,
       server_updated_at=excluded.server_updated_at,local_updated_at=excluded.local_updated_at,payload_json=excluded.payload_json`,
-      [id,String(c.article||id),String(c.name||''),String(c.location||''),effective,Number(c.min)||0,Number(c.warn)||0,c.active===false?0:1,Number(c.updatedAt)||0,now(),JSON.stringify(c)]);
+      [id,String(c.article||id),String(c.name||''),String(c.location||''),c.stock,Number(c.min)||0,Number(c.warn)||0,c.active===false?0:1,Number(c.updatedAt)||0,now(),JSON.stringify(c)]);
   }
   // This API receives the complete onValue snapshot, including an empty snapshot.
   // Movement/queue history is independent and remains available for recovery.
@@ -242,32 +254,32 @@ async function getMovements(limit=200){
   }));
 }
 
-async function recordMovement({cartonId,type,qty,reason='',note='',userId='',userName='',partner='',reference=''}){
+function recordMovement(input){
+  return serializeStockWrite(()=>recordLocalMovement(input));
+}
+async function recordLocalMovement({cartonId,type,qty,reason='',note='',userId='',userName='',partner='',reference='',serialNumbers}){
   await init();
-  const q=Number(qty); if(!Number.isSafeInteger(q)||q<1) throw new Error('INVALID_QUANTITY');
-  if(!['in','out','shrink'].includes(type)) throw new Error('INVALID_TYPE');
-  const rows=await query(`SELECT * FROM cartons WHERE id=? LIMIT 1`,[String(cartonId)]);
-  const c=rows[0]; if(!c) throw new Error('CARTON_NOT_FOUND_OFFLINE');
-  const before=Number(c.stock)||0;
-  if(type!=='in'&&q>before) throw new Error('INSUFFICIENT_STOCK');
-  const after=Math.max(0,before+(type==='in'?q:-q));
-  if(!Number.isSafeInteger(before)||before<0||!Number.isSafeInteger(after))throw new Error('Die Menge oder der lokale Bestand ist für diese Buchung ungültig. Bitte Bestand und Synchronisierung prüfen.');
-  const id=uuid(),ts=now();
-  const metadata=createMovementMetadata(safeJson(c.payload_json)||{},{partner,reference});
-  const payload=validateMovement({id,cartonId:String(cartonId),article:c.article,type,qty:q,reason,note,userId,userName,stockBefore:before,stockAfter:after,ts,syncStatus:'PENDING',...metadata});
   await CapacitorSQLite.beginTransaction({database:DB});
   try{
-    await run(`UPDATE cartons SET stock=?,local_updated_at=? WHERE id=?`,[after,ts,String(cartonId)]);
+    const rows=await query('SELECT * FROM cartons WHERE id=? LIMIT 1',[String(cartonId)]);
+    const c=rows[0]; if(!c)throw Error('CARTON_NOT_FOUND_OFFLINE');
+    const before=Number(c.stock),article={...safeJson(c.payload_json),stock:before};
+    const id=uuid(),ts=now();
+    const metadata=createMovementMetadata(article,{partner,reference,serialNumbers});
+    const payload=validateMovement({id,ts,cartonId:String(cartonId),article:c.article,type,qty,reason,note,userId,userName,stockBefore:before,syncStatus:'PENDING',...metadata});
+    const updated=applyStockMovement(article,payload),after=updated.stock,q=payload.qty;
+    payload.stockAfter=after;
+    await run('UPDATE cartons SET stock=?,payload_json=?,local_updated_at=? WHERE id=?',[after,JSON.stringify(updated),ts,String(cartonId)]);
     await run(`INSERT INTO movements(id,ts,user_id,user_name,carton_id,article,type,qty,reason,note,stock_before,stock_after,sync_status,created_at,updated_at,payload_json)
       VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,[id,ts,userId,userName,String(cartonId),c.article,type,q,reason,note,before,after,'PENDING',ts,ts,JSON.stringify(payload)]);
     await run(`INSERT INTO sync_queue(id,entity_type,entity_id,operation,payload_json,status,attempts,created_at,updated_at)
       VALUES(?,?,?,?,?,'PENDING',0,?,?)`,[id,'movement',id,'CREATE',JSON.stringify(payload),ts,ts]);
     await CapacitorSQLite.commitTransaction({database:DB});
+    return payload;
   }catch(e){
     try{await CapacitorSQLite.rollbackTransaction({database:DB});}catch{}
     throw e;
   }
-  return payload;
 }
 
 async function getPendingMovements(){
@@ -277,7 +289,7 @@ async function getPendingMovements(){
 async function getMovementsByStatus(statuses=[]){
   if(!statuses.length)return [];
   const marks=statuses.map(()=>'?').join(',');
-  const rows=await query(`SELECT * FROM movements WHERE sync_status IN (${marks}) ORDER BY created_at ASC`,statuses);
+  const rows=await query(`SELECT * FROM movements WHERE sync_status IN (${marks}) ORDER BY created_at,rowid`,statuses);
   return rows.map(r=>({...movementMetadata(safeJson(r.payload_json)||{}),id:r.id,ts:Number(r.ts)||0,userId:r.user_id||'',userName:r.user_name||'',cartonId:r.carton_id,article:r.article||'',type:r.type,qty:Number(r.qty)||0,reason:r.reason||'',note:r.note||'',stockBefore:Number(r.stock_before)||0,stockAfter:Number(r.stock_after)||0,syncStatus:r.sync_status}));
 }
 
@@ -287,7 +299,7 @@ async function getSyncBatch(limit=20,userId=null){
   const rows=await query(`SELECT q.*,m.ts,m.user_id,m.user_name,m.carton_id,m.article,m.type,m.qty,m.reason,m.note,m.stock_before,m.stock_after,m.sync_status
     FROM sync_queue q JOIN movements m ON m.id=q.entity_id
     WHERE q.entity_type='movement' AND q.status IN ('PENDING','FAILED') AND (q.next_retry_at IS NULL OR q.next_retry_at<=?)
-    AND (? IS NULL OR m.user_id=?) ORDER BY q.created_at ASC LIMIT ?`,[t,userId,userId,Number(limit)||20]);
+    AND (? IS NULL OR m.user_id=?) ORDER BY q.created_at,q.rowid LIMIT ?`,[t,userId,userId,Number(limit)||20]);
   return rows.map(r=>({...movementMetadata(safeJson(r.payload_json)||{}),id:r.id,entityId:r.entity_id,status:r.status,attempts:Number(r.attempts)||0,ts:Number(r.ts)||0,userId:r.user_id||'',userName:r.user_name||'',cartonId:r.carton_id,article:r.article||'',type:r.type,qty:Number(r.qty)||0,reason:r.reason||'',note:r.note||'',stockBefore:Number(r.stock_before)||0,stockAfter:Number(r.stock_after)||0,syncStatus:r.sync_status}));
 }
 

@@ -91,3 +91,37 @@ test('container export uses immutable snapshots, with a legacy article lookup fa
   assert.equal(rows[0].partner,'=FORMULA','CSV formula neutralization belongs at serialization');
   assert.equal(rows[1].id,'legacy');assert.equal(rows[0].quantity,3);
 });
+
+test('existing container labels keep their spelling and assignment only identifies current stock',()=>{
+  const A=api(), c=articles()[0];
+  const labels=['00a/A.1','00A/A.1','[#]$'];
+  assert.deepEqual(A.parseSerialNumbers(' 00a/A.1 \r\n00A/A.1\n[#]$\n'),labels);
+  const tagged=A.assignContainerUnits(c,labels,12);
+  assert.equal(tagged.stock,10); assert.equal(A.unassignedStock(tagged),7);
+  assert.deepEqual(Object.values(tagged.containerUnits).map(x=>x.number),labels);
+  for(const key of Object.keys(tagged.containerUnits))assert.doesNotMatch(key,/[.#$\[\]/]/);
+  for(const bad of [['x',' x '],['x\ny'],[123],['x'.repeat(260)]])assert.throws(()=>A.parseSerialNumbers(bad));
+  assert.throws(()=>A.assignContainerUnits(tagged,['00a/A.1'],13));
+  assert.throws(()=>A.assignContainerUnits({...c,stock:1},labels,13));
+  assert.equal(c.containerUnits,undefined);
+});
+test('serial movement quantity, state, partner and legacy stock floor stay consistent',()=>{
+  const A=api(), c={...articles()[0],stock:1};
+  const base={id:'one',ts:10,qty:1,type:'in',partner:'Depot',serialNumbers:['0007']};
+  const added=A.applyStockMovement(c,base);
+  assert.equal(added.stock,2);assert.equal(A.unassignedStock(added),1);
+  assert.throws(()=>A.applyStockMovement(added,base));
+  assert.throws(()=>A.applyStockMovement(added,{...base,type:'out',qty:2,serialNumbers:['0007','unknown']}));
+  assert.throws(()=>A.applyStockMovement(added,{...base,type:'out',qty:2,serialNumbers:undefined}));
+  const sent=A.applyStockMovement(added,{...base,id:'two',type:'out',partner:'Customer'});
+  assert.throws(()=>A.applyStockMovement(sent,{...base,type:'out'}));
+  assert.equal(Object.values(sent.containerUnits)[0].partner,'Customer');
+  const returned=A.applyStockMovement(sent,{...base,id:'three'});
+  const lost=A.applyStockMovement(returned,{...base,id:'four',type:'shrink'});
+  assert.equal(A.applyStockMovement(lost,{...base,id:'five'}).stock,2);
+  assert.throws(()=>A.applyStockMovement(articles()[1],base));
+  assert.throws(()=>A.applyStockMovement(c,{...base,qty:2}));
+  const meta=A.createMovementMetadata(c,{serialNumbers:base.serialNumbers});
+  assert.deepEqual(meta.serialNumbers,['0007']);
+  assert.deepEqual(A.containerMovementRows([{...base,...meta,cartonId:'C'}],[c])[0].serialNumbers,['0007']);
+});
