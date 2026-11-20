@@ -69,5 +69,12 @@
 - [x] Validate restored source locally and in pinned Ubuntu 24.04 CI; preserve existing test gates and add new suites.
 - [x] Dispatch one fresh whole-branch review as required by the inline execution skill, fix material findings with regression coverage, and record decisions in the ledger.
 - [x] Build/sign the corrective V5.1.1 APK; independently verify APK metadata, SHA and signer. Do not move a failed release tag.
-- [ ] Extract exact public assets into web root, update provenance/tests, publish the approved feature via normal main fast-forward, and verify the actual public site.
-- [ ] Save tested reusable environment instructions and report what passed, what remains unverified, and any actual Firebase access blocker.
+- [x] Extract exact public assets into web root, update provenance/tests, publish the approved feature via normal main fast-forward, and verify the actual public site.
+- [x] Save tested reusable environment instructions and report what passed, what remains unverified, and any actual Firebase access blocker.
+
+
+## Verified delivery on 19 November 2026
+
+V5.1.1 shipped from product commit `d856c4f3eda0d932b3fbfe34b6b8f658b19d376e`. The earlier V5.1.0 build stopped before signing. The published V5.1.1 APK has Android version code 42 and SHA-256 `c461ebdf309a139ce490c06d881e2a57e822c246f295a6b8e9489fa0a342909e`. Its single signer matches the published V5.0.2 APK. [Release](https://github.com/samkruw/Zerostock/releases/tag/v5.1.1) · [Release verification](https://github.com/samkruw/Zerostock/actions/runs/44523915445)
+
+All 18 web assets came from that APK. The public website passed desktop and mobile checks including the Firebase SDK, service worker and file hashes. The isolated article tests covered planning, separate bookings and role access. The new feature was tested with fixtures and a real SQLite database. Testing on a physical Android device and deployment of the emulator-verified database rules require separate project access. [Pages deployment](https://github.com/samkruw/Zerostock/actions/runs/44525414630) · [Public website verification](https://github.com/samkruw/Zerostock/actions/runs/44525416530)
