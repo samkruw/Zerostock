@@ -45,6 +45,8 @@ jobs:
           text=Path(os.environ['RUNNER_TEMP'],'rules-result.log').read_text()
           failures=re.findall(r'^not ok \d+ - (.+)$',text,re.M)
           for name in failures: print('::error::Rule test failed: '+name)
+          for line in sorted(set(re.findall(r'rules\.test\.mjs:(\d+):\d+',text))):
+              print(f'::error file=cloud-build/rules-tests/rules.test.mjs,line={line}::Rule test assertion or test definition at line {line}')
           if not failures: print('::error::Rule emulator setup failed before test results; inspect the job log.')
           PY
             exit 1

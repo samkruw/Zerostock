@@ -4,7 +4,7 @@ import { DatabaseSync } from 'node:sqlite';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { randomUUID } from 'node:crypto';
-import { createMovementMetadata, movementMetadata, validateMovement, applyStockMovement } from '../src/articles.mjs';
+import { createMovementMetadata, movementMetadata, validateMovement, applyStockMovement, sameMovementIdentity, serialDependencies } from '../src/articles.mjs';
 
 const source = fs.readFileSync(new URL('../src/offline-core.js',import.meta.url),'utf8')
   .replace(/^import[^\n]*\n/gm,'');
@@ -27,7 +27,7 @@ function fixture(t) {
   };
   function load() {
     const context=vm.createContext({console,window:{},crypto:{randomUUID},
-      Capacitor:{isNativePlatform:()=>true},CapacitorSQLite:sqlite,createMovementMetadata,movementMetadata,validateMovement,applyStockMovement});
+      Capacitor:{isNativePlatform:()=>true},CapacitorSQLite:sqlite,createMovementMetadata,movementMetadata,validateMovement,applyStockMovement,sameMovementIdentity,serialDependencies});
     vm.runInContext(source,context);
     return context.window.ZeroStockOffline;
   }
@@ -147,4 +147,16 @@ test('serial state, ordered batch and projection survive restart and server ackn
   f.state.failQueue=true;await assert.rejects(()=>restarted.recordMovement({...book,type:'in'}),/TEST_IO_FAILURE/);
   assert.equal((await restarted.getCartons())[0].stock,0);
   assert.equal(Object.values((await restarted.getCartons())[0].containerUnits)[0].status,'out');
+});
+
+test('a return cannot overtake an earlier offline receipt of the same label during retry or account switch',async t=>{
+  const f=fixture(t);await f.offline.cacheCartons(articles);
+  const base={cartonId:'C',qty:1,serialNumbers:['00A'],userId:'a'};
+  const first=await f.offline.recordMovement({...base,type:'in'});
+  const second=await f.offline.recordMovement({...base,userId:'b',type:'out'});
+  const independent=await f.offline.recordMovement({...base,userId:'b',type:'in',serialNumbers:['00B']});
+  await f.offline.markRetry(first.id,'NETWORK',Date.now()+60000);
+  for(const actor of [null,'b'])assert.deepEqual(plain(await f.offline.getSyncBatch(20,actor)).map(m=>m.id),[independent.id]);
+  await f.offline.markSynced(first.id,{stockAfter:11});
+  assert.deepEqual(plain(await f.offline.getSyncBatch(20,'b')).map(m=>m.id),[second.id,independent.id]);
 });

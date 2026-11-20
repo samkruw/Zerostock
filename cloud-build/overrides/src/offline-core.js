@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { CapacitorSQLite } from '@capacitor-community/sqlite';
-import { createMovementMetadata, movementMetadata, validateMovement, applyStockMovement } from './articles.mjs';
+import { createMovementMetadata, movementMetadata, validateMovement, applyStockMovement, sameMovementIdentity, serialDependencies } from './articles.mjs';
 
 const DB='zerostock';
 const DB_VERSION=3;
@@ -224,13 +224,18 @@ async function getInstructions(){
   return rows.map(r=>({...safeJson(r.payload_json),id:r.id,name:r.name||'',active:Number(r.active)!==0,updatedAt:Number(r.updated_at)||0}));
 }
 
-async function cacheMovements(items=[]){
+function cacheMovements(items=[]){return serializeStockWrite(()=>cacheMovementSnapshot(items));}
+async function cacheMovementSnapshot(items){
   await init();
   for(const m of items){
     const sid=String(m.id||''); if(!sid) continue;
     // Phase 7 uses the local UUID as the Firebase movement key. If the same UUID exists
     // locally, reconcile that row instead of creating a duplicate `server:` row.
-    const existing=await query(`SELECT id FROM movements WHERE id=? LIMIT 1`,[sid]);
+    const existing=await query(`SELECT id,payload_json FROM movements WHERE id=? LIMIT 1`,[sid]);
+    if(existing.length&&!sameMovementIdentity(safeJson(existing[0].payload_json),m)){
+      await markConflict(sid,'ID_COLLISION_OR_MOVEMENT_MISMATCH');
+      existing.length=0;
+    }
     const localId=existing.length?sid:`server:${sid}`;
     await run(`INSERT INTO movements(id,server_id,ts,user_id,user_name,carton_id,article,type,qty,reason,note,stock_before,stock_after,sync_status,created_at,updated_at,payload_json)
       VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,'SYNCED',?,?,?)
@@ -298,9 +303,19 @@ async function getSyncBatch(limit=20,userId=null){
   const t=now();
   const rows=await query(`SELECT q.*,m.ts,m.user_id,m.user_name,m.carton_id,m.article,m.type,m.qty,m.reason,m.note,m.stock_before,m.stock_after,m.sync_status
     FROM sync_queue q JOIN movements m ON m.id=q.entity_id
-    WHERE q.entity_type='movement' AND q.status IN ('PENDING','FAILED') AND (q.next_retry_at IS NULL OR q.next_retry_at<=?)
-    AND (? IS NULL OR m.user_id=?) ORDER BY q.created_at,q.rowid LIMIT ?`,[t,userId,userId,Number(limit)||20]);
-  return rows.map(r=>({...movementMetadata(safeJson(r.payload_json)||{}),id:r.id,entityId:r.entity_id,status:r.status,attempts:Number(r.attempts)||0,ts:Number(r.ts)||0,userId:r.user_id||'',userName:r.user_name||'',cartonId:r.carton_id,article:r.article||'',type:r.type,qty:Number(r.qty)||0,reason:r.reason||'',note:r.note||'',stockBefore:Number(r.stock_before)||0,stockAfter:Number(r.stock_after)||0,syncStatus:r.sync_status}));
+    WHERE q.entity_type='movement' AND q.status IN ('PENDING','FAILED','SYNCING') ORDER BY q.created_at,q.rowid`);
+  const blocked=new Set(),batch=[];
+  for(const r of rows){
+    const metadata=movementMetadata(safeJson(r.payload_json)||{});
+    const labels=serialDependencies({...metadata,cartonId:r.carton_id});
+    if(r.status==='SYNCING'||Number(r.next_retry_at)>t||(userId!==null&&r.user_id!==userId)||labels.some(key=>blocked.has(key))){
+      for(const key of labels)blocked.add(key);
+      continue;
+    }
+    batch.push({...metadata,id:r.id,entityId:r.entity_id,status:r.status,attempts:Number(r.attempts)||0,ts:Number(r.ts)||0,userId:r.user_id||'',userName:r.user_name||'',cartonId:r.carton_id,article:r.article||'',type:r.type,qty:Number(r.qty)||0,reason:r.reason||'',note:r.note||'',stockBefore:Number(r.stock_before)||0,stockAfter:Number(r.stock_after)||0,syncStatus:r.sync_status});
+    if(batch.length>=(Number(limit)||20))break;
+  }
+  return batch;
 }
 
 async function markSyncing(id){

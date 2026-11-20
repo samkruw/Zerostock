@@ -563,7 +563,7 @@ const OFFLINE_AUTH_MAX_AGE_MS=7*24*60*60*1000;
 const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const D={de:{dashboard:'Dashboard',scan:'QR scannen',cartons:'Kartons',planner:'Planner',movements:'Bewegungen',users:'Benutzer',settings:'Einstellungen',stockOk:'Bestand OK',warning:'Warnung',critical:'Kritisch',inventory:'Bestände',liveStock:'Aktueller Kartonbestand',packingCapacity:'Packing-Kapazität',basedOnStock:'auf Basis des aktuellen Bestands',article:'Artikel',location:'Lagerplatz',stock:'Bestand',status:'Status',scanCarton:'Karton scannen',scanText:'QR-Regalschild scannen und danach Eingang, Abgang oder Schwund buchen.',openCamera:'Kamera öffnen',manualCode:'Code eingeben',masterData:'Stammdaten & QR-Regalschilder',newCarton:'Karton',description:'Bezeichnung',minStock:'Mindestbestand',warningStock:'Warnbestand',instructionHelp:'Selbst anlegen und Kartonbedarf definieren',newInstruction:'Instruction',plannerHelp:'Prüfen, welche Aufträge mit dem aktuellen Bestand möglich sind',orderQty:'Anzahl Packings',orderRef:'Auftrag / Referenz',calculate:'Berechnen',journal:'Nachvollziehbares Buchungsjournal',time:'Zeit',user:'Benutzer',type:'Art',quantity:'Menge',stockAfter:'Bestand danach',reason:'Grund',bookingType:'Buchungsart',note:'Notiz',cancel:'Abbrechen',post:'Buchen',save:'Speichern',version:'Version',active:'Status',requiredCartons:'Benötigte Kartons pro Packing',addCarton:'Karton hinzufügen',scanQR:'QR scannen',shelfLabel:'Regalschild',close:'Schliessen',print:'Drucken',packingPossible:'möglich',bottleneck:'Engpass',needed:'Benötigt',available:'Verfügbar',missing:'Fehlt',possible:'Auftrag möglich',notPossible:'Auftrag nicht möglich',startZero:'Bei null starten',startZeroText:'Lege zuerst deine Kartonarten an, danach die TINST Packing Instructions. Der Planner berechnet alles automatisch.',stepCartons:'1. Kartons anlegen',stepInstructions:'2. TINST Instructions',stepPlanner:'3. Automatisch planen',addFirstCarton:'Ersten Karton anlegen',addFirstInstruction:'Erste TINST anlegen',noCartons:'Noch keine Kartons angelegt',noInstructions:'Noch keine Packing Instructions angelegt',liveCalculation:'Live-Berechnung',capacityNow:'Aktuell mögliche Packings',firstCreateCarton:'Lege zuerst mindestens einen Karton an.',ready:'Bereit',setupComplete:'Grundsetup abgeschlossen – jede Bestandsänderung aktualisiert den Planner automatisch.',delete:'Löschen',deleteCarton:'Karton löschen',deleteConfirm:'Diesen Karton wirklich löschen?',deleteBlocked:'Karton kann nicht gelöscht werden, weil er in einer Packing Instruction verwendet wird.'},en:{dashboard:'Dashboard',scan:'Scan QR',cartons:'Cartons',planner:'Planner',movements:'Transactions',users:'Users',settings:'Settings',stockOk:'Stock OK',warning:'Warning',critical:'Critical',inventory:'Inventory',liveStock:'Current carton inventory',packingCapacity:'Packing capacity',basedOnStock:'based on current stock',article:'Article',location:'Location',stock:'Stock',status:'Status',scanCarton:'Scan carton',scanText:'Scan the shelf QR code, then post stock in, stock out or shrinkage.',openCamera:'Open camera',manualCode:'Enter code',masterData:'Master data & shelf QR labels',newCarton:'Carton',description:'Description',minStock:'Minimum stock',warningStock:'Warning stock',instructionHelp:'Create instructions and define carton requirements',newInstruction:'Instruction',plannerHelp:'Check which orders can be completed with current stock',orderQty:'Number of packings',orderRef:'Order / reference',calculate:'Calculate',journal:'Auditable transaction journal',time:'Time',user:'User',type:'Type',quantity:'Quantity',stockAfter:'Stock after',reason:'Reason',bookingType:'Transaction type',note:'Note',cancel:'Cancel',post:'Post',save:'Save',version:'Version',active:'Status',requiredCartons:'Required cartons per packing',addCarton:'Add carton',scanQR:'Scan QR',shelfLabel:'Shelf label',close:'Close',print:'Print',packingPossible:'possible',bottleneck:'Bottleneck',needed:'Needed',available:'Available',missing:'Missing',possible:'Order possible',notPossible:'Order not possible',startZero:'Start from zero',startZeroText:'First create your carton types, then the TINST packing instructions. The planner calculates everything automatically.',stepCartons:'1. Create cartons',stepInstructions:'2. TINST instructions',stepPlanner:'3. Plan automatically',addFirstCarton:'Add first carton',addFirstInstruction:'Add first TINST',noCartons:'No cartons created yet',noInstructions:'No packing instructions created yet',liveCalculation:'Live calculation',capacityNow:'Packings currently possible',firstCreateCarton:'Create at least one carton first.',ready:'Ready',setupComplete:'Base setup complete – every stock change updates the planner automatically.',delete:'Delete',deleteCarton:'Delete carton',deleteConfirm:'Really delete this carton?',deleteBlocked:'Carton cannot be deleted because it is used in a packing instruction.'}};
 let lang=localStorage.getItem('zs-lang')||'de',scanStream=null,bookCarton=null,editingCarton=null,editingInstruction=null,deferredInstallPrompt=null;
-const t=k=>D[lang][k]||k;const S={connected:false,user:null,cartons:[],instructions:[],movements:[],users:[],tasks:[],taskFilter:'ALL',customerSummary:{},firebase:null,db:null,unsubs:[],summaryTimer:null,lastSummary:'',offlineReady:false,offlineStats:{pending:0,conflicts:0,failed:0,syncing:0,cartons:0,movements:0},native:false,offlineSession:false,syncRunning:false,syncTimer:null,lastSyncAt:0,notificationTimer:null,taskRenderToken:0,bookSubmitting:false,scanLock:false,lastScanValue:'',lastScanAt:0};
+const t=k=>D[lang][k]||k;const S={connected:false,user:null,cartons:[],instructions:[],movements:[],users:[],tasks:[],taskFilter:'ALL',customerSummary:{},firebase:null,db:null,unsubs:[],summaryTimer:null,lastSummary:'',offlineReady:false,offlineStats:{pending:0,conflicts:0,failed:0,syncing:0,cartons:0,movements:0},native:false,offlineSession:false,syncRunning:false,syncTimer:null,lastSyncAt:0,notificationTimer:null,taskRenderToken:0,bookSubmitting:false};
 function toast(a,b=''){$('toastTitle').textContent=a;$('toastText').textContent=b;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),3200)}
 function status(c){if(+c.stock<=+c.min)return{key:'crit',txt:lang==='de'?'KRITISCH':'CRITICAL'};if(+c.stock<=+c.warn)return{key:'warn',txt:lang==='de'?'WARNUNG':'WARNING'};return{key:'ok',txt:'OK'}}
 function canWrite(){return !!S.user&&['admin','employee'].includes(S.user.role)}function isAdmin(){return S.user?.role==='admin'}
@@ -810,7 +810,7 @@ async function deleteCarton(id){
     );
     if(!ok)return;
 
-    const deleted=await S.firebase.runTransaction(S.firebase.ref(S.db,`cartons/${id}`),current=>{
+    const deleted=await articleTransaction(S.firebase.ref(S.db,`cartons/${id}`),current=>{
       if(!current||current.containerUnits||current._zsApplied&&Object.keys(current._zsApplied).length)return;
       return null;
     });
@@ -843,12 +843,22 @@ function openUnits(id){
   unitsId=id;$('assignSerials').value='';$('assignError').textContent='';renderUnits();
   openArticleModal('unitsModal',$('assignSection').hidden?'closeUnits':'assignSerials');
 }
+// Firebase can invoke the callback again when another device changes the article.
+async function articleTransaction(ref,mutate){
+  let failure;
+  const result=await S.firebase.runTransaction(ref,current=>{
+    try{return mutate(current);}
+    catch(error){failure=error;return undefined;}
+  },{applyLocally:false});
+  if(!result.committed&&failure)throw failure;
+  return result;
+}
 async function assignUnits(){
   if(!canWrite()||!S.connected||!unitsId||$('assignUnits').disabled)return;
   const id=unitsId,uid=S.user.uid,button=$('assignUnits');button.disabled=true;$('assignError').textContent='';
   try{
     const numbers=ArticleModel.parseSerialNumbers($('assignSerials').value),ts=Date.now();
-    const result=await S.firebase.runTransaction(S.firebase.ref(S.db,'cartons/'+id),current=>{
+    const result=await articleTransaction(S.firebase.ref(S.db,'cartons/'+id),current=>{
       if(!current||!canWrite()||S.user.uid!==uid)return;
       return {...ArticleModel.assignContainerUnits(current,numbers,ts),updatedAt:ts};
     });
@@ -1031,7 +1041,7 @@ async function saveCarton(){
     const initial=!editing&&input.kind==='container'&&$('cSerials').value.trim()?ArticleModel.parseSerialNumbers($('cSerials').value):null;
     if(!editing&&input.kind==='container')input.stock=initial?.length||0;
     let conflict='';
-    const result=await S.firebase.runTransaction(S.firebase.ref(S.db,`cartons/${id}`),current=>{
+    const result=await articleTransaction(S.firebase.ref(S.db,`cartons/${id}`),current=>{
       if(!editing&&current){conflict=lang==='de'?'Artikel existiert bereits.':'Article already exists.';return;}
       if(editing&&!current){conflict=lang==='de'?'Artikel wurde inzwischen entfernt.':'Article has been removed.';return;}
       if(editing&&current.article!==input.article){conflict='Die Artikelnummer kann nach dem Anlegen nicht geändert werden.';return;}
@@ -1253,11 +1263,12 @@ function rejectedBeforeStock(error){
 }
 function syncOneMovement(move){
   const key=JSON.stringify([move.userId,move.id]);
-  if(inFlightMovements.has(key))return inFlightMovements.get(key);
+  const active=inFlightMovements.get(key);
+  if(active)return ArticleModel.sameMovementIdentity(active.move,move)?active.pending:Promise.reject(Error('ID_COLLISION_OR_MOVEMENT_MISMATCH'));
   const apply=()=>applyMovementOnce(move);
   const attempt=navigator.locks?.request?navigator.locks.request('zs-movement:'+key,apply):apply();
   const pending=attempt.finally(()=>inFlightMovements.delete(key));
-  inFlightMovements.set(key,pending);
+  inFlightMovements.set(key,{move,pending});
   return pending;
 }
 async function applyMovementOnce(move){
@@ -1270,19 +1281,18 @@ async function applyMovementOnce(move){
   const existingSnap=await F.get(movementRef);
   if(existingSnap.exists()){
     const ex=existingSnap.val()||{};
-    const same=String(ex.userId||'')===String(move.userId||'')&&String(ex.cartonId||'')===String(move.cartonId||'')&&String(ex.type||'')===String(move.type||'')&&Number(ex.qty)===Number(move.qty);
-    if(!same||!sameSerials(ex.serialNumbers,metadata.serialNumbers)||['articleKind','externalRef','partner','reference'].some(k=>String(ex[k]??'')!==String(metadata[k]??'')))throw Error('ID_COLLISION_OR_MOVEMENT_MISMATCH');
+    if(!ArticleModel.sameMovementIdentity(ex,move))throw Error('ID_COLLISION_OR_MOVEMENT_MISMATCH');
     return {stockAfter:Number(ex.stockAfter)||0,recovered:true};
   }
   const cartonRef=F.ref(S.db,`cartons/${move.cartonId}`), markerKey=String(move.id);
-  const tx=await F.runTransaction(cartonRef,c=>{
+  const tx=await articleTransaction(cartonRef,c=>{
     if(!actor())throw Error('AUTH_ACTOR_MISMATCH');
     if(!c)return;
     if(c.article!==move.article)throw Error('INVALID_ARTICLE_REFERENCE');
     const applied=c._zsApplied||{};
     const marker=applied[markerKey];
     if(marker){
-      if(!sameSerials(marker.serialNumbers,metadata.serialNumbers)||marker.userId!==move.userId||
+      if(!sameSerials(marker.serialNumbers,metadata.serialNumbers)||(marker.userId&&marker.userId!==move.userId)||
         (marker.serialNumbers&&(marker.type!==move.type||['externalRef','partner','reference'].some(k=>(marker[k]??'')!==(metadata[k]??'')))))throw Error('ID_COLLISION_OR_MOVEMENT_MISMATCH');
       return c;
     }
@@ -1290,7 +1300,7 @@ async function applyMovementOnce(move){
     const ack={stockAfter:updated.stock,appliedAt:Date.now(),userId:move.userId};
     if(metadata.serialNumbers)Object.assign(ack,{type:move.type},metadata);
     return {...updated,updatedAt:ack.appliedAt,_zsApplied:{...applied,[markerKey]:ack}};
-  },{applyLocally:false});
+  });
   if(!tx.committed){
     const snap=await F.get(cartonRef);if(!snap.exists())throw Error('CARTON_NOT_FOUND');
     const c=snap.val()||{};if(move.type!=='in'&&Number(move.qty)>(Number(c.stock)||0))throw Error('INSUFFICIENT_STOCK_SERVER');
@@ -1317,7 +1327,10 @@ async function runSyncEngine({manual=false}={}){
     if(!S.connected||!canWrite())return {processed:0};
     const actor=S.user.uid;
     const batch=await window.ZeroStockOffline.getSyncBatch(20,actor);
+    const waiting=new Set();
     for(const move of batch){
+      const labels=ArticleModel.serialDependencies(move);
+      if(labels.some(key=>waiting.has(key))){for(const key of labels)waiting.add(key);continue;}
       if(!S.connected||!canWrite()||S.user.uid!==actor||S.firebase.auth?.currentUser?.uid!==actor)break;
       processed++;
       try{
@@ -1329,7 +1342,7 @@ async function runSyncEngine({manual=false}={}){
       }catch(e){
         console.error('sync movement',move.id,e);const kind=classifySyncError(e);
         if(kind==='CONFLICT'){await window.ZeroStockOffline.markConflict(move.id,e?.message||String(e));conflicts++}
-        else{const wait=syncBackoff((move.attempts||0)+1);await window.ZeroStockOffline.markRetry(move.id,e?.message||String(e),Date.now()+wait);failed++}
+        else{for(const key of labels)waiting.add(key);const wait=syncBackoff((move.attempts||0)+1);await window.ZeroStockOffline.markRetry(move.id,e?.message||String(e),Date.now()+wait);failed++}
       }
     }
     S.lastSyncAt=Date.now();await loadOfflineData();await refreshOfflineStats();render();
@@ -1533,7 +1546,7 @@ async function exportStockCsv(){
 
 async function exportMovesCsv(){
   if(!S.user||S.user.role==='customer')return;
-  const rows=[...S.movements].sort((a,b)=>(b.ts||0)-(a.ts||0)).map(m=>[new Date(m.ts||Date.now()).toISOString(),m.userName||'',m.article||'',m.type||'',m.qty??'',m.stockAfter??'',m.reason||'',m.note||'',m.syncStatus||'SYNCED',m.id||'',m.articleKind||ArticleModel.articleKind(S.cartons.find(c=>c.id===m.cartonId)),m.partner||'',m.reference||'',m.externalRef||'',(m.serialNumbers||[]).join('\n')]);
+  const rows=[...S.movements].sort((a,b)=>(b.ts||0)-(a.ts||0)).map(m=>[new Date(m.ts||Date.now()).toISOString(),m.userName||'',m.article||'',m.type||'',m.qty??'',m.stockAfter??'',m.reason||'',m.note||'',m.syncStatus||'SYNCED',m.serverId||m.id||'',m.articleKind||ArticleModel.articleKind(S.cartons.find(c=>c.id===m.cartonId)),m.partner||'',m.reference||'',m.externalRef||'',(m.serialNumbers||[]).join('\n')]);
   return exportTextFile(`ZeroStock_Bewegungen_${zsDateStamp()}.csv`,makeCsv(['Zeit','Benutzer','Artikel','Typ','Menge','Bestand danach','Grund','Notiz','Sync','ID','Artikelart','Gegenstelle','Referenz','Externe Referenz','Seriennummern'],rows),'text/csv;charset=utf-8','Bewegungen CSV');
 }
 

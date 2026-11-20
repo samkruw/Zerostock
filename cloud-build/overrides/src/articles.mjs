@@ -135,12 +135,20 @@ export function validateMovement(move) {
     userId:text(move.userId,128,true), userName:text(move.userName,120),
     reason:text(move.reason,500), note:text(move.note,1000)};
 }
+export function sameMovementIdentity(a,b) {
+  return a.userId===b.userId && a.cartonId===b.cartonId && a.type===b.type && Number(a.qty)===Number(b.qty) &&
+    ['articleKind','externalRef','partner','reference'].every(key=>(a[key]??'')===(b[key]??'')) &&
+    JSON.stringify(a.serialNumbers??null)===JSON.stringify(b.serialNumbers??null);
+}
+export function serialDependencies(move) {
+  return (move.serialNumbers||[]).map(number=>JSON.stringify([move.cartonId,number]));
+}
 export function containerMovementRows(movements, articles) {
   const byId = new Map(articles.map(a => [String(a.id), a]));
   return movements.filter(m => (m.articleKind || articleKind(byId.get(String(m.cartonId)))) === 'container').map(m => {
     const article = byId.get(String(m.cartonId));
     const meta = movementMetadata(m);
-    return {id:m.id, articleId:m.cartonId, article:m.article || article?.article || '',
+    return {id:m.serverId || m.id, articleId:m.cartonId, article:m.article || article?.article || '',
       externalRef:meta.externalRef ?? (m.articleKind ? '' : article?.externalRef || ''),
       direction:m.type, quantity:Number(m.qty), ts:Number(m.ts) || 0, userName:m.userName || '',
       partner:meta.partner || '', reference:meta.reference || '', serialNumbers:meta.serialNumbers || [], stockAfter:Number(m.stockAfter)};

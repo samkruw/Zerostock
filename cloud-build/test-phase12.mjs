@@ -7,7 +7,7 @@ const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 const checks=[];
 function ok(name,cond){ if(!cond) throw new Error(`FAIL: ${name}`); checks.push(name); }
 ok('booking double-tap lock', /bookSubmitting/.test(html) && /if\(S\.bookSubmitting\)return/.test(html));
-ok('scan de-duplication lock', /scanLock/.test(html) && /lastScanValue/.test(html));
+ok('scan de-duplication lock', /session!==scannerSession/.test(html) && /scannerSession\+\+/.test(html));
 ok('native scanner event lock', /detectionLocked/.test(scanner));
 ok('sync timeout watchdog', /withTimeout\(syncOneMovement\(move\),20000,'SYNC_TIMEOUT'\)/.test(html));
 ok('online recovery listener', /addEventListener\('online'/.test(html));

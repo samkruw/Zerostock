@@ -105,6 +105,19 @@ class Regressions(unittest.TestCase):
             return [conflicts,uiFixture.data.cartons.C.stock,uiFixture.data.movements.one.serialNumbers];
         }""")
         self.assertEqual(result,[2,11,['00-x']])
+    def test_retried_server_callback_aborts_cleanly_after_a_racing_dispatch(self):
+        result=self.page.evaluate("""async()=>{
+            const base={id:'one',userId:S.user.uid,userName:S.user.name,cartonId:'C',article:'CON-A',articleKind:'container',type:'out',qty:1,ts:1,serialNumbers:['001']};
+            const c=ArticleModel.assignContainerUnits(uiFixture.data.cartons.C,['001'],1);
+            let leaked=false;S.firebase.runTransaction=async(r,callback)=>{
+                const tentative=callback(c),remote={...tentative,_zsApplied:{}};
+                try{callback(remote)}catch{leaked=true}
+                return {committed:false,snapshot:{val:()=>remote}};
+            };
+            let code='';try{await syncOneMovement(base)}catch(e){code=e.code}
+            return [leaked,code];
+        }""")
+        self.assertEqual(result,[False,'INVALID_CONTAINER_SERIAL'])
     def test_global_scan_disambiguates_identical_labels_and_preserves_punctuation(self):
         page=self.page
         page.evaluate("""()=>{const c=uiFixture.data.cartons.C;
