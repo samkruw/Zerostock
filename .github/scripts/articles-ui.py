@@ -92,9 +92,24 @@ try:
             assert page.evaluate('uiFixture.data.cartons.C.stock')==7
             assert 'Bestand' in page.locator('#toast').inner_text()
             page.evaluate('closeAll();uiFixture.data.cartons.C.stock=9;uiFixture.emit()')
+            stage=label+':serial-assignment'
+            assert page.locator('#cartonRows .units[data-id="C"]').count()==1, 'Container label register missing'
+            page.locator('#cartonRows .units[data-id="C"]').click()
+            page.locator('#assignSerials').fill('00a/A.1\n00B\n00C');page.locator('#assignUnits').click()
+            page.wait_for_function("uiFixture.data.cartons.C.serialStock===3")
+            assert page.evaluate('uiFixture.data.cartons.C.stock')==9
+            assert page.evaluate('Object.keys(uiFixture.data.movements).length')==0
+            assert '00a/A.1' in page.locator('#unitList').inner_text()
+            page.locator('#unitsModal .closeModal').click()
             stage=label+':container-booking'
             page.locator('#cartonRows .book[data-id="C"]').click();page.locator('#bookType').select_option('out')
-            page.locator('#bookQty').fill('3');page.locator('#bookPartner').fill('=SUM(1+1)');page.locator('#bookReference').fill('REF-3')
+            assert page.locator('#bookQty').get_attribute('readonly') is not None
+            page.locator('#bookSerials').fill('00a/A.1\n00B')
+            page.once('dialog',lambda dialog:dialog.accept('00C'))
+            page.evaluate("Object.defineProperty(window,'BarcodeDetector',{value:undefined,configurable:true})")
+            page.locator('[data-scan-into="bookSerials"]').click()
+            assert page.locator('#bookQty').input_value()=='3'
+            page.locator('#bookPartner').fill('=SUM(1+1)');page.locator('#bookReference').fill('REF-3')
             page.evaluate("document.getElementById('confirmBook').click();document.getElementById('confirmBook').click()")
             wait_closed(page,'#bookModal')
             assert page.evaluate('uiFixture.data.cartons.C.stock')==6
@@ -107,6 +122,12 @@ try:
             with page.expect_download() as info:page.locator('#exportContainerMovesCsv').click()
             csv=Path(info.value.path()).read_text(encoding='utf-8-sig')
             assert "'=SUM(1+1)" in csv and 'REF-3' in csv and 'CT-A' in csv
+            assert 'Seriennummern' in csv and '00a/A.1' in csv
+            page.evaluate("show('movements')");assert '00a/A.1' in page.locator('#movementRows').inner_text()
+            page.evaluate("handleScan('00a/A.1')")
+            assert page.locator('#bookType').input_value()=='in' and page.locator('#bookSerials').input_value()=='00a/A.1'
+            page.locator('#confirmBook').click();wait_closed(page,'#bookModal')
+            assert page.evaluate('uiFixture.data.cartons.C.stock')==7
             if args.screenshots and label!='small-phone':
                 args.screenshots.mkdir(parents=True,exist_ok=True)
                 for view in ['cartons','planner']:

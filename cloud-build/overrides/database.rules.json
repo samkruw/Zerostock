@@ -13,13 +13,22 @@
     "cartons": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() != false && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'employee')",
       "$id": {
-        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() != false && (root.child('users').child(auth.uid).child('role').val() == 'admin' || (root.child('users').child(auth.uid).child('role').val() == 'employee' && data.exists() && newData.exists() && newData.child('id').val() == data.child('id').val() && newData.child('article').val() == data.child('article').val() && newData.child('name').val() == data.child('name').val() && newData.child('location').val() == data.child('location').val() && newData.child('warn').val() == data.child('warn').val() && newData.child('min').val() == data.child('min').val() && newData.child('kind').val() == data.child('kind').val() && newData.child('externalRef').val() == data.child('externalRef').val()))",
-        ".validate": "newData.hasChildren(['id','article','name','location','stock','warn','min']) && newData.child('id').val() == $id && newData.child('article').isString() && newData.child('article').val().length <= 120 && newData.child('name').isString() && newData.child('name').val().length <= 200 && newData.child('location').isString() && newData.child('location').val().length <= 120 && newData.child('stock').isNumber() && newData.child('stock').val() >= 0 && newData.child('warn').isNumber() && newData.child('warn').val() >= 0 && newData.child('min').isNumber() && newData.child('min').val() >= 0 && newData.child('warn').val() >= newData.child('min').val() && (!data.child('kind').exists() || newData.child('kind').val() == data.child('kind').val()) && ((newData.child('kind').val() != 'plate' && newData.child('kind').val() != 'container') || (newData.child('stock').val() % 1 == 0 && newData.child('stock').val() <= 9007199254740991 && newData.child('min').val() % 1 == 0 && newData.child('warn').val() % 1 == 0))",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() != false && (root.child('users').child(auth.uid).child('role').val() == 'admin' || (root.child('users').child(auth.uid).child('role').val() == 'employee' && data.exists() && newData.exists() && newData.child('id').val() == data.child('id').val() && newData.child('article').val() == data.child('article').val() && newData.child('name').val() == data.child('name').val() && newData.child('location').val() == data.child('location').val() && newData.child('warn').val() == data.child('warn').val() && newData.child('min').val() == data.child('min').val() && newData.child('kind').val() == data.child('kind').val() && newData.child('externalRef').val() == data.child('externalRef').val())) && (!data.child('containerUnits').exists() || (newData.child('containerUnits').exists() && newData.child('serialStock').exists()))",
+        ".validate": "newData.hasChildren(['id','article','name','location','stock','warn','min']) && newData.child('id').val() == $id && newData.child('article').isString() && newData.child('article').val().length <= 120 && newData.child('name').isString() && newData.child('name').val().length <= 200 && newData.child('location').isString() && newData.child('location').val().length <= 120 && newData.child('stock').isNumber() && newData.child('stock').val() >= 0 && newData.child('warn').isNumber() && newData.child('warn').val() >= 0 && newData.child('min').isNumber() && newData.child('min').val() >= 0 && newData.child('warn').val() >= newData.child('min').val() && (!data.child('kind').exists() || newData.child('kind').val() == data.child('kind').val()) && ((newData.child('kind').val() != 'plate' && newData.child('kind').val() != 'container') || (newData.child('stock').val() % 1 == 0 && newData.child('stock').val() <= 9007199254740991 && newData.child('min').val() % 1 == 0 && newData.child('warn').val() % 1 == 0)) && (newData.child('containerUnits').exists() == newData.child('serialStock').exists())",
         "kind": {
           ".validate": "newData.val() == 'carton' || newData.val() == 'plate' || newData.val() == 'container'"
         },
         "externalRef": {
           ".validate": "newData.isString() && newData.val().length <= 120"
+        },
+        "serialStock": {
+          ".validate": "newData.parent().child('kind').val() == 'container' && newData.isNumber() && newData.val() % 1 == 0 && newData.val() >= 0 && newData.val() <= newData.parent().child('stock').val()"
+        },
+        "containerUnits": {
+          ".validate": "newData.hasChildren() && newData.parent().child('kind').val() == 'container'",
+          "$key": {
+            ".validate": "$key.matches(/^s[0-9a-f]+$/) && newData.hasChildren(['number','status','updatedAt']) && newData.child('number').isString() && newData.child('number').val().length > 0 && newData.child('number').val().length <= 120 && (!data.exists() || newData.child('number').val() == data.child('number').val()) && (newData.child('status').val() == 'in' || newData.child('status').val() == 'out' || newData.child('status').val() == 'shrink') && newData.child('updatedAt').isNumber()"
+          }
         }
       }
     },
@@ -54,6 +63,12 @@
         },
         "articleKind": {
           ".validate": "newData.val() == 'carton' || newData.val() == 'plate' || newData.val() == 'container'"
+        },
+        "serialNumbers": {
+          ".validate": "newData.hasChildren(['0']) && newData.parent().child('articleKind').val() == 'container' && root.child('cartons').child(newData.parent().child('cartonId').val()).child('kind').val() == 'container' && newData.parent().child('qty').val() % 1 == 0 && newData.child((newData.parent().child('qty').val() - 1) + '').exists() && !newData.child(newData.parent().child('qty').val() + '').exists()",
+          "$index": {
+            ".validate": "$index.matches(/^(0|[1-9][0-9]*)$/) && newData.isString() && newData.val().length > 0 && newData.val().length <= 120"
+          }
         }
       }
     },

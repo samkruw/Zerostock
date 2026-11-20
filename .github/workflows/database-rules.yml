@@ -2,7 +2,7 @@ name: ZeroStock database rule tests
 
 on:
   push:
-    branches: [feat/plates-container-quantities, main]
+    branches: [feat/plates-container-quantities, feat/container-serials, main]
     paths:
       - cloud-build/overrides/database.rules.json
       - cloud-build/rules-tests/**

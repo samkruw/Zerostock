@@ -84,6 +84,45 @@ class Regressions(unittest.TestCase):
             await runSyncEngine();return {cleanup,stock:uiFixture.data.cartons.C.stock,moves:Object.keys(uiFixture.data.movements).length};
         }""")
         self.assertEqual(result,{'cleanup':['synced'],'stock':8,'moves':1})
+    def test_same_label_dispatched_by_two_devices(self):
+        result=self.page.evaluate("""async()=>{
+            const base={userId:S.user.uid,userName:S.user.name,cartonId:'C',article:'CON-A',articleKind:'container',type:'in',qty:1,ts:1,serialNumbers:['007/A']};
+            await syncOneMovement({...base,id:'receipt'});
+            const out={...base,type:'out',ts:2};
+            const results=await Promise.allSettled([syncOneMovement({...out,id:'device-a'}),syncOneMovement({...out,id:'device-b'})]);
+            return [results.filter(r=>r.status==='fulfilled').length,uiFixture.data.cartons.C.stock,Object.keys(uiFixture.data.movements).length];
+        }""")
+        self.assertEqual(result,[1,10,2])
+    def test_durable_serial_receipt_checks_label_before_journal_repair(self):
+        result=self.page.evaluate("""async()=>{
+            const m={id:'one',userId:S.user.uid,userName:S.user.name,cartonId:'C',article:'CON-A',articleKind:'container',type:'in',qty:1,ts:1,serialNumbers:['00-x']};
+            const set=S.firebase.set;S.firebase.set=async(r,v)=>{if(r.path==='movements/one')throw Error('NETWORK');return set(r,v)};
+            await syncOneMovement(m).catch(()=>{});S.firebase.set=set;
+            const wrong={...m,serialNumbers:['00-X']};
+            let conflicts=0;try{await syncOneMovement(wrong)}catch{conflicts++}
+            await syncOneMovement(m);await syncOneMovement(m);
+            try{await syncOneMovement(wrong)}catch{conflicts++}
+            return [conflicts,uiFixture.data.cartons.C.stock,uiFixture.data.movements.one.serialNumbers];
+        }""")
+        self.assertEqual(result,[2,11,['00-x']])
+    def test_global_scan_disambiguates_identical_labels_and_preserves_punctuation(self):
+        page=self.page
+        page.evaluate("""()=>{const c=uiFixture.data.cartons.C;
+            for(const id of ['C','C2'])uiFixture.data.cartons[id]=ArticleModel.assignContainerUnits({...c,id,article:id},['00/S.1'],1);
+            uiFixture.emit();handleScan('00/S.1');}""")
+        self.assertEqual(page.locator('[data-scan-match]').count(),2)
+        page.locator('[data-scan-match]').nth(1).click()
+        self.assertEqual(page.locator('#bookSerials').input_value(),'00/S.1')
+        self.assertIn('C2',page.locator('#bookTitle').inner_text())
+    def test_new_container_initial_scan_and_stock_floor(self):
+        page=self.page
+        page.locator('#addCarton').click();page.locator('#cKind').select_option('container')
+        for field,value in [('cArticle','NEW'),('cName','Neu'),('cLocation','L1'),('cSerials','0001\n0002')]:page.locator('#'+field).fill(value)
+        self.assertEqual(page.locator('#cStock').input_value(),'2')
+        page.locator('#saveCarton').click();page.locator('#cartonModal').wait_for(state='hidden')
+        page.locator('.editC[data-id="NEW"]').click();page.locator('#cStock').fill('1');page.locator('#saveCarton').click()
+        self.assertTrue(page.locator('#cartonModal').is_visible())
+        self.assertEqual(page.evaluate('uiFixture.data.cartons.NEW.stock'),2)
     def test_cached_customer_session_does_not_load_employee_inventory(self):
         result=self.page.evaluate("""async()=>{
             const cache=JSON.parse(JSON.stringify(uiFixture.data.cartons));let privateReads=0;

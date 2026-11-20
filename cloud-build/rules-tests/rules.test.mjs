@@ -59,3 +59,19 @@ test('container configurations require the target once at row zero and actual pl
   await assertFails(set(ref(db('admin'),'instructions/twice'),{...cfg,id:'twice',materials:[{cartonId:'C',qty:1},{cartonId:'C',qty:1}]}));
   await assertFails(set(ref(db('admin'),'instructions/fraction'),{...cfg,id:'fraction',materials:[{cartonId:'C',qty:1},{cartonId:'P',qty:1.5}]}));
 });
+
+test('stock assignment, state snapshots and immutable serial journals respect live roles',async()=>{
+  const staff=db('staff'),unit={number:'007',status:'in',updatedAt:1},units={s303037:unit};
+  await assertSucceeds(update(ref(staff,'cartons/C'),{containerUnits:units,serialStock:1}));
+  await assertFails(update(ref(staff,'cartons/C'),{stock:0}));
+  await assertFails(update(ref(staff,'cartons/C'),{containerUnits:null,serialStock:null}));
+  await assertFails(set(ref(db('admin'),'cartons/C'),null));
+  await assertFails(update(ref(staff,'cartons/P'),{containerUnits:units,serialStock:1}));
+  await assertFails(update(ref(staff,'cartons/C/containerUnits/s303037'),{number:'008'}));
+  await assertFails(update(ref(staff,'cartons/C/containerUnits/s303037'),{status:'whatever'}));
+  await assertFails(get(ref(db('customer'),'cartons/C/containerUnits')));
+  await assertSucceeds(set(ref(staff,'movements/labeled'),movement({articleKind:'container',qty:1,serialNumbers:['007']})));
+  await assertFails(update(ref(staff,'movements/labeled'),{serialNumbers:['other']}));
+  await assertFails(set(ref(staff,'movements/mismatch'),movement({articleKind:'container',qty:2,serialNumbers:['007']})));
+  await assertFails(set(ref(staff,'movements/plate'),movement({cartonId:'P',article:'P',articleKind:'plate',qty:1,serialNumbers:['007']})));
+});
