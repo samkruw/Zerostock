@@ -388,6 +388,8 @@ aside nav button span:last-child{text-align:center;font-size:18px;grid-column:1;
 
 </style>
 <style>
+html.native-scanning,html.native-scanning body{background:transparent!important}
+html.native-scanning body .modal.open,html.native-scanning body #cartonModal.open{display:none!important}
 .serialEntry{display:grid;gap:6px;min-width:0}.serialEntry textarea,.unitNumber{font-family:ui-monospace,monospace;font-size:1rem;overflow-wrap:anywhere}.serialEntry .btn{justify-self:start}.unitRows{list-style:none;padding:0;margin:12px 0;display:grid;gap:6px}.unitRows li{border-bottom:1px solid var(--line,#344154);padding:8px 0;display:grid;gap:4px}.unitRows small,.serialHint{color:var(--muted,#bdcada)}.serialLines{display:block;white-space:pre-line;overflow-wrap:anywhere}.serialError{color:#ffc4b5;margin:0}.serialError:empty{display:none}#scanModal{z-index:140}.serialEntry[hidden],#initialSerials[hidden],#assignSection[hidden]{display:none!important}
 </style></head>
 <body>
@@ -636,7 +638,7 @@ function unlock(){$('authGate').classList.add('hidden');$('appShell').classList.
 function authError(id,msg){const e=$(id);if(!e)return;e.textContent=msg||'';e.classList.toggle('show',!!msg)}
 function currentView(){return document.querySelector('.view.active')?.id.replace('View','')||'dashboard'}
 function show(v){if(S.user?.role==='customer'&&!['planner','instructions','more'].includes(v))v='planner';document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v+'View'));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));document.querySelectorAll('[data-mview]').forEach(b=>b.classList.toggle('active',b.dataset.mview===v));$('pageTitle').textContent={dashboard:t('dashboard'),scan:t('scan'),cartons:t('cartons'),instructions:t('configurations'),planner:t('planner'),movements:t('movements'),tasks:'Aufgaben',exports:'Export',more:'Mehr',users:t('users'),settings:t('settings')}[v]||v}
-function clearPrivateState(){unitsId=null;bookCarton=null;closeAll();$('unitList').replaceChildren();$('scanSelected').replaceChildren();for(const id of ['bookSerials','assignSerials','cSerials'])$(id).value='';S.cartons=[];S.movements=[];S.users=[];S.tasks=[];S.offlineStats={pending:0,conflicts:0,failed:0,syncing:0,cartons:0,movements:0};}
+function clearPrivateState(){unitsId=null;bookCarton=null;closeAll();$('unitList').replaceChildren();$('scanSelected').replaceChildren();$('movementRows').replaceChildren();$('cartonRows').replaceChildren();$('dashRows').replaceChildren();$('mobileRecentMoves')?.replaceChildren();for(const id of ['bookSerials','assignSerials','cSerials'])$(id).value='';S.cartons=[];S.movements=[];S.users=[];S.tasks=[];S.offlineStats={pending:0,conflicts:0,failed:0,syncing:0,cartons:0,movements:0};}
 function applyRole(){if(!canWrite())clearPrivateState();const r=S.user?.role||'';document.querySelectorAll('[data-admin]').forEach(e=>e.style.display=isAdmin()?'':'none');document.querySelectorAll('[data-internal]').forEach(e=>e.style.setProperty('display',canWrite()?'':'none',canWrite()?'':'important'));document.querySelectorAll('[data-book]').forEach(e=>e.disabled=!canWrite());if($('inventoryPanel'))$('inventoryPanel').style.display=r==='customer'?'none':'';$('roleLabel').textContent=S.user?`${S.user.name} · ${S.user.role}`:'—';$('currentUserName').textContent=S.user?.name||'—';$('currentUserEmail').textContent=S.firebase?.auth?.currentUser?.email||'—';$('currentUserRole').textContent=S.user?.role||'—'}
 function setI18nText(el,text){
   if(!el)return;
@@ -1292,7 +1294,7 @@ async function applyMovementOnce(move){
     const applied=c._zsApplied||{};
     const marker=applied[markerKey];
     if(marker){
-      if(!sameSerials(marker.serialNumbers,metadata.serialNumbers)||(marker.userId&&marker.userId!==move.userId)||
+      if(!sameSerials(marker.serialNumbers,metadata.serialNumbers)||!sameSerials(marker.serialOrigins,metadata.serialOrigins)||(marker.userId&&marker.userId!==move.userId)||
         (marker.serialNumbers&&(marker.type!==move.type||['externalRef','partner','reference'].some(k=>(marker[k]??'')!==(metadata[k]??'')))))throw Error('ID_COLLISION_OR_MOVEMENT_MISMATCH');
       return c;
     }
@@ -1320,7 +1322,7 @@ async function removeSyncedMovementMarker(move){
   catch(e){console.warn('sync marker cleanup',e)}
 }
 async function runSyncEngine({manual=false}={}){
-  if(S.syncRunning||!S.native||!S.offlineReady||!S.connected||!S.db||!S.firebase||!canWrite())return {processed:0};
+  if(S.waitForCartons||S.offlineSession||S.syncRunning||!S.native||!S.offlineReady||!S.connected||!S.db||!S.firebase||!canWrite())return {processed:0};
   S.syncRunning=true;let processed=0,synced=0,conflicts=0,failed=0;
   try{
     await retryWebBookings();
@@ -1363,7 +1365,7 @@ function readWebBookings(uid){
 function saveWebBooking(uid,move){localStorage.setItem('zs-web-booking:'+encodeURIComponent(uid)+':'+move.id,JSON.stringify(move));}
 function removeWebBooking(uid,id){localStorage.removeItem('zs-web-booking:'+encodeURIComponent(uid)+':'+id);}
 async function retryWebBookings(){
-  if(S.webSyncRunning||!canWrite()||!S.connected||!S.db||!S.firebase)return;
+  if(S.waitForCartons||S.offlineSession||S.webSyncRunning||!canWrite()||!S.connected||!S.db||!S.firebase)return;
   const uid=S.user.uid;S.webSyncRunning=true;
   try{
     for(const move of readWebBookings(uid)){
@@ -1418,10 +1420,63 @@ async function readProfileViaRest(user){
   return await res.json();
 }
 async function startOfflineSession(user){if(!S.native||!S.offlineReady||!window.ZeroStockOffline)return false;try{const cached=await window.ZeroStockOffline.getCachedUser(user.uid);const age=Date.now()-Number(cached?.cachedAt||0);if(!cached||cached.active===false||!['admin','employee','customer'].includes(cached.role)||!Number.isFinite(age)||age<0||age>OFFLINE_AUTH_MAX_AGE_MS)return false;S.user={uid:user.uid,name:cached.name||user.email||'User',role:cached.role};S.offlineSession=true;S.connected=false;await loadOfflineData();unlock();show(S.user.role==='customer'?'planner':'dashboard');render();toast('ZeroStock Offline',lang==='de'?'Lokale Daten geladen. Ausstehende Buchungen werden bei der nächsten Verbindung automatisch synchronisiert.':'Local data loaded. Pending transactions will synchronize automatically when the connection returns.');return true}catch(e){console.error('startOfflineSession',e);return false}}
-async function connectDb(user){try{
+let sessionObservers=[],sessionEpoch=0,profileRevision=0;
+function clearSessionObservers(){
+  sessionEpoch++;profileRevision++;clearTimeout(S.profileTimer);
+  for(const unsubscribe of sessionObservers)unsubscribe();
+  sessionObservers=[];S.transportOnline=false;S.waitForCartons=false;
+}
+function sameSession(user,epoch){return epoch===sessionEpoch&&S.firebase.auth?.currentUser?.uid===user.uid;}
+function applyLiveProfile(user,profile,refresh=false){
+  const role=String(profile?.role||'').trim().toLowerCase();
+  const active=profile?.active!==false&&['admin','employee','customer'].includes(role);
+  const changed=!S.user||S.offlineSession||S.user.role!==role;
+  const name=String(profile?.name||user.email||'User');
+  S.connected=S.transportOnline;S.offlineSession=false;
+  if(S.offlineReady)window.ZeroStockOffline.cacheUser({uid:user.uid,name,email:user.email||'',role,active}).catch(e=>console.warn('cache user',e));
+  if(!active){
+    clearSubs();S.user=null;clearPrivateState();S.instructions=[];S.customerSummary={};S.waitForCartons=false;
+    $('gateUid').textContent=user.uid;$('gateRoleState').textContent=lang==='de'?'Kein aktiver Zugriff.':'No active access.';
+    authView('authNoRole');return;
+  }
+  if(changed){clearSubs();clearPrivateState();S.instructions=[];S.customerSummary={};}
+  S.user={uid:user.uid,name,role};
+  if(changed||refresh){subscribe();unlock();if(changed)show(role==='customer'?'planner':'dashboard');}
+  render();
+}
+function watchOwnProfile(user,epoch){
+  const F=S.firebase;
+  sessionObservers.push(F.onValue(F.ref(S.db,'users/'+user.uid),snap=>{
+    if(!sameSession(user,epoch)||!S.transportOnline)return;
+    profileRevision++;applyLiveProfile(user,snap.val(),!S.connected);
+  },error=>{
+    if(sameSession(user,epoch)&&S.transportOnline&&/permission/i.test(error?.code||error?.message)){
+      profileRevision++;applyLiveProfile(user,null);
+    }
+  }));
+}
+async function refreshLiveProfile(user,epoch){
+  const revision=++profileRevision;
+  try{
+    const snapshot=await S.firebase.get(S.firebase.ref(S.db,'users/'+user.uid));
+    if(sameSession(user,epoch)&&S.transportOnline&&revision===profileRevision)applyLiveProfile(user,snapshot.val(),true);
+  }catch(e){
+    if(!sameSession(user,epoch)||!S.transportOnline||revision!==profileRevision)return;
+    if(/permission/i.test(e.code||e.message)){applyLiveProfile(user,null);return;}
+    clearTimeout(S.profileTimer);S.profileTimer=setTimeout(()=>refreshLiveProfile(user,epoch),3000);
+  }
+}
+async function connectDb(user){const epoch=sessionEpoch;try{
 S.db=S.firebase.getDatabase(S.firebase.app,FIREBASE_BASE_CONFIG.databaseURL);
-S.firebase.onValue(S.firebase.ref(S.db,'.info/connected'),x=>{const was=S.connected;S.connected=!!x.val();if(S.user)render();if(S.connected&&(!was||S.offlineStats.pending>0))scheduleSync(300)});
-if(S.native&&S.offlineReady&&navigator.onLine===false){if(await startOfflineSession(user))return}
+sessionObservers.push(S.firebase.onValue(S.firebase.ref(S.db,'.info/connected'),async snap=>{
+  if(!sameSession(user,epoch))return;
+  S.transportOnline=!!snap.val();S.connected=false;
+  if(!S.transportOnline){profileRevision++;clearTimeout(S.profileTimer);if(S.user)render();return;}
+  if(S.user)await refreshLiveProfile(user,epoch);
+}));
+if(S.native&&S.offlineReady&&navigator.onLine===false){
+  if(await startOfflineSession(user)){if(sameSession(user,epoch)){watchOwnProfile(user,epoch);if(S.transportOnline)await refreshLiveProfile(user,epoch);}return;}
+}
 
 const rolePath=`users/${user.uid}/role`;
 let role='',rawRole=null,source='Firebase SDK';
@@ -1452,8 +1507,10 @@ if(!['admin','employee','customer'].includes(role)){
   }
 }
 
+if(!sameSession(user,epoch))return;
 if(!['admin','employee','customer'].includes(role)){
-  if(await startOfflineSession(user))return;
+  if(!S.transportOnline&&await startOfflineSession(user)){if(sameSession(user,epoch))watchOwnProfile(user,epoch);return;}
+  if(S.transportOnline)applyLiveProfile(user,null);
   S.user=null;
   $('gateUid').textContent=user.uid;
   if($('gateRoleValue'))$('gateRoleValue').textContent=rawRole===null||rawRole===undefined?'(nicht vorhanden)':JSON.stringify(rawRole);
@@ -1473,9 +1530,10 @@ try{
   try{profile=await readProfileViaRest(user)||{}}catch{}
 }
 
-if(profile.active===false){S.user=null;$('gateUid').textContent=user.uid;if($('gateRoleValue'))$('gateRoleValue').textContent=role;if($('gateRoleState'))$('gateRoleState').textContent='Benutzer ist deaktiviert.';if($('gateRoleSource'))$('gateRoleSource').textContent='ZeroStock Benutzerprofil';if($('gateRoleDb'))$('gateRoleDb').textContent=FIREBASE_BASE_CONFIG.databaseURL;authView('authNoRole');return}
+if(!sameSession(user,epoch))return;
+if(profile.active===false){applyLiveProfile(user,profile);watchOwnProfile(user,epoch);return;}
 S.user={uid:user.uid,name:String(profile.name||user.email||'User'),role};
-S.offlineSession=false;
+S.offlineSession=false;S.connected=S.transportOnline;
 if(S.offlineReady)try{await window.ZeroStockOffline.cacheUser({uid:user.uid,name:S.user.name,email:user.email||'',role,active:profile.active!==false})}catch(e){console.warn('cache user',e)}
 
 // From this point onward the Firebase role is VALID.
@@ -1483,20 +1541,22 @@ if(S.offlineReady)try{await window.ZeroStockOffline.cacheUser({uid:user.uid,name
 unlock();
 try{
   if(S.offlineReady)await loadOfflineData();
-  subscribe();
-  if(S.connected)scheduleSync(500);
+  if(!sameSession(user,epoch))return;
+  subscribe();watchOwnProfile(user,epoch);
   const deep=new URLSearchParams(location.search).get('box');
   if(deep&&S.user.role!=='customer')setTimeout(()=>handleScan(deep),120);
   else show(S.user.role==='customer'?'planner':'dashboard');
   render();
 }catch(uiErr){
   console.error('ZeroStock UI startup error:',uiErr);
+  if(!sameSession(user,epoch)||!S.user)return;
   unlock();
   try{show(S.user.role==='customer'?'planner':'dashboard')}catch{}
   toast('ZeroStock','UI wurde gestartet; einzelne Ansicht konnte nicht initialisiert werden.');
 }
 return
 }catch(e){
+if(!sameSession(user,epoch))return;
 console.error('ZeroStock database/role error:',e);
 S.user=null;
 $('gateUid').textContent=user.uid;
@@ -1507,14 +1567,17 @@ if($('gateRoleDb'))$('gateRoleDb').textContent=FIREBASE_BASE_CONFIG.databaseURL;
 authView('authNoRole')
 }}
 function clearSubs(){S.unsubs.forEach(u=>{try{u()}catch{}});S.unsubs=[]}
-function subscribe(){clearSubs();const F=S.firebase,uid=S.user.uid;const internal=()=>canWrite()&&S.user.uid===uid;
-if(isAdmin())S.unsubs.push(F.onValue(F.ref(S.db,'users'),s=>{S.users=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));renderUsers()},e=>{console.error('users subscription',e);renderUsers()}));else S.users=[];
+let subscriptionRevision=0;
+function subscribe(){clearSubs();const revision=++subscriptionRevision,F=S.firebase,uid=S.user.uid;
+const current=()=>revision===subscriptionRevision&&S.user?.uid===uid;
+const internal=()=>current()&&canWrite();S.waitForCartons=canWrite();
+if(isAdmin())S.unsubs.push(F.onValue(F.ref(S.db,'users'),s=>{if(!current()||!isAdmin())return;S.users=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));renderUsers()},e=>{console.error('users subscription',e);renderUsers()}));else S.users=[];
 if(S.user.role==='customer'){S.cartons=[];S.movements=[];S.unsubs.push(F.onValue(F.ref(S.db,'instructions'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));S.instructions=S.offlineReady?await window.ZeroStockOffline.cacheInstructions(list):list;render()}));S.unsubs.push(F.onValue(F.ref(S.db,'customerSummary'),s=>{S.customerSummary=s.val()||{};render()}));return}
-S.unsubs.push(F.onValue(F.ref(S.db,'cartons'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));if(!internal())return;const cached=S.offlineReady?await window.ZeroStockOffline.cacheCartons(list):list;if(!internal())return;S.cartons=cached;await refreshOfflineStats();render();scheduleSummary()}));
+S.unsubs.push(F.onValue(F.ref(S.db,'cartons'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));if(!internal())return;const cached=S.offlineReady?await window.ZeroStockOffline.cacheCartons(list):list;if(!internal())return;S.cartons=cached;const first=S.waitForCartons;S.waitForCartons=false;await refreshOfflineStats();if(!internal())return;render();scheduleSummary();if(first&&S.connected)scheduleSync(50)}));
 S.unsubs.push(F.onValue(F.ref(S.db,'instructions'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));S.instructions=S.offlineReady?await window.ZeroStockOffline.cacheInstructions(list):list;render();scheduleSummary()}));
 S.unsubs.push(F.onValue(F.query(F.ref(S.db,'movements'),F.limitToLast(200)),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));if(!internal())return;const cached=S.offlineReady?await window.ZeroStockOffline.cacheMovements(list):list;if(!internal())return;S.movements=cached;await refreshOfflineStats();render()}))}
 async function loadFirebaseModules(){if(S.native&&window.ZeroStockFirebaseNative)return window.ZeroStockFirebaseNative;return{app:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-app.js`),auth:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-auth.js`),database:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-database.js`)}}
-async function initFirebase(){authView('authLoading');try{const M=await loadFirebaseModules(),A=M.app,U=M.auth,R=M.database,app=A.initializeApp(FIREBASE_BASE_CONFIG),auth=U.getAuth(app);try{await U.setPersistence(auth,U.browserLocalPersistence)}catch{}S.firebase={...U,...R,app,auth};U.onAuthStateChanged(auth,async user=>{clearSubs();S.user=null;clearPrivateState();S.cartons=[];S.instructions=[];S.movements=[];S.users=[];S.customerSummary={};S.connected=false;S.db=null;S.offlineSession=false;if(!user){authView('authLogin');return}await connectDb(user)})}catch(e){console.error(e);if(S.native&&S.offlineReady)authError('gateLoginError',lang==='de'?'Keine gespeicherte Anmeldung verfügbar. Für die erste Anmeldung ist Internet erforderlich.':'No cached sign-in available. Internet is required for the first sign-in.');else authError('gateLoginError',lang==='de'?'Firebase konnte nicht geladen werden. Internet prüfen.':'Firebase could not be loaded. Check internet.');authView('authLogin')}}
+async function initFirebase(){authView('authLoading');try{const M=await loadFirebaseModules(),A=M.app,U=M.auth,R=M.database,app=A.initializeApp(FIREBASE_BASE_CONFIG),auth=U.getAuth(app);try{await U.setPersistence(auth,U.browserLocalPersistence)}catch{}S.firebase={...U,...R,app,auth};U.onAuthStateChanged(auth,async user=>{clearSessionObservers();clearSubs();S.user=null;clearPrivateState();S.cartons=[];S.instructions=[];S.movements=[];S.users=[];S.customerSummary={};S.connected=false;S.db=null;S.offlineSession=false;if(!user){authView('authLogin');return}await connectDb(user)})}catch(e){console.error(e);if(S.native&&S.offlineReady)authError('gateLoginError',lang==='de'?'Keine gespeicherte Anmeldung verfügbar. Für die erste Anmeldung ist Internet erforderlich.':'No cached sign-in available. Internet is required for the first sign-in.');else authError('gateLoginError',lang==='de'?'Firebase konnte nicht geladen werden. Internet prüfen.':'Firebase could not be loaded. Check internet.');authView('authLogin')}}
 function safeAuthMessage(err){const c=String(err?.code||'');if(/invalid-credential|wrong-password|user-not-found|invalid-email/i.test(c))return lang==='de'?'Anmeldung fehlgeschlagen. E-Mail oder Passwort prüfen.':'Sign-in failed. Check email or password.';if(/too-many-requests/i.test(c))return lang==='de'?'Zu viele Versuche. Bitte später erneut versuchen.':'Too many attempts. Try again later.';if(/network-request-failed/i.test(c))return lang==='de'?'Keine Verbindung. Netzwerk prüfen.':'No connection. Check network.';return lang==='de'?'Anmeldung konnte nicht abgeschlossen werden.':'Sign-in could not be completed.'}
 async function login(){authError('gateLoginError','');const e=$('gateEmail').value.trim(),p=$('gatePassword').value;if(!e||!p)return authError('gateLoginError',lang==='de'?'E-Mail und Passwort eingeben.':'Enter email and password.');try{await S.firebase.signInWithEmailAndPassword(S.firebase.auth,e,p)}catch(x){authError('gateLoginError',safeAuthMessage(x))}}
 async function resetPassword(){authError('gateLoginError','');const e=$('gateEmail').value.trim();if(!e)return authError('gateLoginError',lang==='de'?'Zuerst E-Mail eingeben.':'Enter email first.');try{await S.firebase.sendPasswordResetEmail(S.firebase.auth,e);authError('gateLoginError',lang==='de'?'Reset-E-Mail wurde gesendet.':'Reset email sent.')}catch(x){authError('gateLoginError',x.message)}}

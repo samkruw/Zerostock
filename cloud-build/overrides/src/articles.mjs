@@ -1,5 +1,5 @@
 /** Pure article, container-configuration and movement metadata rules. No storage. */
-import { parseSerialNumbers } from './container-serials.mjs';
+import { parseSerialNumbers, serialOrigins } from './container-serials.mjs';
 export { parseSerialNumbers, unassignedStock, assignContainerUnits, applyStockMovement } from './container-serials.mjs';
 
 export const ARTICLE_KINDS = Object.freeze(['carton', 'plate', 'container']);
@@ -118,12 +118,20 @@ export function movementMetadata(record = {}) {
   if (record.serialNumbers !== undefined) {
     if (record.articleKind !== 'container') fail('INVALID_BOOKING');
     result.serialNumbers = parseSerialNumbers(record.serialNumbers);
+    if (record.serialOrigins !== undefined) {
+      if (!Array.isArray(record.serialOrigins) || record.serialOrigins.length !== result.serialNumbers.length ||
+          record.serialOrigins.some(value=>typeof value!=='string' || !value || value.length>200)) fail('INVALID_BOOKING');
+      result.serialOrigins = [...record.serialOrigins];
+    }
   }
   return result;
 }
 export function createMovementMetadata(article, options = {}) {
-  return movementMetadata({articleKind:articleKind(article), externalRef:article.externalRef || '',
-    partner:options.partner, reference:options.reference, serialNumbers:options.serialNumbers});
+  const numbers=articleKind(article)==='container'?parseSerialNumbers(options.serialNumbers):options.serialNumbers;
+  const metadata = movementMetadata({articleKind:articleKind(article), externalRef:article.externalRef || '',
+    partner:options.partner, reference:options.reference, serialNumbers:numbers});
+  if (metadata.serialNumbers) metadata.serialOrigins = serialOrigins(article, metadata.serialNumbers);
+  return metadata;
 }
 /** Validate the complete journal payload before either storage system changes stock. */
 export function validateMovement(move) {
@@ -138,7 +146,8 @@ export function validateMovement(move) {
 export function sameMovementIdentity(a,b) {
   return a.userId===b.userId && a.cartonId===b.cartonId && a.type===b.type && Number(a.qty)===Number(b.qty) &&
     ['articleKind','externalRef','partner','reference'].every(key=>(a[key]??'')===(b[key]??'')) &&
-    JSON.stringify(a.serialNumbers??null)===JSON.stringify(b.serialNumbers??null);
+    JSON.stringify(a.serialNumbers??null)===JSON.stringify(b.serialNumbers??null) &&
+    JSON.stringify(a.serialOrigins??null)===JSON.stringify(b.serialOrigins??null);
 }
 export function serialDependencies(move) {
   return (move.serialNumbers||[]).map(number=>JSON.stringify([move.cartonId,number]));

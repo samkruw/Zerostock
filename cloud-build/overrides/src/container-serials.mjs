@@ -26,6 +26,13 @@ function unitKey(number) {
   return 's' + Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
+function unitRevision(unit) {
+  if (!unit) return 'new';
+  return unit.moveId ? 'move:' + unit.moveId : 'assigned:' + unit.updatedAt;
+}
+export function serialOrigins(article, numbers) {
+  return numbers.map(number => unitRevision(article.containerUnits?.[unitKey(number)]));
+}
 function inStock(article) {
   return Object.values(article.containerUnits || {}).filter(unit => unit.status === 'in').length;
 }
@@ -35,8 +42,11 @@ export function unassignedStock(article) {
 function updateUnits(article, numbers, action, move) {
   if (article.kind !== 'container') invalid('Seriennummern gehören zu Containerartikeln.');
   const units = {...article.containerUnits};
-  for (const number of numbers) {
+  for (const [index,number] of numbers.entries()) {
     const key = unitKey(number), previous = units[key];
+    if (move.serialOrigins && move.serialOrigins[index] !== unitRevision(previous)) {
+      invalid('Der Zustand wurde zwischenzeitlich geändert. Etikett und Bestand prüfen: ' + number);
+    }
     if (action === 'assign' && previous) invalid('Seriennummer bereits zugeordnet: ' + number);
     if (action === 'in' && previous?.status === 'in') invalid('Container bereits im Lager: ' + number);
     if ((action === 'out' || action === 'shrink') && previous?.status !== 'in') {

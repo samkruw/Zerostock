@@ -69,6 +69,12 @@
           "$index": {
             ".validate": "$index.matches(/^(0|[1-9][0-9]*)$/) && newData.isString() && newData.val().length > 0 && newData.val().length <= 120"
           }
+        },
+        "serialOrigins": {
+          ".validate": "newData.parent().child('serialNumbers').exists() && newData.hasChildren(['0']) && newData.child((newData.parent().child('qty').val() - 1) + '').exists() && !newData.child(newData.parent().child('qty').val() + '').exists()",
+          "$index": {
+            ".validate": "newData.parent().parent().child('serialNumbers').child($index).exists() && newData.isString() && newData.val().length > 0 && newData.val().length <= 200"
+          }
         }
       }
     },

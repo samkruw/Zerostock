@@ -4,7 +4,7 @@ import { DatabaseSync } from 'node:sqlite';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { randomUUID } from 'node:crypto';
-import { createMovementMetadata, movementMetadata, validateMovement, applyStockMovement, sameMovementIdentity, serialDependencies } from '../src/articles.mjs';
+import { createMovementMetadata, movementMetadata, validateMovement, applyStockMovement, sameMovementIdentity, serialDependencies, assignContainerUnits } from '../src/articles.mjs';
 
 const source = fs.readFileSync(new URL('../src/offline-core.js',import.meta.url),'utf8')
   .replace(/^import[^\n]*\n/gm,'');
@@ -39,8 +39,10 @@ const articles = [
   {id:'K',article:'ALT',name:'Alter Karton',stock:100,min:0,warn:2,location:'L3'},
 ];
 
+const labeledArticles = [assignContainerUnits(articles[0],['A','B','C'],1),...articles.slice(1)];
+
 test('typed articles and configurations survive real SQLite cache/reload',async t=>{
-  const f=fixture(t); await f.offline.cacheCartons(articles);
+  const f=fixture(t); await f.offline.cacheCartons(labeledArticles);
   await f.offline.cacheInstructions([{id:'cfg',name:'Setup',kind:'container',containerId:'C',active:true,materials:[{cartonId:'C',qty:1},{cartonId:'P',qty:4}]}]);
   const restarted=f.load(); await restarted.init();
   assert.equal((await restarted.getCartons()).find(x=>x.id==='C').externalRef,'CT-A');
@@ -49,8 +51,8 @@ test('typed articles and configurations survive real SQLite cache/reload',async 
   assert.equal((await restarted.getInstructions()).length,0);
 });
 test('container exit changes only its stock and preserves metadata in all queue views',async t=>{
-  const f=fixture(t); await f.offline.cacheCartons(articles);
-  const move=await f.offline.recordMovement({cartonId:'C',type:'out',qty:3,userId:'u',userName:'Team',partner:'Kunde',reference:'REF-3'});
+  const f=fixture(t); await f.offline.cacheCartons(labeledArticles);
+  const move=await f.offline.recordMovement({cartonId:'C',type:'out',qty:3,serialNumbers:['A','B','C'],userId:'u',userName:'Team',partner:'Kunde',reference:'REF-3'});
   const stock=await f.offline.getCartons();
   assert.equal(stock.find(x=>x.id==='C').stock,7);assert.equal(stock.find(x=>x.id==='P').stock,30);
   for(const m of [move,(await f.offline.getMovements())[0],(await f.offline.getSyncBatch())[0],(await f.offline.getPendingMovements())[0]]) {
@@ -64,14 +66,14 @@ test('container exit changes only its stock and preserves metadata in all queue 
   assert.equal((await restarted.getSyncBatch())[0].partner,'Kunde');
 });
 test('plate receipt and legacy carton booking snapshot the correct categories',async t=>{
-  const f=fixture(t); await f.offline.cacheCartons(articles);
+  const f=fixture(t); await f.offline.cacheCartons(labeledArticles);
   const p=await f.offline.recordMovement({cartonId:'P',type:'in',qty:4,userId:'u'});
   const k=await f.offline.recordMovement({cartonId:'K',type:'out',qty:20,userId:'u'});
   assert.equal(p.articleKind,'plate');assert.equal(k.articleKind,'carton');
   const rows=await f.offline.getCartons();assert.equal(rows.find(x=>x.id==='P').stock,34);assert.equal(rows.find(x=>x.id==='K').stock,80);
 });
 test('pre-upgrade pending movements keep absent metadata through sync batching',async t=>{
-  const f=fixture(t); await f.offline.cacheCartons(articles);
+  const f=fixture(t); await f.offline.cacheCartons(labeledArticles);
   const payload={id:'legacy',cartonId:'K',article:'ALT',type:'out',qty:20,userId:'u',userName:'Team',stockBefore:100,stockAfter:80,ts:1};
   f.db.prepare(`INSERT INTO movements(id,ts,user_id,user_name,carton_id,article,type,qty,stock_before,stock_after,sync_status,created_at,updated_at,payload_json)
     VALUES('legacy',1,'u','Team','K','ALT','out',20,100,80,'PENDING',1,1,?)`).run(JSON.stringify(payload));
@@ -81,26 +83,26 @@ test('pre-upgrade pending movements keep absent metadata through sync batching',
   assert.equal(move.qty,20); assert.equal('articleKind' in move,false);assert.equal('externalRef' in move,false);
 });
 test('invalid metadata and fractional quantities cannot cause partial stock changes',async t=>{
-  const f=fixture(t); await f.offline.cacheCartons(articles);
-  await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'out',qty:1,partner:'x'.repeat(121)}));
+  const f=fixture(t); await f.offline.cacheCartons(labeledArticles);
+  await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'out',qty:1,serialNumbers:['A'],partner:'x'.repeat(121)}));
   await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'out',qty:1.5}));
   assert.equal((await f.offline.getCartons()).find(x=>x.id==='C').stock,10);
   assert.equal(f.db.prepare('SELECT count(*) AS n FROM movements').get().n,0);
 });
 test('a queue write failure rolls back real SQLite stock and movement writes',async t=>{
-  const f=fixture(t); await f.offline.cacheCartons(articles);f.state.failQueue=true;
-  await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'out',qty:1,userId:'u',partner:'Kunde'}),/TEST_IO_FAILURE/);
+  const f=fixture(t); await f.offline.cacheCartons(labeledArticles);f.state.failQueue=true;
+  await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'out',qty:1,serialNumbers:['A'],userId:'u',partner:'Kunde'}),/TEST_IO_FAILURE/);
   assert.equal((await f.offline.getCartons()).find(x=>x.id==='C').stock,10);
   assert.equal(f.db.prepare('SELECT count(*) AS n FROM movements').get().n,0);
 });
 test('a receipt that would overflow a safe stock count is rejected before writing',async t=>{
   const f=fixture(t);await f.offline.cacheCartons([{...articles[0],stock:Number.MAX_SAFE_INTEGER}]);
-  await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'in',qty:1,userId:'u'}));
+  await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'in',qty:1,serialNumbers:['N'],userId:'u'}));
   assert.equal((await f.offline.getCartons())[0].stock,Number.MAX_SAFE_INTEGER);
   assert.equal(f.db.prepare('SELECT count(*) AS n FROM movements').get().n,0);
 });
 test('authoritative snapshots remove missing articles while retaining queued movement history',async t=>{
-  const f=fixture(t);await f.offline.cacheCartons(articles);
+  const f=fixture(t);await f.offline.cacheCartons(labeledArticles);
   const move=await f.offline.recordMovement({cartonId:'P',type:'out',qty:1,userId:'a'});
   const refreshed=await f.offline.cacheCartons(articles.filter(c=>c.id!=='P'));
   assert.equal(refreshed.some(c=>c.id==='P'),false);
@@ -108,25 +110,25 @@ test('authoritative snapshots remove missing articles while retaining queued mov
   await f.offline.cacheCartons([]);assert.equal((await f.offline.getCartons()).length,0);
 });
 test('sync batches select only the authenticated actor without consuming another actor queue',async t=>{
-  const f=fixture(t);await f.offline.cacheCartons(articles);
-  const a=await f.offline.recordMovement({cartonId:'C',type:'out',qty:1,userId:'a'});
-  const b=await f.offline.recordMovement({cartonId:'C',type:'out',qty:1,userId:'b'});
+  const f=fixture(t);await f.offline.cacheCartons(labeledArticles);
+  const a=await f.offline.recordMovement({cartonId:'C',type:'out',qty:1,serialNumbers:['A'],userId:'a'});
+  const b=await f.offline.recordMovement({cartonId:'C',type:'out',qty:1,serialNumbers:['C'],userId:'b'});
   assert.deepEqual(plain(await f.offline.getSyncBatch(20,'b')).map(m=>m.id),[b.id]);
   assert.deepEqual(plain(await f.offline.getSyncBatch(20,'a')).map(m=>m.id),[a.id]);
 });
 test('journal text rejected by Firebase cannot enter the local stock transaction',async t=>{
-  const f=fixture(t);await f.offline.cacheCartons(articles);
-  await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'out',qty:1,userId:'a',note:'x'.repeat(1001)}));
-  await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'out',qty:1,userId:'a',reason:'x'.repeat(501)}));
+  const f=fixture(t);await f.offline.cacheCartons(labeledArticles);
+  await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'out',qty:1,serialNumbers:['A'],userId:'a',note:'x'.repeat(1001)}));
+  await assert.rejects(()=>f.offline.recordMovement({cartonId:'C',type:'out',qty:1,serialNumbers:['A'],userId:'a',reason:'x'.repeat(501)}));
   assert.equal((await f.offline.getCartons()).find(c=>c.id==='C').stock,10);
   assert.equal((await f.offline.getSyncBatch()).length,0);
 });
 test('server-applied pending movements are not subtracted a second time in cached stock',async t=>{
-  const f=fixture(t);await f.offline.cacheCartons(articles);
-  const first=await f.offline.recordMovement({cartonId:'C',type:'out',qty:2,userId:'a'});
-  const snapshot={...articles[0],stock:8,_zsApplied:{[first.id]:{stockAfter:8,userId:'a'}}};
+  const f=fixture(t);await f.offline.cacheCartons(labeledArticles);
+  const first=await f.offline.recordMovement({cartonId:'C',type:'out',qty:2,serialNumbers:['A','B'],userId:'a'});
+  const snapshot={...applyStockMovement(labeledArticles[0],first),_zsApplied:{[first.id]:{stockAfter:8,userId:'a'}}};
   assert.equal((await f.offline.cacheCartons([snapshot])).find(c=>c.id==='C').stock,8);
-  await f.offline.recordMovement({cartonId:'C',type:'out',qty:1,userId:'b'});
+  await f.offline.recordMovement({cartonId:'C',type:'out',qty:1,serialNumbers:['C'],userId:'b'});
   assert.equal((await f.offline.cacheCartons([snapshot])).find(c=>c.id==='C').stock,7);
 });
 
@@ -141,7 +143,7 @@ test('serial state, ordered batch and projection survive restart and server ackn
   assert.deepEqual(batch.map(m=>m.id),[received.id,exited.id]);assert.deepEqual(batch[1].serialNumbers,['007/a']);
   const refreshed=(await restarted.cacheCartons([c]))[0];
   assert.equal(refreshed.stock,0);assert.equal(Object.values(refreshed.containerUnits)[0].status,'out');
-  const confirmed={...c,stock:1,containerUnits:{s3030372f61:{number:'007/a',status:'in'}},_zsApplied:{[received.id]:{stockAfter:1}}};
+  const confirmed={...c,stock:1,containerUnits:{s3030372f61:{number:'007/a',status:'in',moveId:received.id}},_zsApplied:{[received.id]:{stockAfter:1}}};
   const partial=(await restarted.cacheCartons([confirmed]))[0];
   assert.equal(partial.stock,0);assert.equal(Object.values(partial.containerUnits)[0].moveId,exited.id);
   f.state.failQueue=true;await assert.rejects(()=>restarted.recordMovement({...book,type:'in'}),/TEST_IO_FAILURE/);
@@ -159,4 +161,18 @@ test('a return cannot overtake an earlier offline receipt of the same label duri
   for(const actor of [null,'b'])assert.deepEqual(plain(await f.offline.getSyncBatch(20,actor)).map(m=>m.id),[independent.id]);
   await f.offline.markSynced(first.id,{stockAfter:11});
   assert.deepEqual(plain(await f.offline.getSyncBatch(20,'b')).map(m=>m.id),[second.id,independent.id]);
+});
+
+test('a conflicting dispatch and its dependent return cannot project onto another device delivery',async t=>{
+  const f=fixture(t),c=assignContainerUnits(articles[0],['0008'],1);
+  await f.offline.cacheCartons([c]);
+  const booking={cartonId:'C',qty:1,userId:'a',serialNumbers:['0008']};
+  const out=await f.offline.recordMovement({...booking,type:'out'});
+  const back=await f.offline.recordMovement({...booking,type:'in'});
+  const other=applyStockMovement(c,{id:'device-B',ts:20,type:'out',qty:1,serialNumbers:['0008']});
+  const projected=(await f.offline.cacheCartons([other]))[0];
+  assert.equal(projected.stock,9);assert.equal(Object.values(projected.containerUnits)[0].moveId,'device-B');
+  assert.throws(()=>applyStockMovement(other,back));
+  const cycled=applyStockMovement(other,{id:'B-return',ts:21,type:'in',qty:1,serialNumbers:['0008']});
+  assert.throws(()=>applyStockMovement(cycled,out));
 });

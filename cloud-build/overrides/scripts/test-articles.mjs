@@ -75,10 +75,10 @@ test('legacy movement metadata stays absent, so old retry payloads remain compar
 });
 test('new movements snapshot article type/external reference and bounded booking metadata', () => {
   const A=api(), article={...articles()[0],externalRef:'CT-A'};
-  const meta=A.createMovementMetadata(article,{partner:' Ziel ',reference:' REF-12 '});
-  assert.deepEqual(meta,{articleKind:'container',externalRef:'CT-A',partner:'Ziel',reference:'REF-12'});
+  const meta=A.createMovementMetadata(article,{partner:' Ziel ',reference:' REF-12 ',serialNumbers:['001']});
+  assert.deepEqual(meta,{articleKind:'container',externalRef:'CT-A',partner:'Ziel',reference:'REF-12',serialNumbers:['001'],serialOrigins:['new']});
   assert.deepEqual(A.movementMetadata({...meta,stock:999,secret:'discard'}),meta);
-  assert.throws(()=>A.createMovementMetadata(article,{partner:'x'.repeat(121)}));
+  assert.throws(()=>A.createMovementMetadata(article,{partner:'x'.repeat(121),serialNumbers:['001']}));
   assert.throws(()=>A.movementMetadata({articleKind:'invalid'}));
 });
 test('container export uses immutable snapshots, with a legacy article lookup fallback', () => {
@@ -124,4 +124,11 @@ test('serial movement quantity, state, partner and legacy stock floor stay consi
   const meta=A.createMovementMetadata(c,{serialNumbers:base.serialNumbers});
   assert.deepEqual(meta.serialNumbers,['0007']);
   assert.deepEqual(A.containerMovementRows([{...base,...meta,cartonId:'C'}],[c])[0].serialNumbers,['0007']);
+});
+
+test('new container commands require labels while existing quantity-only movements remain replayable',()=>{
+  const A=api(),c=articles()[0];
+  assert.throws(()=>A.createMovementMetadata(c,{}),/Seriennummer/);
+  const old={articleKind:'container',userId:'u',qty:2,type:'out',cartonId:'C',article:c.article};
+  assert.equal(A.applyStockMovement(c,A.validateMovement(old)).stock,8);
 });

@@ -70,7 +70,7 @@ test('stock assignment, state snapshots and immutable serial journals respect li
   await assertFails(update(ref(staff,'cartons/C/containerUnits/s303037'),{number:'008'}));
   await assertFails(update(ref(staff,'cartons/C/containerUnits/s303037'),{status:'whatever'}));
   await assertFails(get(ref(db('customer'),'cartons/C/containerUnits')));
-  await assertSucceeds(set(ref(staff,'movements/labeled'),movement({articleKind:'container',qty:1,serialNumbers:['007']})));
+  await assertSucceeds(set(ref(staff,'movements/labeled'),movement({articleKind:'container',qty:1,serialNumbers:['007'],serialOrigins:['assigned:1']})));
   await assertFails(update(ref(staff,'movements/labeled'),{serialNumbers:['other']}));
   await assertFails(set(ref(staff,'movements/mismatch'),movement({articleKind:'container',qty:2,serialNumbers:['007']})));
   await assertFails(set(ref(staff,'movements/plate'),movement({cartonId:'P',article:'P',articleKind:'plate',qty:1,serialNumbers:['007']})));

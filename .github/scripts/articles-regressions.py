@@ -17,9 +17,10 @@ class Regressions(unittest.TestCase):
         self.context.route('**/*',lambda r:r.continue_() if urlsplit(r.request.url).netloc==urlsplit(base).netloc else r.abort())
         self.page=self.context.new_page();self.page.goto(base,wait_until='networkidle')
         self.page.locator('#authLogin.active').wait_for();self.page.evaluate(Path(__file__).with_name('articles-fixture.js').read_text())
+        self.page.evaluate("uiFixture.data.cartons.C=ArticleModel.assignContainerUnits(uiFixture.data.cartons.C,['A','B'],1);uiFixture.emit()")
     def tearDown(self):self.context.close()
     def test_rejected_note_never_changes_stock(self):
-        result=self.page.evaluate("""async()=>{let rejected=false;try{await firebaseBook('C','out',1,'','x'.repeat(1001))}catch{rejected=true}return {rejected,stock:uiFixture.data.cartons.C.stock,moves:Object.keys(uiFixture.data.movements).length}}""")
+        result=self.page.evaluate("""async()=>{let rejected=false;try{await firebaseBook('C','out',1,'','x'.repeat(1001),{serialNumbers:['A']})}catch{rejected=true}return {rejected,stock:uiFixture.data.cartons.C.stock,moves:Object.keys(uiFixture.data.movements).length}}""")
         self.assertEqual(result,{'rejected':True,'stock':10,'moves':0})
     def test_opening_a_dialog_does_not_steal_focus_after_the_user_moves(self):
         active=self.page.evaluate("""async()=>{openBook('C');document.getElementById('bookReference').focus();await new Promise(resolve=>setTimeout(resolve,65));return document.activeElement.id}""")
@@ -28,7 +29,7 @@ class Regressions(unittest.TestCase):
         result=self.page.evaluate("""async()=>{
             const original=S.firebase.set;let fail=true;
             S.firebase.set=async(r,v)=>{if(fail&&r.path.startsWith('movements/'))throw Error('TEST_NETWORK');return original(r,v)};
-            const result=await firebaseBook('C','out',2,'','interrupted');
+            const result=await firebaseBook('C','out',2,'','interrupted',{serialNumbers:['A','B']});
             const after=uiFixture.data.cartons.C.stock;
             fail=false;await retryWebBookings();await retryWebBookings();
             return {pending:result.pending,after,stock:uiFixture.data.cartons.C.stock,moves:Object.keys(uiFixture.data.movements).length,pendingCount:readWebBookings('ui-admin').length};
@@ -38,7 +39,7 @@ class Regressions(unittest.TestCase):
         result=self.page.evaluate("""async()=>{
             S.native=true;S.offlineReady=false;const original=S.firebase.set;let fail=true;
             S.firebase.set=async(r,v)=>{if(fail&&r.path.startsWith('movements/'))throw Error('TEST_NETWORK');return original(r,v)};
-            await firebaseBook('C','out',2,'','fallback');fail=false;
+            await firebaseBook('C','out',2,'','fallback',{serialNumbers:['A','B']});fail=false;
             await retryWebBookings();return {stock:uiFixture.data.cartons.C.stock,moves:Object.keys(uiFixture.data.movements).length,pending:readWebBookings(S.user.uid).length};
         }""")
         self.assertEqual(result,{'stock':8,'moves':1,'pending':0})
@@ -136,6 +137,46 @@ class Regressions(unittest.TestCase):
         page.locator('.editC[data-id="NEW"]').click();page.locator('#cStock').fill('1');page.locator('#saveCarton').click()
         self.assertTrue(page.locator('#cartonModal').is_visible())
         self.assertEqual(page.evaluate('uiFixture.data.cartons.NEW.stock'),2)
+    def test_native_scanner_clears_all_forms_and_root_background(self):
+        states=self.page.evaluate("""async()=>{
+            const states=[];window.ZeroStockNativeScanner={isNativeAvailable:()=>true,start:async()=>{},stop:async()=>{}};
+            for(const [modal,field] of [['bookModal','bookSerials'],['cartonModal','cSerials'],['unitsModal','assignSerials']]){
+                openArticleModal(modal,field);await startScanner(field);
+                states.push([getComputedStyle(document.documentElement).backgroundColor,getComputedStyle(document.getElementById(modal)).display,getComputedStyle(document.getElementById('nativeScannerOverlay')).display]);
+                document.getElementById('nativeScanClose').click();await Promise.resolve();
+                states.push(document.getElementById(modal).classList.contains('open'));
+            }
+            return states;
+        }""")
+        self.assertEqual(states,[['rgba(0, 0, 0, 0)','none','block'],True]*3)
+    def test_live_employee_downgrade_removes_displayed_serials(self):
+        result=self.page.evaluate("""async()=>{
+            const F=S.firebase,callbacks=new Map(),u=F.auth.currentUser;
+            const profile={name:'Team',role:'employee',active:true};F.getDatabase=()=>({});F.query=r=>r;F.limitToLast=()=>200;
+            F.get=async r=>({val:()=>r.path.endsWith('/role')?'employee':profile});
+            F.onValue=(r,fn)=>{callbacks.set(r.path,fn);if(r.path==='.info/connected')fn({val:()=>true});return ()=>callbacks.delete(r.path)};
+            await connectDb(u);
+            uiFixture.data.cartons.C=ArticleModel.assignContainerUnits(uiFixture.data.cartons.C,['PRIVATE-008'],1);uiFixture.emit();openUnits('C');
+            const watcher=callbacks.get('users/'+u.uid);
+            if(watcher)await watcher({val:()=>({...profile,role:'customer'})});
+            return [S.user?.role,S.cartons.length,S.movements.length,document.getElementById('unitList').textContent.includes('PRIVATE-008'),document.getElementById('unitsModal').classList.contains('open')];
+        }""")
+        self.assertEqual(result,['customer',0,0,False,False])
+    def test_offline_restart_reconnects_privileges_and_hydrates_cartons_before_replay(self):
+        result=self.page.evaluate("""async()=>{
+            const F=S.firebase,callbacks=new Map(),u=F.auth.currentUser,profile={name:'Team',role:'employee',active:true};
+            Object.defineProperty(navigator,'onLine',{value:false,configurable:true});
+            F.getDatabase=()=>({});F.query=r=>r;F.limitToLast=()=>200;F.get=async()=>({val:()=>profile});
+            F.onValue=(r,fn)=>{callbacks.set(r.path,fn);if(r.path==='.info/connected')fn({val:()=>false});return ()=>callbacks.delete(r.path)};
+            S.offlineReady=true;S.native=true;const cache=Object.values(uiFixture.data.cartons);let attempts=0;
+            window.ZeroStockOffline={getCachedUser:async()=>({...profile,cachedAt:Date.now()}),cacheUser:async()=>{},cacheCartons:async a=>a,getCartons:async()=>cache,getInstructions:async()=>[],getMovements:async()=>[],stats:async()=>({pending:0}),getSyncBatch:async()=>{attempts++;return []}};
+            await connectDb(u);const started=S.offlineSession;Object.defineProperty(navigator,'onLine',{value:true,configurable:true});
+            await callbacks.get('.info/connected')({val:()=>true});await new Promise(r=>setTimeout(r,10));clearTimeout(S.syncTimer);
+            await runSyncEngine();const before=attempts;
+            if(callbacks.has('cartons'))await callbacks.get('cartons')({val:()=>uiFixture.data.cartons});
+            clearTimeout(S.syncTimer);await runSyncEngine();return [started,S.offlineSession,callbacks.has('cartons'),before,attempts];
+        }""")
+        self.assertEqual(result,[True,False,True,0,1])
     def test_cached_customer_session_does_not_load_employee_inventory(self):
         result=self.page.evaluate("""async()=>{
             const cache=JSON.parse(JSON.stringify(uiFixture.data.cartons));let privateReads=0;
