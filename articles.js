@@ -21,16 +21,109 @@ var ZeroStockArticles = (() => {
   var articles_exports = {};
   __export(articles_exports, {
     ARTICLE_KINDS: () => ARTICLE_KINDS,
+    applyStockMovement: () => applyStockMovement,
     articleKind: () => articleKind,
+    assignContainerUnits: () => assignContainerUnits,
     calculateConfiguration: () => calculateConfiguration,
     configurationMaterials: () => configurationMaterials,
     containerMovementRows: () => containerMovementRows,
     createMovementMetadata: () => createMovementMetadata,
     kindLabel: () => kindLabel,
     movementMetadata: () => movementMetadata,
+    parseSerialNumbers: () => parseSerialNumbers,
+    sameMovementIdentity: () => sameMovementIdentity,
+    serialDependencies: () => serialDependencies,
+    unassignedStock: () => unassignedStock,
     validateArticle: () => validateArticle,
     validateMovement: () => validateMovement
   });
+
+  // src/container-serials.mjs
+  function invalid(message) {
+    const error = new Error(message);
+    error.code = "INVALID_CONTAINER_SERIAL";
+    throw error;
+  }
+  function parseSerialNumbers(input) {
+    const list = typeof input === "string" ? input.split(/\r\n|[\r\n]/).filter((line) => line.trim()) : input;
+    if (!Array.isArray(list) || !list.length) invalid("Mindestens eine Seriennummer vom Containeretikett erfassen.");
+    const seen = /* @__PURE__ */ new Set();
+    for (const value of list) {
+      if (typeof value !== "string") invalid("Seriennummern als Text erfassen.");
+      const number = value.trim();
+      if (!number || number.length > 120 || /[\x00-\x1f\x7f]/.test(number) || /[\uD800-\uDFFF]/u.test(number)) {
+        invalid("Je Zeile eine Seriennummer mit h\xF6chstens 120 Zeichen erfassen.");
+      }
+      if (seen.has(number)) invalid("Seriennummer mehrfach erfasst: " + number);
+      seen.add(number);
+    }
+    return [...seen];
+  }
+  function unitKey(number) {
+    const bytes = new TextEncoder().encode(number);
+    return "s" + Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  }
+  function unitRevision(unit) {
+    if (!unit) return "new";
+    return unit.moveId ? "move:" + unit.moveId : "assigned:" + unit.updatedAt;
+  }
+  function serialOrigins(article, numbers) {
+    return numbers.map((number) => unitRevision(article.containerUnits?.[unitKey(number)]));
+  }
+  function inStock(article) {
+    return Object.values(article.containerUnits || {}).filter((unit) => unit.status === "in").length;
+  }
+  function unassignedStock(article) {
+    return Number(article.stock) - inStock(article);
+  }
+  function updateUnits(article, numbers, action, move) {
+    if (article.kind !== "container") invalid("Seriennummern geh\xF6ren zu Containerartikeln.");
+    const units = { ...article.containerUnits };
+    for (const [index, number] of numbers.entries()) {
+      const key = unitKey(number), previous = units[key];
+      if (move.serialOrigins && move.serialOrigins[index] !== unitRevision(previous)) {
+        invalid("Der Zustand wurde zwischenzeitlich ge\xE4ndert. Etikett und Bestand pr\xFCfen: " + number);
+      }
+      if (action === "assign" && previous) invalid("Seriennummer bereits zugeordnet: " + number);
+      if (action === "in" && previous?.status === "in") invalid("Container bereits im Lager: " + number);
+      if ((action === "out" || action === "shrink") && previous?.status !== "in") {
+        invalid("F\xFCr diese Seriennummer ist kein Container im Lager zugeordnet: " + number);
+      }
+      units[key] = {
+        number,
+        status: action === "assign" ? "in" : action,
+        updatedAt: move.ts,
+        ...move.id ? { moveId: move.id } : {},
+        ...move.partner ? { partner: move.partner } : {},
+        ...move.reference ? { reference: move.reference } : {}
+      };
+    }
+    const updated = { ...article, containerUnits: units };
+    updated.serialStock = inStock(updated);
+    return updated;
+  }
+  function assignContainerUnits(article, input, ts) {
+    const numbers = parseSerialNumbers(input);
+    if (numbers.length > unassignedStock(article)) invalid("Mehr Etiketten als unzugeordnete Container im Bestand.");
+    return updateUnits(article, numbers, "assign", { ts });
+  }
+  function applyStockMovement(article, move) {
+    const qty = Number(move.qty), current = Number(article.stock);
+    const stock = current + (move.type === "in" ? qty : -qty);
+    if (!["in", "out", "shrink"].includes(move.type) || !Number.isSafeInteger(qty) || qty <= 0 || !Number.isSafeInteger(current) || current < 0 || !Number.isSafeInteger(stock)) throw Error("INVALID_STOCK");
+    if (stock < 0) throw Error("INSUFFICIENT_STOCK_SERVER");
+    let result = article;
+    if (move.serialNumbers !== void 0) {
+      const numbers = parseSerialNumbers(move.serialNumbers);
+      if (numbers.length !== qty) invalid("Die Buchungsmenge muss der Anzahl Etiketten entsprechen.");
+      result = updateUnits(article, numbers, move.type, move);
+    } else if (article.containerUnits && move.type !== "in" && qty > unassignedStock(article)) {
+      invalid("F\xFCr diesen Bestand ist eine Buchung mit Seriennummern erforderlich.");
+    }
+    return { ...result, stock };
+  }
+
+  // src/articles.mjs
   var ARTICLE_KINDS = Object.freeze(["carton", "plate", "container"]);
   var messages = {
     INVALID_KIND: "Bitte eine g\xFCltige Artikelart w\xE4hlen.",
@@ -159,22 +252,36 @@ var ZeroStockArticles = (() => {
       const value = text(record[key], maximum);
       if (value || key === "externalRef") result[key] = value;
     }
+    if (record.serialNumbers !== void 0) {
+      if (record.articleKind !== "container") fail("INVALID_BOOKING");
+      result.serialNumbers = parseSerialNumbers(record.serialNumbers);
+      if (record.serialOrigins !== void 0) {
+        if (!Array.isArray(record.serialOrigins) || record.serialOrigins.length !== result.serialNumbers.length || record.serialOrigins.some((value) => typeof value !== "string" || !value || value.length > 200)) fail("INVALID_BOOKING");
+        result.serialOrigins = [...record.serialOrigins];
+      }
+    }
     return result;
   }
   function createMovementMetadata(article, options = {}) {
-    return movementMetadata({
+    const numbers = articleKind(article) === "container" ? parseSerialNumbers(options.serialNumbers) : options.serialNumbers;
+    const metadata = movementMetadata({
       articleKind: articleKind(article),
       externalRef: article.externalRef || "",
       partner: options.partner,
-      reference: options.reference
+      reference: options.reference,
+      serialNumbers: numbers
     });
+    if (metadata.serialNumbers) metadata.serialOrigins = serialOrigins(article, metadata.serialNumbers);
+    return metadata;
   }
   function validateMovement(move) {
     if (!["in", "out", "shrink"].includes(move.type)) fail("INVALID_BOOKING");
+    const metadata = movementMetadata(move), qty = whole(move.qty, true, "INVALID_BOOKING");
+    if (metadata.serialNumbers && metadata.serialNumbers.length !== qty) fail("INVALID_BOOKING");
     return {
       ...move,
-      ...movementMetadata(move),
-      qty: whole(move.qty, true, "INVALID_BOOKING"),
+      ...metadata,
+      qty,
       cartonId: text(move.cartonId, 120, true),
       article: text(move.article, 120, true),
       userId: text(move.userId, 128, true),
@@ -183,13 +290,19 @@ var ZeroStockArticles = (() => {
       note: text(move.note, 1e3)
     };
   }
+  function sameMovementIdentity(a, b) {
+    return a.userId === b.userId && a.cartonId === b.cartonId && a.type === b.type && Number(a.qty) === Number(b.qty) && ["articleKind", "externalRef", "partner", "reference"].every((key) => (a[key] ?? "") === (b[key] ?? "")) && JSON.stringify(a.serialNumbers ?? null) === JSON.stringify(b.serialNumbers ?? null) && JSON.stringify(a.serialOrigins ?? null) === JSON.stringify(b.serialOrigins ?? null);
+  }
+  function serialDependencies(move) {
+    return (move.serialNumbers || []).map((number) => JSON.stringify([move.cartonId, number]));
+  }
   function containerMovementRows(movements, articles) {
     const byId = new Map(articles.map((a) => [String(a.id), a]));
     return movements.filter((m) => (m.articleKind || articleKind(byId.get(String(m.cartonId)))) === "container").map((m) => {
       const article = byId.get(String(m.cartonId));
       const meta = movementMetadata(m);
       return {
-        id: m.id,
+        id: m.serverId || m.id,
         articleId: m.cartonId,
         article: m.article || article?.article || "",
         externalRef: meta.externalRef ?? (m.articleKind ? "" : article?.externalRef || ""),
@@ -199,6 +312,7 @@ var ZeroStockArticles = (() => {
         userName: m.userName || "",
         partner: meta.partner || "",
         reference: meta.reference || "",
+        serialNumbers: meta.serialNumbers || [],
         stockAfter: Number(m.stockAfter)
       };
     });

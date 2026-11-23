@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="app-version" content="5.1.1">
+<meta name="app-version" content="5.2.0">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#060b14">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -387,7 +387,11 @@ aside nav button span:last-child{text-align:center;font-size:18px;grid-column:1;
 @media(max-width:980px){.mfoot{padding-bottom:calc(13px + var(--zs-safe-bottom))}.instruction{grid-template-columns:minmax(0,1fr)}.instruction .actions .btn{min-height:44px}.articleFilters{gap:6px}}
 
 </style>
-</head>
+<style>
+html.native-scanning,html.native-scanning body{background:transparent!important}
+html.native-scanning body .modal.open,html.native-scanning body #cartonModal.open{display:none!important}
+.serialEntry{display:grid;gap:6px;min-width:0}.serialEntry textarea,.unitNumber{font-family:ui-monospace,monospace;font-size:1rem;overflow-wrap:anywhere}.serialEntry .btn{justify-self:start}.unitRows{list-style:none;padding:0;margin:12px 0;display:grid;gap:6px}.unitRows li{border-bottom:1px solid var(--line,#344154);padding:8px 0;display:grid;gap:4px}.unitRows small,.serialHint{color:var(--muted,#bdcada)}.serialLines{display:block;white-space:pre-line;overflow-wrap:anywhere}.serialError{color:#ffc4b5;margin:0}.serialError:empty{display:none}#scanModal{z-index:140}.serialEntry[hidden],#initialSerials[hidden],#assignSection[hidden]{display:none!important}
+</style></head>
 <body>
 <div class="authGate" id="authGate"><div class="authCard">
 <div class="authBrand"><div class="authLogo"><img src="./icon-192.png" alt="ZeroStock"></div><div><h1 class="wordmark"><span>Zero</span><em>Stock</em></h1><small>Lager &amp; Packing · LIVE</small></div></div>
@@ -441,7 +445,7 @@ aside nav button span:last-child{text-align:center;font-size:18px;grid-column:1;
 
 <section class="view" id="plannerView"><div class="panel"><div class="ph"><div><h3 data-i18n="planner">Packing Planner</h3><small data-i18n="plannerHelp">Prüfen, welche Aufträge mit dem aktuellen Bestand möglich sind</small></div></div><div class="body"><div class="plannerTop"><label><span data-i18n="configurationLabel">Konfiguration</span><select id="planInstruction"></select></label><label><span id="planQtyLabel">Anzahl Packings</span><input id="planQty" type="number" min="1" value="1"></label><label data-i18n="orderRef">Auftrag / Referenz<input id="planRef" placeholder="z. B. KT12345"></label><button class="btn primary" id="calculatePlan" data-i18n="calculate">Berechnen</button></div><div id="planResult" class="result" aria-live="polite"></div></div></div></section>
 
-<section class="view" id="movementsView"><div class="panel"><div class="ph"><div><h3 data-i18n="movements">Bewegungen</h3><small data-i18n="journal">Nachvollziehbares Buchungsjournal</small></div></div><div class="tablewrap"><table><thead><tr><th data-i18n="time">Zeit</th><th data-i18n="user">Benutzer</th><th data-i18n="article">Artikel</th><th data-i18n="type">Art</th><th data-i18n="quantity">Menge</th><th data-i18n="stockAfter">Bestand danach</th><th data-i18n="reason">Grund</th><th>Referenz / Gegenstelle</th><th>Sync</th></tr></thead><tbody id="movementRows"></tbody></table></div></div></section>
+<section class="view" id="movementsView"><div class="panel"><div class="ph"><div><h3 data-i18n="movements">Bewegungen</h3><small id="journalScope"></small></div></div><div class="tablewrap"><table><thead><tr><th data-i18n="time">Zeit</th><th data-i18n="user">Benutzer</th><th data-i18n="article">Artikel</th><th data-i18n="type">Art</th><th data-i18n="quantity">Menge</th><th data-i18n="stockAfter">Bestand danach</th><th data-i18n="reason">Grund</th><th>Referenz / Gegenstelle</th><th>Sync</th></tr></thead><tbody id="movementRows"></tbody></table></div></div></section>
 
 
 <section class="view" id="exportsView"><div class="panel"><div class="ph"><div><h3>Export & Teilen</h3><small>Bestand, Bewegungen und Sicherung lokal erzeugen</small></div><span class="status" id="exportModeBadge">WEB</span></div><div class="body"><div class="quickActions" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))"><button class="quickAction" id="exportStockExcel"><span>▤</span><b>Bestand · Excel</b><small>Excel-kompatible .xls-Datei</small></button><button class="quickAction" id="exportStockCsv"><span>≡</span><b>Bestand · CSV</b><small>Für Excel und weitere Systeme</small></button><button class="quickAction" id="exportMovesCsv"><span>↕</span><b>Bewegungen · CSV</b><small>Buchungsjournal exportieren</small></button><button class="quickAction" id="exportContainerMovesCsv" data-internal><span>↕</span><b>Container-Bewegungen · CSV</b><small id="containerExportCount">Aktuell geladene Containerbewegungen</small></button><button class="quickAction" id="exportBackupJson" data-admin><span>◇</span><b>Datensicherung · JSON</b><small>Kartons, TINST und Bewegungen</small></button></div><div class="result" style="margin-top:14px"><b>Android</b><div class="note">Dateien werden zusätzlich unter ZeroStock/Exports im privaten App-Speicher gesichert und danach über das Android-Share-Sheet angeboten. So kannst du sie an Outlook, Teams, OneDrive, Dateien oder andere installierte Apps senden.</div></div><div class="result" style="margin-top:10px"><b>PWA / Browser</b><div class="note">Der Export wird als Datei heruntergeladen. Wenn der Browser Dateifreigabe unterstützt, kann zusätzlich das System-Share-Sheet geöffnet werden.</div></div></div></div></section>
@@ -479,12 +483,13 @@ aside nav button span:last-child{text-align:center;font-size:18px;grid-column:1;
 <label>E-Mail<input id="uEmail" type="email" autocomplete="email" inputmode="email" placeholder="marco@firma.ch"></label>
 <label>Rolle<select id="uRole"><option value="employee">Mitarbeiter / Employee</option><option value="admin">Admin</option><option value="customer">Kunde / Customer</option></select></label>
 <label>Sprache<select id="uLanguage"><option value="de">Deutsch</option><option value="en">English</option></select></label>
-</div><div class="result"><b>Automatisch</b><div class="note">ZeroStock erstellt den Firebase-Login über eine getrennte Session, speichert Rolle und UID und sendet eine E-Mail zum Setzen des Passworts. Dein Admin-Login bleibt bestehen.</div></div><div class="authError" id="userCreateError"></div></div><div class="mfoot"><button type="button" class="btn closeModal">Abbrechen</button><button type="button" class="btn primary" id="createUserBtn">Benutzer anlegen</button></div></div></div><div class="modal" id="bookModal" role="dialog" aria-modal="true" aria-labelledby="bookTitle"><div class="modalbox"><div class="ph"><div><h3 id="bookTitle">Buchung</h3><small id="bookSubtitle"></small></div></div><div class="mf"><div class="kv"><div><span data-i18n="stock">Bestand</span><strong id="bookStock"></strong></div><div><span data-i18n="warningStock">Warnbestand</span><strong id="bookWarn"></strong></div><div><span data-i18n="minStock">Minimum</span><strong id="bookMin"></strong></div></div><br><div class="formgrid"><label data-i18n="bookingType">Buchungsart<select id="bookType"><option value="in">Eingang / Stock In</option><option value="out">Abgang / Stock Out</option><option value="shrink">Schwund / Shrinkage</option></select></label><label data-i18n="quantity">Menge<input id="bookQty" type="number" min="1" inputmode="numeric"></label><label class="full" id="reasonWrap" style="display:none"><span data-i18n="reason">Grund</span><select id="bookReason"><option value="damaged">Beschädigt / Damaged</option><option value="lost">Verloren / Lost</option><option value="count">Zähldifferenz / Count discrepancy</option><option value="waste">Ausschuss / Waste</option><option value="other">Sonstiges / Other</option></select></label><div id="containerBookingFields" class="full formgrid" hidden><label><span id="bookPartnerLabel">Empfänger / Ziel</span><input id="bookPartner" maxlength="120"></label><label><span data-i18n="reference">Referenz (optional)</span><input id="bookReference" maxlength="200"></label></div><label class="full"><span data-i18n="note">Notiz</span><textarea id="bookNote" maxlength="1000"></textarea></label></div><div id="bookPreview" class="result"></div></div><div class="mfoot"><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button class="btn primary" id="confirmBook" data-i18n="post">Buchen</button></div></div></div>
+</div><div class="result"><b>Automatisch</b><div class="note">ZeroStock erstellt den Firebase-Login über eine getrennte Session, speichert Rolle und UID und sendet eine E-Mail zum Setzen des Passworts. Dein Admin-Login bleibt bestehen.</div></div><div class="authError" id="userCreateError"></div></div><div class="mfoot"><button type="button" class="btn closeModal">Abbrechen</button><button type="button" class="btn primary" id="createUserBtn">Benutzer anlegen</button></div></div></div><div class="modal" id="bookModal" role="dialog" aria-modal="true" aria-labelledby="bookTitle"><div class="modalbox"><div class="ph"><div><h3 id="bookTitle">Buchung</h3><small id="bookSubtitle"></small></div></div><div class="mf"><div class="kv"><div><span data-i18n="stock">Bestand</span><strong id="bookStock"></strong></div><div><span data-i18n="warningStock">Warnbestand</span><strong id="bookWarn"></strong></div><div><span data-i18n="minStock">Minimum</span><strong id="bookMin"></strong></div></div><br><div class="formgrid"><label data-i18n="bookingType">Buchungsart<select id="bookType"><option value="in">Eingang / Stock In</option><option value="out">Abgang / Stock Out</option><option value="shrink">Schwund / Shrinkage</option></select></label><label data-i18n="quantity">Menge<input id="bookQty" type="number" min="1" inputmode="numeric"></label><label class="full" id="reasonWrap" style="display:none"><span data-i18n="reason">Grund</span><select id="bookReason"><option value="damaged">Beschädigt / Damaged</option><option value="lost">Verloren / Lost</option><option value="count">Zähldifferenz / Count discrepancy</option><option value="waste">Ausschuss / Waste</option><option value="other">Sonstiges / Other</option></select></label><div id="containerBookingFields" class="full formgrid" hidden><div class="serialEntry full"><label for="bookSerials" data-i18n="labelSerials">Seriennummern vom Etikett</label><textarea id="bookSerials" rows="3" autocorrect="off" autocapitalize="off" spellcheck="false" aria-describedby="bookSerialsHelp"></textarea><small class="note" id="bookSerialsHelp" data-i18n="oneSerial">Eine Nummer je Container und Zeile.</small><button type="button" class="btn" data-scan-into="bookSerials" data-i18n="scanLabel">Etikett scannen</button></div><p id="bookSerialError" class="serialError full" role="status"></p><label><span id="bookPartnerLabel">Empfänger / Ziel</span><input id="bookPartner" maxlength="120"></label><label><span data-i18n="reference">Referenz (optional)</span><input id="bookReference" maxlength="200"></label></div><label class="full"><span data-i18n="note">Notiz</span><textarea id="bookNote" maxlength="1000"></textarea></label></div><div id="bookPreview" class="result"></div></div><div class="mfoot"><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button class="btn primary" id="confirmBook" data-i18n="post">Buchen</button></div></div></div>
 
-<div class="modal" id="cartonModal" role="dialog" aria-modal="true" aria-labelledby="cartonModalTitle"><div class="modalbox"><div class="ph"><h3 id="cartonModalTitle">Karton</h3></div><div class="mf"><div class="formgrid"><label><span data-i18n="articleType">Artikelart</span><select id="cKind"><option value="carton">Karton</option><option value="plate">Plate</option><option value="container">Container</option></select></label><label><span data-i18n="externalReference">Externe Artikelreferenz (optional)</span><input id="cExternalRef" maxlength="120"><small class="note">Für eine spätere Zuordnung, z. B. zu Container Track.</small></label><label data-i18n="article">Artikel<input id="cArticle"></label><label data-i18n="description">Bezeichnung<input id="cName"></label><label data-i18n="location">Lagerplatz<input id="cLocation"></label><label data-i18n="stock">Bestand<input id="cStock" type="number" min="0"></label><label data-i18n="warningStock">Warnbestand<input id="cWarn" type="number" min="0"></label><label data-i18n="minStock">Mindestbestand<input id="cMin" type="number" min="0"></label></div><div id="cartonLive" class="livecalc"></div></div><div class="mfoot"><button type="button" class="btn red" id="deleteCartonModal" style="display:none;margin-right:auto">Löschen</button><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button type="button" class="btn primary" id="saveCarton" data-i18n="save">Speichern</button></div></div></div>
+<div class="modal" id="cartonModal" role="dialog" aria-modal="true" aria-labelledby="cartonModalTitle"><div class="modalbox"><div class="ph"><h3 id="cartonModalTitle">Karton</h3></div><div class="mf"><div class="formgrid"><label><span data-i18n="articleType">Artikelart</span><select id="cKind"><option value="carton">Karton</option><option value="plate">Plate</option><option value="container">Container</option></select></label><label><span data-i18n="externalReference">Externe Artikelreferenz (optional)</span><input id="cExternalRef" maxlength="120"><small class="note">Für eine spätere Zuordnung, z. B. zu Container Track.</small></label><label data-i18n="article">Artikel<input id="cArticle"></label><label data-i18n="description">Bezeichnung<input id="cName"></label><label data-i18n="location">Lagerplatz<input id="cLocation"></label><label data-i18n="stock">Bestand<input id="cStock" type="number" min="0"></label><label data-i18n="warningStock">Warnbestand<input id="cWarn" type="number" min="0"></label><label data-i18n="minStock">Mindestbestand<input id="cMin" type="number" min="0"></label><div class="full" id="initialSerials" hidden><div class="serialEntry full"><label for="cSerials" data-i18n="labelSerials">Seriennummern vom Etikett</label><textarea id="cSerials" rows="3" autocorrect="off" autocapitalize="off" spellcheck="false" aria-describedby="cSerialsHelp"></textarea><small class="note" id="cSerialsHelp" data-i18n="oneSerial">Eine Nummer je Container und Zeile.</small><button type="button" class="btn" data-scan-into="cSerials" data-i18n="scanLabel">Etikett scannen</button></div></div></div><div id="cartonLive" class="livecalc"></div></div><div class="mfoot"><button type="button" class="btn red" id="deleteCartonModal" style="display:none;margin-right:auto">Löschen</button><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button type="button" class="btn primary" id="saveCarton" data-i18n="save">Speichern</button></div></div></div>
 
 <div class="modal" id="instructionModal" role="dialog" aria-modal="true" aria-labelledby="instructionModalTitle"><div class="modalbox"><div class="ph"><h3 id="instructionModalTitle">Packing Instruction</h3></div><div class="mf"><div class="formgrid"><label><span data-i18n="configurationType">Konfigurationsart</span><select id="iKind"><option value="packing">Packing Instruction</option><option value="container">Container-Konfiguration</option></select></label><label id="iContainerWrap" hidden><span data-i18n="targetContainer">Containertyp</span><select id="iContainer"></select></label><label>Instruction / Name<input id="iName"></label><label data-i18n="description">Beschreibung<input id="iDesc"></label><label data-i18n="version">Version<input id="iVersion" value="1.0"></label><label data-i18n="active">Status<select id="iActive"><option value="true">Aktiv / Active</option><option value="false">Inaktiv / Inactive</option></select></label></div><br><b id="iMaterialsLabel">Benötigte Kartons pro Packing</b><div class="materialRows" id="materialRows"></div><button class="btn" id="addMaterialRow">+ <span id="addMaterialText">Karton hinzufügen</span></button><div id="instructionLive" class="livecalc"></div></div><div class="mfoot"><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button class="btn primary" id="saveInstruction" data-i18n="save">Speichern</button></div></div></div>
 
+<div class="modal" id="unitsModal" role="dialog" aria-modal="true" aria-labelledby="unitsTitle"><div class="modalbox"><div class="ph"><div><h3 id="unitsTitle"></h3><small id="unitSummary"></small></div></div><div class="mf"><ul class="unitRows" id="unitList"></ul><section id="assignSection"><h4 data-i18n="assignExisting">Vorhandenen Bestand zuordnen</h4><div class="serialEntry full"><label for="assignSerials" data-i18n="labelSerials">Seriennummern vom Etikett</label><textarea id="assignSerials" rows="3" autocorrect="off" autocapitalize="off" spellcheck="false" aria-describedby="assignSerialsHelp"></textarea><small class="note" id="assignSerialsHelp" data-i18n="oneSerial">Eine Nummer je Container und Zeile.</small><button type="button" class="btn" data-scan-into="assignSerials" data-i18n="scanLabel">Etikett scannen</button></div><button class="btn primary" id="assignUnits" data-i18n="assignUnits">Etiketten zuordnen</button></section><p class="serialHint" id="assignHint"></p><p class="serialError" id="assignError" role="status"></p></div><div class="mfoot"><button class="btn closeModal" id="closeUnits" data-i18n="close">Schliessen</button></div></div></div>
 <div class="modal" id="quickBookModal"><div class="modalbox"><div class="ph"><div><h3 id="quickBookTitle">Schnellbuchung</h3><small>Artikel auswählen</small></div></div><div class="mf"><input class="search" id="quickBookSearch" placeholder="Artikel, Bezeichnung oder Lagerplatz…" style="width:100%;margin-bottom:10px"><div class="quickBookSelectList" id="quickBookList"></div></div><div class="mfoot"><button class="btn closeModal">Abbrechen</button></div></div></div>
 <div class="modal" id="scanModal"><div class="modalbox"><div class="ph"><h3 data-i18n="scanQR">QR scannen</h3></div><div class="mf"><div class="camera"><video id="scanVideo" playsinline></video><div class="guide"></div></div><br><button class="btn" id="stopScan" data-i18n="cancel">Abbrechen</button></div></div></div>
 <div class="modal" id="labelModal"><div class="modalbox"><div class="ph"><div><h3 data-i18n="shelfLabel">Regalschild</h3><small>QR-Code drucken und am Lagerplatz befestigen</small></div></div><div class="mf" id="labelContent"></div><div class="mfoot no-print"><button class="btn closeModal" data-i18n="close">Schliessen</button><button class="btn" id="shareLabel">Teilen / PNG</button><button class="btn primary" id="printLabel" data-i18n="print">Drucken</button></div></div></div>
@@ -560,7 +565,7 @@ const OFFLINE_AUTH_MAX_AGE_MS=7*24*60*60*1000;
 const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const D={de:{dashboard:'Dashboard',scan:'QR scannen',cartons:'Kartons',planner:'Planner',movements:'Bewegungen',users:'Benutzer',settings:'Einstellungen',stockOk:'Bestand OK',warning:'Warnung',critical:'Kritisch',inventory:'Bestände',liveStock:'Aktueller Kartonbestand',packingCapacity:'Packing-Kapazität',basedOnStock:'auf Basis des aktuellen Bestands',article:'Artikel',location:'Lagerplatz',stock:'Bestand',status:'Status',scanCarton:'Karton scannen',scanText:'QR-Regalschild scannen und danach Eingang, Abgang oder Schwund buchen.',openCamera:'Kamera öffnen',manualCode:'Code eingeben',masterData:'Stammdaten & QR-Regalschilder',newCarton:'Karton',description:'Bezeichnung',minStock:'Mindestbestand',warningStock:'Warnbestand',instructionHelp:'Selbst anlegen und Kartonbedarf definieren',newInstruction:'Instruction',plannerHelp:'Prüfen, welche Aufträge mit dem aktuellen Bestand möglich sind',orderQty:'Anzahl Packings',orderRef:'Auftrag / Referenz',calculate:'Berechnen',journal:'Nachvollziehbares Buchungsjournal',time:'Zeit',user:'Benutzer',type:'Art',quantity:'Menge',stockAfter:'Bestand danach',reason:'Grund',bookingType:'Buchungsart',note:'Notiz',cancel:'Abbrechen',post:'Buchen',save:'Speichern',version:'Version',active:'Status',requiredCartons:'Benötigte Kartons pro Packing',addCarton:'Karton hinzufügen',scanQR:'QR scannen',shelfLabel:'Regalschild',close:'Schliessen',print:'Drucken',packingPossible:'möglich',bottleneck:'Engpass',needed:'Benötigt',available:'Verfügbar',missing:'Fehlt',possible:'Auftrag möglich',notPossible:'Auftrag nicht möglich',startZero:'Bei null starten',startZeroText:'Lege zuerst deine Kartonarten an, danach die TINST Packing Instructions. Der Planner berechnet alles automatisch.',stepCartons:'1. Kartons anlegen',stepInstructions:'2. TINST Instructions',stepPlanner:'3. Automatisch planen',addFirstCarton:'Ersten Karton anlegen',addFirstInstruction:'Erste TINST anlegen',noCartons:'Noch keine Kartons angelegt',noInstructions:'Noch keine Packing Instructions angelegt',liveCalculation:'Live-Berechnung',capacityNow:'Aktuell mögliche Packings',firstCreateCarton:'Lege zuerst mindestens einen Karton an.',ready:'Bereit',setupComplete:'Grundsetup abgeschlossen – jede Bestandsänderung aktualisiert den Planner automatisch.',delete:'Löschen',deleteCarton:'Karton löschen',deleteConfirm:'Diesen Karton wirklich löschen?',deleteBlocked:'Karton kann nicht gelöscht werden, weil er in einer Packing Instruction verwendet wird.'},en:{dashboard:'Dashboard',scan:'Scan QR',cartons:'Cartons',planner:'Planner',movements:'Transactions',users:'Users',settings:'Settings',stockOk:'Stock OK',warning:'Warning',critical:'Critical',inventory:'Inventory',liveStock:'Current carton inventory',packingCapacity:'Packing capacity',basedOnStock:'based on current stock',article:'Article',location:'Location',stock:'Stock',status:'Status',scanCarton:'Scan carton',scanText:'Scan the shelf QR code, then post stock in, stock out or shrinkage.',openCamera:'Open camera',manualCode:'Enter code',masterData:'Master data & shelf QR labels',newCarton:'Carton',description:'Description',minStock:'Minimum stock',warningStock:'Warning stock',instructionHelp:'Create instructions and define carton requirements',newInstruction:'Instruction',plannerHelp:'Check which orders can be completed with current stock',orderQty:'Number of packings',orderRef:'Order / reference',calculate:'Calculate',journal:'Auditable transaction journal',time:'Time',user:'User',type:'Type',quantity:'Quantity',stockAfter:'Stock after',reason:'Reason',bookingType:'Transaction type',note:'Note',cancel:'Cancel',post:'Post',save:'Save',version:'Version',active:'Status',requiredCartons:'Required cartons per packing',addCarton:'Add carton',scanQR:'Scan QR',shelfLabel:'Shelf label',close:'Close',print:'Print',packingPossible:'possible',bottleneck:'Bottleneck',needed:'Needed',available:'Available',missing:'Missing',possible:'Order possible',notPossible:'Order not possible',startZero:'Start from zero',startZeroText:'First create your carton types, then the TINST packing instructions. The planner calculates everything automatically.',stepCartons:'1. Create cartons',stepInstructions:'2. TINST instructions',stepPlanner:'3. Plan automatically',addFirstCarton:'Add first carton',addFirstInstruction:'Add first TINST',noCartons:'No cartons created yet',noInstructions:'No packing instructions created yet',liveCalculation:'Live calculation',capacityNow:'Packings currently possible',firstCreateCarton:'Create at least one carton first.',ready:'Ready',setupComplete:'Base setup complete – every stock change updates the planner automatically.',delete:'Delete',deleteCarton:'Delete carton',deleteConfirm:'Really delete this carton?',deleteBlocked:'Carton cannot be deleted because it is used in a packing instruction.'}};
 let lang=localStorage.getItem('zs-lang')||'de',scanStream=null,bookCarton=null,editingCarton=null,editingInstruction=null,deferredInstallPrompt=null;
-const t=k=>D[lang][k]||k;const S={connected:false,user:null,cartons:[],instructions:[],movements:[],users:[],tasks:[],taskFilter:'ALL',customerSummary:{},firebase:null,db:null,unsubs:[],summaryTimer:null,lastSummary:'',offlineReady:false,offlineStats:{pending:0,conflicts:0,failed:0,syncing:0,cartons:0,movements:0},native:false,offlineSession:false,syncRunning:false,syncTimer:null,lastSyncAt:0,notificationTimer:null,taskRenderToken:0,bookSubmitting:false,scanLock:false,lastScanValue:'',lastScanAt:0};
+const t=k=>D[lang][k]||k;const S={connected:false,user:null,cartons:[],instructions:[],movements:[],users:[],tasks:[],taskFilter:'ALL',customerSummary:{},firebase:null,db:null,unsubs:[],summaryTimer:null,lastSummary:'',offlineReady:false,offlineStats:{pending:0,conflicts:0,failed:0,syncing:0,cartons:0,movements:0},native:false,offlineSession:false,syncRunning:false,syncTimer:null,lastSyncAt:0,notificationTimer:null,taskRenderToken:0,bookSubmitting:false};
 function toast(a,b=''){$('toastTitle').textContent=a;$('toastText').textContent=b;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),3200)}
 function status(c){if(+c.stock<=+c.min)return{key:'crit',txt:lang==='de'?'KRITISCH':'CRITICAL'};if(+c.stock<=+c.warn)return{key:'warn',txt:lang==='de'?'WARNUNG':'WARNING'};return{key:'ok',txt:'OK'}}
 function canWrite(){return !!S.user&&['admin','employee'].includes(S.user.role)}function isAdmin(){return S.user?.role==='admin'}
@@ -582,7 +587,9 @@ async function loadOfflineData(){
 }
 async function initOfflineCore(){S.native=!!window.Capacitor?.isNativePlatform?.();if(!S.native||!window.ZeroStockOffline)return false;try{const r=await window.ZeroStockOffline.init();S.offlineReady=!!r?.available;await refreshOfflineStats();return S.offlineReady}catch(e){console.error('SQLite init failed',e);S.offlineReady=false;return false}}
 const ArticleModel=window.ZeroStockArticles;
-let editingCartonStock=0;
+let editingCartonStock=0, unitsId=null;
+Object.assign(D.de,{serials:'Seriennummern',labelSerials:'Seriennummern vom Etikett',oneSerial:'Eine Nummer je Container und Zeile.',scanLabel:'Etikett scannen',assignUnits:'Etiketten zuordnen',assignExisting:'Vorhandenen Bestand zuordnen',unitIn:'Im Lager',unitOut:'Ausgang',unitShrink:'Schwund',scanText:'Regalschild oder Seriennummer vom Containeretikett scannen.'});
+Object.assign(D.en,{serials:'Serial numbers',labelSerials:'Serial numbers on the labels',oneSerial:'One container per line.',scanLabel:'Scan label',assignUnits:'Assign labels',assignExisting:'Identify containers already in stock',unitIn:'In stock',unitOut:'Dispatched',unitShrink:'Lost',scanText:'Scan a shelf code or the serial number on a container label.'});
 Object.assign(D.de,{configurationLabel:'Konfiguration',cartons:'Artikel',newCarton:'Artikel',masterData:'Kartons, Plates und Container',noCartons:'Noch keine Artikel angelegt',firstCreateCarton:'Lege zuerst mindestens einen Artikel an.',addFirstCarton:'Ersten Artikel anlegen',newInstruction:'Konfiguration',noInstructions:'Noch keine Konfiguration angelegt',instructionHelp:'Packing und Plate-Bedarf je Container konfigurieren',requiredCartons:'Benötigte Artikel pro Packing',addCarton:'Artikel hinzufügen',articleType:'Artikelart',externalReference:'Externe Artikelreferenz (optional)',configurationType:'Konfigurationsart',targetContainer:'Containertyp',configurations:'Konfigurationen',reference:'Referenz (optional)'});
 Object.assign(D.en,{configurationLabel:'Configuration',cartons:'Articles',newCarton:'Article',masterData:'Cartons, plates and containers',noCartons:'No articles created yet',firstCreateCarton:'Create at least one article first.',addFirstCarton:'Add first article',newInstruction:'Configuration',noInstructions:'No configuration created yet',instructionHelp:'Configure packing and plates per container',requiredCartons:'Required articles per packing',addCarton:'Add article',articleType:'Article type',externalReference:'External article reference (optional)',configurationType:'Configuration type',targetContainer:'Container type',configurations:'Configurations',reference:'Reference (optional)'});
 
@@ -609,9 +616,9 @@ function updateInstructionForm(reset=true){
 async function exportContainerMovesCsv(){
   if(!S.user||!['admin','employee'].includes(S.user.role))return;
   const rows=ArticleModel.containerMovementRows([...S.movements].sort((a,b)=>(b.ts||0)-(a.ts||0)),S.cartons).map(m=>[
-    m.id,m.articleId,m.article,m.externalRef,m.direction,m.quantity,m.ts?new Date(m.ts).toISOString():'',m.userName,m.partner,m.reference,m.stockAfter,
+    m.id,m.articleId,m.article,m.externalRef,m.direction,m.quantity,m.ts?new Date(m.ts).toISOString():'',m.userName,m.partner,m.reference,m.stockAfter,m.serialNumbers.join('\n'),
   ]);
-  return exportTextFile(`ZeroStock_Containerbewegungen_${zsDateStamp()}.csv`,makeCsv(['Bewegungs-ID','Artikel-ID','Artikelnummer','Externe Referenz','Richtung','Menge','Zeit','Benutzer','Gegenstelle','Referenz','Bestand danach'],rows),'text/csv;charset=utf-8','Geladene Containerbewegungen');
+  return exportTextFile(`ZeroStock_Containerbewegungen_${zsDateStamp()}.csv`,makeCsv(['Bewegungs-ID','Artikel-ID','Artikelnummer','Externe Referenz','Richtung','Menge','Zeit','Benutzer','Gegenstelle','Referenz','Bestand danach','Seriennummern'],rows),'text/csv;charset=utf-8','Geladene Containerbewegungen');
 }
 
 function normalizeMaterials(ms=[]){const map=new Map();for(const m of ms){const id=String(m.cartonId||'').trim(),q=Number(m.qty)||0;if(!id||q<=0)continue;map.set(id,(map.get(id)||0)+q)}return[...map].map(([cartonId,qty])=>({cartonId,qty}))}
@@ -631,7 +638,7 @@ function unlock(){$('authGate').classList.add('hidden');$('appShell').classList.
 function authError(id,msg){const e=$(id);if(!e)return;e.textContent=msg||'';e.classList.toggle('show',!!msg)}
 function currentView(){return document.querySelector('.view.active')?.id.replace('View','')||'dashboard'}
 function show(v){if(S.user?.role==='customer'&&!['planner','instructions','more'].includes(v))v='planner';document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v+'View'));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));document.querySelectorAll('[data-mview]').forEach(b=>b.classList.toggle('active',b.dataset.mview===v));$('pageTitle').textContent={dashboard:t('dashboard'),scan:t('scan'),cartons:t('cartons'),instructions:t('configurations'),planner:t('planner'),movements:t('movements'),tasks:'Aufgaben',exports:'Export',more:'Mehr',users:t('users'),settings:t('settings')}[v]||v}
-function clearPrivateState(){S.cartons=[];S.movements=[];S.users=[];S.tasks=[];S.offlineStats={pending:0,conflicts:0,failed:0,syncing:0,cartons:0,movements:0};}
+function clearPrivateState(){unitsId=null;bookCarton=null;closeAll();$('unitList').replaceChildren();$('scanSelected').replaceChildren();$('movementRows').replaceChildren();$('cartonRows').replaceChildren();$('dashRows').replaceChildren();$('mobileRecentMoves')?.replaceChildren();for(const id of ['bookSerials','assignSerials','cSerials'])$(id).value='';S.cartons=[];S.movements=[];S.users=[];S.tasks=[];S.offlineStats={pending:0,conflicts:0,failed:0,syncing:0,cartons:0,movements:0};}
 function applyRole(){if(!canWrite())clearPrivateState();const r=S.user?.role||'';document.querySelectorAll('[data-admin]').forEach(e=>e.style.display=isAdmin()?'':'none');document.querySelectorAll('[data-internal]').forEach(e=>e.style.setProperty('display',canWrite()?'':'none',canWrite()?'':'important'));document.querySelectorAll('[data-book]').forEach(e=>e.disabled=!canWrite());if($('inventoryPanel'))$('inventoryPanel').style.display=r==='customer'?'none':'';$('roleLabel').textContent=S.user?`${S.user.name} · ${S.user.role}`:'—';$('currentUserName').textContent=S.user?.name||'—';$('currentUserEmail').textContent=S.firebase?.auth?.currentUser?.email||'—';$('currentUserRole').textContent=S.user?.role||'—'}
 function setI18nText(el,text){
   if(!el)return;
@@ -805,7 +812,11 @@ async function deleteCarton(id){
     );
     if(!ok)return;
 
-    await S.firebase.remove(S.firebase.ref(S.db,`cartons/${id}`));
+    const deleted=await articleTransaction(S.firebase.ref(S.db,`cartons/${id}`),current=>{
+      if(!current||current.containerUnits||current._zsApplied&&Object.keys(current._zsApplied).length)return;
+      return null;
+    });
+    if(!deleted.committed)throw Error(lang==='de'?'Artikel mit Seriennummern oder offenen Buchungen bleiben im Bestand.':'Articles with serials or pending transactions must be retained.');
     if($('cartonModal')?.classList.contains('open'))closeAll();
     scheduleSummary();
     toast('✓ ZeroStock',lang==='de'?'Karton wurde gelöscht.':'Carton deleted.');
@@ -814,16 +825,63 @@ async function deleteCarton(id){
     toast(lang==='de'?'Löschen nicht möglich':'Delete failed',e.message||String(e));
   }
 }
+function unitState(unit){return t({in:'unitIn',out:'unitOut',shrink:'unitShrink'}[unit.status]);}
+function renderUnits(){
+  const c=S.cartons.find(x=>x.id===unitsId);
+  if(!c||!canWrite()){if($('unitsModal').classList.contains('open'))closeAll();return;}
+  const units=Object.values(c.containerUnits||{}).sort((a,b)=>a.number.localeCompare(b.number));
+  const remaining=ArticleModel.unassignedStock(c);
+  $('unitsTitle').textContent=t('serials')+' · '+c.article;
+  $('unitSummary').textContent=lang==='de'?`${c.stock} im Lager · ${remaining} ohne Zuordnung`:`${c.stock} in stock · ${remaining} unassigned`;
+  $('unitList').innerHTML=units.map(u=>{
+    const info=[unitState(u),u.partner,u.reference,u.updatedAt&&new Date(u.updatedAt).toLocaleDateString(lang==='de'?'de-CH':'en-GB')].filter(Boolean);
+    return `<li><strong class="unitNumber">${esc(u.number)}</strong><small>${info.map(esc).join(' · ')}</small></li>`;
+  }).join('');
+  $('assignSection').hidden=remaining<=0||!S.connected;
+  $('assignHint').textContent=remaining>0&&!S.connected?(lang==='de'?'Zum Zuordnen ist eine Live-Verbindung erforderlich.':'Connect to assign labels to existing stock.'):'';
+}
+function openUnits(id){
+  if(!canWrite())return;
+  unitsId=id;$('assignSerials').value='';$('assignError').textContent='';renderUnits();
+  openArticleModal('unitsModal',$('assignSection').hidden?'closeUnits':'assignSerials');
+}
+// Firebase can invoke the callback again when another device changes the article.
+async function articleTransaction(ref,mutate){
+  let failure;
+  const result=await S.firebase.runTransaction(ref,current=>{
+    try{return mutate(current);}
+    catch(error){failure=error;return undefined;}
+  },{applyLocally:false});
+  if(!result.committed&&failure)throw failure;
+  return result;
+}
+async function assignUnits(){
+  if(!canWrite()||!S.connected||!unitsId||$('assignUnits').disabled)return;
+  const id=unitsId,uid=S.user.uid,button=$('assignUnits');button.disabled=true;$('assignError').textContent='';
+  try{
+    const numbers=ArticleModel.parseSerialNumbers($('assignSerials').value),ts=Date.now();
+    const result=await articleTransaction(S.firebase.ref(S.db,'cartons/'+id),current=>{
+      if(!current||!canWrite()||S.user.uid!==uid)return;
+      return {...ArticleModel.assignContainerUnits(current,numbers,ts),updatedAt:ts};
+    });
+    if(!result.committed)throw Error(lang==='de'?'Zuordnung fehlgeschlagen. Bitte Bestand neu öffnen.':'Assignment failed. Reopen inventory.');
+    if(canWrite()&&unitsId===id&&S.user.uid===uid){$('assignSerials').value='';renderUnits();toast('✓ ZeroStock',lang==='de'?'Etiketten dem Bestand zugeordnet.':'Labels assigned to stock.');}
+  }catch(e){$('assignError').textContent=e.message;}
+  finally{button.disabled=false;}
+}
+
 function renderCartons(){
-  const matches=(c,q)=>(`${c.article} ${c.name} ${c.location}`).toLowerCase().includes(q);
+  if($('unitsModal').classList.contains('open'))renderUnits();
+  const matches=(c,q)=>(`${c.article} ${c.name} ${c.location}`).toLowerCase().includes(q)||Object.values(c.containerUnits||{}).some(u=>u.number.toLowerCase().includes(q));
   const dash=S.cartons.filter(c=>matches(c,($('dashSearch')?.value||'').toLowerCase()));
   const q=($('cartonSearch')?.value||'').toLowerCase(),filter=S.articleFilter||'all';
   const list=S.cartons.filter(c=>matches(c,q)&&(filter==='all'||ArticleModel.articleKind(c)===filter));
   const badge=c=>`<span class="articleKind">${esc(ArticleModel.kindLabel(ArticleModel.articleKind(c),lang))}</span>`;
   $('dashRows').innerHTML=dash.map(c=>{const st=status(c);return `<tr><td><b>${esc(c.article)}</b> ${badge(c)}<br><span class="muted">${esc(c.name)}</span></td><td>${esc(c.location)}</td><td>${c.stock}</td><td><span class="status ${st.key}">${st.txt}</span></td><td><button class="btn book" data-id="${esc(c.id)}" ${canWrite()?'':'disabled'}>${lang==='de'?'Buchen':'Post'}</button></td></tr>`;}).join('')||`<tr><td colspan="5"><div class="empty"><b>${t('noCartons')}</b></div></td></tr>`;
-  $('cartonRows').innerHTML=list.map(c=>`<tr><td><b>${esc(c.article)}</b> ${badge(c)}</td><td>${esc(c.name)}</td><td>${esc(c.location)}</td><td>${c.stock}</td><td>${c.min}</td><td>${c.warn}</td><td><div class="actions"><button class="btn book" data-id="${esc(c.id)}" ${canWrite()?'':'disabled'}>${lang==='de'?'Buchen':'Post'}</button><button class="btn label" data-id="${esc(c.id)}">QR</button>${isAdmin()?`<button class="btn editC" data-id="${esc(c.id)}">${lang==='de'?'Bearbeiten':'Edit'}</button><button class="btn red deleteC" data-id="${esc(c.id)}">${lang==='de'?'Löschen':'Delete'}</button>`:''}</div></td></tr>`).join('')||`<tr><td colspan="7"><div class="empty"><b>${S.cartons.length?(lang==='de'?'Keine passenden Artikel':'No matching articles'):t('noCartons')}</b></div></td></tr>`;
+  $('cartonRows').innerHTML=list.map(c=>`<tr><td><b>${esc(c.article)}</b> ${badge(c)}</td><td>${esc(c.name)}</td><td>${esc(c.location)}</td><td>${c.stock}</td><td>${c.min}</td><td>${c.warn}</td><td><div class="actions"><button class="btn book" data-id="${esc(c.id)}" ${canWrite()?'':'disabled'}>${lang==='de'?'Buchen':'Post'}</button>${c.kind==='container'&&canWrite()?`<button class="btn units" data-id="${esc(c.id)}">${t('serials')}</button>`:''}<button class="btn label" data-id="${esc(c.id)}">QR</button>${isAdmin()?`<button class="btn editC" data-id="${esc(c.id)}">${lang==='de'?'Bearbeiten':'Edit'}</button><button class="btn red deleteC" data-id="${esc(c.id)}">${lang==='de'?'Löschen':'Delete'}</button>`:''}</div></td></tr>`).join('')||`<tr><td colspan="7"><div class="empty"><b>${S.cartons.length?(lang==='de'?'Keine passenden Artikel':'No matching articles'):t('noCartons')}</b></div></td></tr>`;
   document.querySelectorAll('[data-article-filter]').forEach(b=>{const selected=b.dataset.articleFilter===filter;b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));b.onclick=()=>{S.articleFilter=b.dataset.articleFilter;renderCartons();};});
   document.querySelectorAll('.book').forEach(b=>b.onclick=()=>openBook(b.dataset.id));
+  document.querySelectorAll('.units').forEach(b=>b.onclick=()=>openUnits(b.dataset.id));
   document.querySelectorAll('.editC').forEach(b=>b.onclick=()=>openCarton(b.dataset.id));
   document.querySelectorAll('.deleteC').forEach(b=>b.onclick=()=>deleteCarton(b.dataset.id));
   document.querySelectorAll('.label').forEach(b=>b.onclick=()=>openLabel(b.dataset.id));
@@ -879,14 +937,15 @@ function calcPlan(){
 
 function syncLabel(m){const x=String(m.syncStatus||'SYNCED').toUpperCase();return x==='SYNCED'?'✓ Sync':x==='SYNCING'?'↻ Sync':x==='CONFLICT'?'! Konflikt':x==='FAILED'?'! Fehler':'○ Offen'}
 function renderMoves(){
+  $('journalScope').textContent=lang==='de'?`${Math.min(200,S.movements.length)} geladene Bewegungen (max. 200)`:`${Math.min(200,S.movements.length)} loaded movements (max. 200)`;
   $('movementRows').innerHTML=[...S.movements].sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,200).map(m=>{
     const kind=m.articleKind||ArticleModel.articleKind(S.cartons.find(c=>c.id===m.cartonId));
-    return `<tr><td>${new Date(m.ts).toLocaleString(lang==='de'?'de-CH':'en-GB')}</td><td>${esc(m.userName||'—')}</td><td>${esc(m.article)}<br><span class="articleKind">${esc(ArticleModel.kindLabel(kind,lang))}</span></td><td>${m.type==='in'?(lang==='de'?'Eingang':'Stock In'):m.type==='out'?(lang==='de'?'Abgang':'Stock Out'):(lang==='de'?'Schwund':'Shrinkage')}</td><td class="${m.type==='in'?'green':'red'}">${m.type==='in'?'+':'-'}${m.qty}</td><td>${m.stockAfter}</td><td>${esc(m.reason||'')}</td><td><b>${esc(m.reference||'')}</b><br><span class="muted">${esc(m.partner||'')}</span></td><td><span class="status ${m.syncStatus==='CONFLICT'||m.syncStatus==='FAILED'?'crit':m.syncStatus==='PENDING'||m.syncStatus==='SYNCING'?'warn':'ok'}">${syncLabel(m)}</span></td></tr>`;
+    return `<tr><td>${new Date(m.ts).toLocaleString(lang==='de'?'de-CH':'en-GB')}</td><td>${esc(m.userName||'—')}</td><td>${esc(m.article)}${m.serialNumbers?`<small class="serialLines">${esc(m.serialNumbers.join('\n'))}</small>`:''}<br><span class="articleKind">${esc(ArticleModel.kindLabel(kind,lang))}</span></td><td>${m.type==='in'?(lang==='de'?'Eingang':'Stock In'):m.type==='out'?(lang==='de'?'Abgang':'Stock Out'):(lang==='de'?'Schwund':'Shrinkage')}</td><td class="${m.type==='in'?'green':'red'}">${m.type==='in'?'+':'-'}${m.qty}</td><td>${m.stockAfter}</td><td>${esc(m.reason||'')}</td><td><b>${esc(m.reference||'')}</b><br><span class="muted">${esc(m.partner||'')}</span></td><td><span class="status ${m.syncStatus==='CONFLICT'||m.syncStatus==='FAILED'?'crit':m.syncStatus==='PENDING'||m.syncStatus==='SYNCING'?'warn':'ok'}">${syncLabel(m)}</span></td></tr>`;
   }).join('');
   if($('containerExportCount'))$('containerExportCount').textContent=lang==='de'?`${ArticleModel.containerMovementRows(S.movements,S.cartons).length} aktuell geladene Containerbewegungen`:`${ArticleModel.containerMovementRows(S.movements,S.cartons).length} loaded container transactions`;
 }
 
-function openBook(id){
+function openBook(id,unit=null){
   if(!canWrite())return;
   if(!S.connected&&!canOfflineBook())return toast('ZeroStock',lang==='de'?'Keine Live-Verbindung und SQLite ist nicht bereit.':'No live connection and SQLite is not ready.');
   bookCarton=S.cartons.find(c=>c.id===id);if(!bookCarton)return;
@@ -894,12 +953,23 @@ function openBook(id){
   $('bookSubtitle').textContent=`${ArticleModel.kindLabel(ArticleModel.articleKind(bookCarton),lang)} · ${bookCarton.location}`;
   $('bookStock').textContent=bookCarton.stock;$('bookWarn').textContent=bookCarton.warn;$('bookMin').textContent=bookCarton.min;
   $('bookQty').value='';$('bookNote').value='';$('bookType').value='out';$('bookPartner').value='';$('bookReference').value='';
-  $('containerBookingFields').hidden=ArticleModel.articleKind(bookCarton)!=='container';
-  bookPreview();openArticleModal('bookModal','bookQty');
+  const serial=bookCarton.kind==='container';
+  $('containerBookingFields').hidden=!serial;$('bookQty').readOnly=serial;
+  $('bookSerials').value=unit?.number||'';$('bookSerialError').textContent='';
+  if(unit)$('bookType').value=unit.status==='in'?'out':'in';
+  bookPreview();openArticleModal('bookModal',serial?'bookSerials':'bookQty');
 }
 
 function bookPreview(){
   if(!bookCarton)return;
+  if(bookCarton.kind==='container'){
+    const raw=$('bookSerials').value;
+    let quantity=0,error='';
+    if(raw.trim())try{const numbers=ArticleModel.parseSerialNumbers(raw);quantity=numbers.length;
+      ArticleModel.applyStockMovement(bookCarton,{type:$('bookType').value,qty:quantity,serialNumbers:numbers,ts:0});
+    }catch(e){error=e.message;}
+    $('bookQty').value=quantity;$('bookSerialError').textContent=error;
+  }
   const type=$('bookType').value,quantity=Math.max(0,Number($('bookQty').value)||0),next=Math.max(0,Number(bookCarton.stock)+(type==='in'?quantity:-quantity));
   $('reasonWrap').style.display=type==='shrink'?'grid':'none';
   $('bookPartnerLabel').textContent=type==='in'?(lang==='de'?'Herkunft / Gegenstelle':'Origin / partner'):(lang==='de'?'Empfänger / Ziel':'Recipient / destination');
@@ -908,17 +978,24 @@ function bookPreview(){
 
 async function confirmBook(){
   if(S.bookSubmitting)return;
-  const q=Number($('bookQty').value),type=$('bookType').value;
+  const type=$('bookType').value;let numbers;
+  if(bookCarton?.kind==='container'){
+    try{numbers=ArticleModel.parseSerialNumbers($('bookSerials').value);}
+    catch(e){$('bookSerialError').textContent=e.message;$('bookSerials').focus();return;}
+  }
+  const q=numbers?.length??Number($('bookQty').value);
   if(!Number.isSafeInteger(q)||q<1)return toast('ZeroStock',lang==='de'?'Eine positive ganze Menge eingeben.':'Enter a positive whole quantity.');
   if(type!=='in'&&q>Number(bookCarton.stock))return toast('ZeroStock',lang==='de'?'Menge ist grösser als Bestand.':'Quantity exceeds stock.');
   const reason=type==='shrink'?$('bookReason').value:'',note=$('bookNote').value.trim();
-  const options=ArticleModel.articleKind(bookCarton)==='container'?{partner:$('bookPartner').value,reference:$('bookReference').value}:{};
+  const options=ArticleModel.articleKind(bookCarton)==='container'?{serialNumbers:numbers,partner:$('bookPartner').value,reference:$('bookReference').value}:{};
   const button=$('confirmBook');S.bookSubmitting=true;button.disabled=true;
   try{
     ArticleModel.createMovementMetadata(bookCarton,options);
     if(S.native&&S.offlineReady){
       const move=await window.ZeroStockOffline.recordMovement({cartonId:bookCarton.id,type,qty:q,reason,note,userId:S.user.uid,userName:S.user.name,...options});
-      const c=S.cartons.find(x=>x.id===bookCarton.id);if(c)c.stock=move.stockAfter;
+      const cached=await window.ZeroStockOffline.getCartons();
+      if(!canWrite()||S.user.uid!==move.userId)return;
+      S.cartons=cached;
       S.movements=[move,...S.movements.filter(x=>x.id!==move.id)];await refreshOfflineStats();closeAll();render();
       if(S.connected){scheduleSync(50);toast('✓ ZeroStock',lang==='de'?'Lokal gespeichert · Synchronisierung läuft.':'Saved locally · synchronization running.');}
       else toast('✓ Offline',lang==='de'?'Buchung wartet auf Synchronisierung.':'Transaction is waiting for synchronization.');return;
@@ -938,6 +1015,12 @@ function cartonLive(){
   else if(stock<=warn){key='warn';txt=lang==='de'?'WARNUNG':'WARNING'}
   out.innerHTML=`<small>${t('liveCalculation')}</small><br><span class="status ${key}">${txt}</span> &nbsp; ${t('stock')}: <strong>${stock}</strong> · ${t('warningStock')}: ${warn} · ${t('minStock')}: ${min}`;
 }
+function initialLabels(){
+  const serial=!editingCarton&&$('cKind').value==='container';
+  $('initialSerials').hidden=!serial;$('cStock').readOnly=serial;
+  if(serial)$('cStock').value=$('cSerials').value.split('\n').filter(line=>line.trim()).length;
+  cartonLive();
+}
 function openCarton(id=null){
   if(!isAdmin())return toast('ZeroStock',lang==='de'?'Nur Admins können Artikel verwalten.':'Only administrators can manage articles.');
   editingCarton=id;const c=id?S.cartons.find(x=>x.id===id):null;
@@ -946,7 +1029,7 @@ function openCarton(id=null){
   for(const [key,value] of Object.entries({cArticle:c?.article||'',cName:c?.name||'',cLocation:c?.location||'',cStock:c?.stock??0,cWarn:c?.warn??0,cMin:c?.min??0,cKind:ArticleModel.articleKind(c),cExternalRef:c?.externalRef||''}))$(key).value=value;
   $('cKind').disabled=!!c?.kind;$('cArticle').disabled=!!c;
   $('deleteCartonModal').style.display=c?'':'none';$('deleteCartonModal').onclick=c?()=>deleteCarton(c.id):null;
-  cartonLive();openArticleModal('cartonModal',c?'cName':'cArticle');
+  $('cSerials').value='';initialLabels();openArticleModal('cartonModal',c?'cName':'cArticle');
 }
 
 async function saveCarton(){
@@ -957,17 +1040,21 @@ async function saveCarton(){
     const article=$('cArticle').value.trim(),id=editingCarton||article.replace(/[.#$/\[\]]/g,'_');
     const input=ArticleModel.validateArticle({id,article,name:$('cName').value,location:$('cLocation').value,stock:$('cStock').value,warn:$('cWarn').value,min:$('cMin').value,kind:$('cKind').value,externalRef:$('cExternalRef').value},previous);
     const editing=!!editingCarton,stockWasEdited=input.stock!==Number(editingCartonStock);
+    const initial=!editing&&input.kind==='container'&&$('cSerials').value.trim()?ArticleModel.parseSerialNumbers($('cSerials').value):null;
+    if(!editing&&input.kind==='container')input.stock=initial?.length||0;
     let conflict='';
-    const result=await S.firebase.runTransaction(S.firebase.ref(S.db,`cartons/${id}`),current=>{
+    const result=await articleTransaction(S.firebase.ref(S.db,`cartons/${id}`),current=>{
       if(!editing&&current){conflict=lang==='de'?'Artikel existiert bereits.':'Article already exists.';return;}
       if(editing&&!current){conflict=lang==='de'?'Artikel wurde inzwischen entfernt.':'Article has been removed.';return;}
       if(editing&&current.article!==input.article){conflict='Die Artikelnummer kann nach dem Anlegen nicht geändert werden.';return;}
       if(current?.kind&&current.kind!==input.kind){conflict=lang==='de'?'Artikelart wurde inzwischen festgelegt. Bitte neu öffnen.':'Article category has changed. Reopen the dialog.';return;}
       if(editing&&stockWasEdited&&Number(current.stock)!==Number(editingCartonStock)){conflict=lang==='de'?'Der Bestand hat sich inzwischen geändert. Bitte neu öffnen.':'Stock has changed. Reopen the dialog.';return;}
-      return {...current,...input,stock:editing&&!stockWasEdited?current.stock:input.stock,updatedAt:Date.now()};
+      const article={...current,...input,stock:editing&&!stockWasEdited?current.stock:input.stock,updatedAt:Date.now()};
+      if(article.containerUnits&&ArticleModel.unassignedStock(article)<0){conflict=lang==='de'?'Bestand unterschreitet die im Lager geführten Seriennummern.':'Stock cannot be lower than the number of labels in stock.';return;}
+      return initial?ArticleModel.assignContainerUnits(article,initial,article.updatedAt):article;
     });
     if(!result.committed)throw Error(conflict||(lang==='de'?'Artikel konnte nicht gespeichert werden.':'Article could not be saved.'));
-    scheduleSummary();closeAll();toast('✓ ZeroStock',lang==='de'?'Artikel gespeichert.':'Article saved.');setTimeout(()=>openLabel(id),180);
+    scheduleSummary();closeAll();toast('✓ ZeroStock',lang==='de'?'Artikel gespeichert.':'Article saved.');if(input.kind!=='container')setTimeout(()=>openLabel(id),180);
   }catch(e){toast(lang==='de'?'Artikel':'Article',e.message||String(e));}
   finally{S.articleSubmitting=false;button.disabled=false;}
 }
@@ -1085,7 +1172,8 @@ async function openLabel(id){
   }
 }
 function closeAll(){document.querySelectorAll('.modal').forEach(m=>{m.classList.remove('open');m.style.display='';m.setAttribute('aria-hidden','true')});stopScanner()}
-async function startNativeScanner(){
+let scannerSession=0;
+async function startNativeScanner(target,session){
   const N=window.ZeroStockNativeScanner;
   if(!N?.isNativeAvailable?.())return false;
   const overlay=$('nativeScannerOverlay');
@@ -1094,7 +1182,7 @@ async function startNativeScanner(){
     overlay?.classList.add('open');overlay?.setAttribute('aria-hidden','false');
     if($('nativeScannerHint'))$('nativeScannerHint').textContent=lang==='de'?'Code innerhalb des Rahmens halten':'Hold code inside the frame';
     await N.start({
-      onDetected:(value)=>{closeNativeScannerUI();handleScan(value)},
+      onDetected:(value)=>{if(session!==scannerSession)return;closeNativeScannerUI();handleScan(value,target)},
       onError:(message)=>{if($('nativeScannerHint'))$('nativeScannerHint').textContent=message||'Scan-Fehler'}
     });
     return true;
@@ -1109,13 +1197,55 @@ async function startNativeScanner(){
 }
 function closeNativeScannerUI(){document.documentElement.classList.remove('native-scanning');const o=$('nativeScannerOverlay');o?.classList.remove('open');o?.setAttribute('aria-hidden','true');const t=$('nativeScanTorch');t?.classList.remove('torchOn')}
 async function stopNativeScanner(){try{await window.ZeroStockNativeScanner?.stop?.()}catch{}closeNativeScannerUI()}
-async function startScanner(){
-  if(window.ZeroStockNativeScanner?.isNativeAvailable?.())return startNativeScanner();
-  if(!('BarcodeDetector'in window)){toast('QR',lang==='de'?'Direkter QR-/Barcode-Scan ist in diesem Browser nicht verfügbar. Code manuell eingeben.':'Direct QR/barcode scan unavailable in this browser. Enter the code manually.');return manualCode()}
-  try{const det=new BarcodeDetector({formats:['qr_code','ean_8','ean_13','code_128','code_39','data_matrix']});scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});$('scanVideo').srcObject=scanStream;await $('scanVideo').play();$('scanModal').classList.add('open');const loop=async()=>{if(!scanStream)return;try{const codes=await det.detect($('scanVideo'));if(codes.length){handleScan(codes[0].rawValue);return}}catch{}requestAnimationFrame(loop)};loop()}catch(e){const name=String(e?.name||'');const msg=/NotAllowed|Permission/i.test(name)?(lang==='de'?'Kamera-Berechtigung wurde verweigert. Bitte in den Browser-/App-Einstellungen erlauben.':'Camera permission was denied. Enable it in browser/app settings.'):String(e?.message||e);toast('QR',msg)}}
-function stopScanner(){if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}if($('scanVideo'))$('scanVideo').srcObject=null;if(window.ZeroStockNativeScanner?.running)stopNativeScanner()}
-function manualCode(){const v=prompt(lang==='de'?'Artikel-/QR-Code eingeben':'Enter article/QR code');if(v)handleScan(v)}
-function handleScan(v){const raw=String(v||'').trim(),ts=Date.now();if(!raw)return;if(S.scanLock)return;if(raw===S.lastScanValue&&ts-S.lastScanAt<1500)return;S.scanLock=true;S.lastScanValue=raw;S.lastScanAt=ts;try{stopScanner();$('scanModal').classList.remove('open');let id=raw;try{id=new URL(raw).searchParams.get('box')||raw}catch{}const c=S.cartons.find(x=>x.id===id||x.article===id);if(!c)return toast('QR',lang==='de'?'Karton nicht gefunden.':'Carton not found.');show('scan');$('scanSelected').innerHTML=`<div class="result" style="text-align:left"><b>${esc(c.article)}</b><div class="note">${esc(c.name)} · ${esc(c.location)}</div><div class="kv" style="margin-top:10px"><div><span>${t('stock')}</span><strong>${c.stock}</strong></div><div><span>${t('warningStock')}</span><strong>${c.warn}</strong></div><div><span>${t('minStock')}</span><strong>${c.min}</strong></div></div><br><button class="btn primary" id="scanBook">${lang==='de'?'Buchung öffnen':'Open transaction'}</button></div>`;$('scanBook').onclick=()=>openBook(c.id)}finally{setTimeout(()=>{S.scanLock=false},450)}}
+async function startScanner(target=null){
+  target=typeof target==='string'?target:null;
+  const session=++scannerSession;
+  if(window.ZeroStockNativeScanner?.isNativeAvailable?.())return startNativeScanner(target,session);
+  if(typeof window.BarcodeDetector!=='function'){toast('QR',lang==='de'?'Direkter QR-/Barcode-Scan ist in diesem Browser nicht verfügbar. Code manuell eingeben.':'Direct QR/barcode scan unavailable in this browser. Enter the code manually.');return manualCode(target)}
+  try{const det=new BarcodeDetector({formats:['qr_code','ean_8','ean_13','code_128','code_39','data_matrix']});const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});if(session!==scannerSession){stream.getTracks().forEach(t=>t.stop());return;}scanStream=stream;$('scanVideo').srcObject=scanStream;await $('scanVideo').play();$('scanModal').classList.add('open');const loop=async()=>{if(!scanStream||session!==scannerSession)return;try{const codes=await det.detect($('scanVideo'));if(codes.length&&session===scannerSession){handleScan(codes[0].rawValue,target);return}}catch{}requestAnimationFrame(loop)};loop()}catch(e){const name=String(e?.name||'');const msg=/NotAllowed|Permission/i.test(name)?(lang==='de'?'Kamera-Berechtigung wurde verweigert. Bitte in den Browser-/App-Einstellungen erlauben.':'Camera permission was denied. Enable it in browser/app settings.'):String(e?.message||e);toast('QR',msg)}}
+function stopScanner(){scannerSession++;if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}if($('scanVideo'))$('scanVideo').srcObject=null;if(window.ZeroStockNativeScanner?.running)stopNativeScanner()}
+function manualCode(target=null){
+  target=typeof target==='string'?target:null;
+  const v=prompt(target?t('labelSerials'):(lang==='de'?'Artikelcode oder Seriennummer eingeben':'Enter article code or serial number'));
+  if(v)handleScan(v,target);
+}
+function handleScan(value,target=null){
+  const raw=String(value??'').trim();
+  if(!raw||!canWrite())return;
+  stopScanner();$('scanModal').classList.remove('open');
+  if(target){
+    const field=$(target);
+    if(!field?.closest('.modal.open'))return;
+    try{
+      const [number]=ArticleModel.parseSerialNumbers([raw]);
+      const list=field.value.trim()?ArticleModel.parseSerialNumbers(field.value):[];
+      field.value=ArticleModel.parseSerialNumbers([...list,number]).join('\n');
+      field.dispatchEvent(new Event('input'));field.focus();
+    }catch(e){toast(t('serials'),e.message);}
+    return;
+  }
+  let id=raw;try{id=new URL(raw).searchParams.get('box')||raw;}catch{}
+  const article=S.cartons.find(c=>c.id===id||c.article===id);
+  const matches=[];
+  for(const c of S.cartons){
+    const unit=Object.values(c.containerUnits||{}).find(u=>u.number===raw);
+    if(unit)matches.push({article:c,unit});
+  }
+  if(article)matches.push({article,unit:null});
+  if(!matches.length)return toast('Scan',lang==='de'?'Unbekannter Code. Ein neues Etikett beim Eingang des Containertyps erfassen.':'Unknown code. Register a new label on receipt of its container type.');
+  show('scan');
+  if(matches.length===1){
+    if(matches[0].unit)return openBook(matches[0].article.id,matches[0].unit);
+    return showScannedArticle(article);
+  }
+  $('scanSelected').innerHTML=`<div class="result"><b>${lang==='de'?'Passenden Artikel wählen':'Select matching article'}</b><div class="quickBookSelectList">${matches.map(({article,unit},index)=>`<button class="quickBookItem" data-scan-match="${index}"><span><b>${esc(article.article)} · ${esc(article.name)}</b><small>${unit?esc(unit.number)+' · '+esc(unitState(unit)):esc(t('article'))}</small></span></button>`).join('')}</div></div>`;
+  document.querySelectorAll('[data-scan-match]').forEach(b=>b.onclick=()=>{
+    const {article,unit}=matches[Number(b.dataset.scanMatch)];if(unit)openBook(article.id,unit);else showScannedArticle(article);
+  });
+}
+function showScannedArticle(c){
+  $('scanSelected').innerHTML=`<div class="result" style="text-align:left"><b>${esc(c.article)}</b><div class="note">${esc(c.name)} · ${esc(c.location)}</div><div class="kv" style="margin-top:10px"><div><span>${t('stock')}</span><strong>${c.stock}</strong></div><div><span>${t('warningStock')}</span><strong>${c.warn}</strong></div><div><span>${t('minStock')}</span><strong>${c.min}</strong></div></div><br><button class="btn primary" id="scanBook">${lang==='de'?'Buchung öffnen':'Open transaction'}</button></div>`;$('scanBook').onclick=()=>openBook(c.id);
+}
 function scheduleSummary(){if(!canWrite())return;clearTimeout(S.summaryTimer);S.summaryTimer=setTimeout(publishSummary,300)}
 async function publishSummary(){if(!canWrite()||!S.db)return;const sum={};for(const i of S.instructions.filter(x=>x.active)){const c=capacity(i);sum[i.id]={name:i.name,description:i.description||'',version:i.version||'',capacity:c.max,updatedAt:Date.now()}}const h=JSON.stringify(sum);if(h===S.lastSummary)return;S.lastSummary=h;await S.firebase.set(S.firebase.ref(S.db,'customerSummary'),sum)}
 function syncBackoff(attempts){return Math.min(300000,2000*Math.pow(2,Math.max(0,(Number(attempts)||1)-1)))}
@@ -1129,13 +1259,18 @@ function scheduleSync(delay=250){
 }
 function classifySyncError(e){const m=String(e?.code||e?.message||e||'SYNC_FAILED');if(m==='AUTH_ACTOR_MISMATCH')return'RETRY';if(/permission|auth|user-disabled|PERMISSION_DENIED/i.test(m))return'CONFLICT';if(/INSUFFICIENT|CARTON_NOT_FOUND|ID_COLLISION|MOVEMENT_MISMATCH|INVALID_/i.test(m))return'CONFLICT';return'RETRY'}
 const inFlightMovements=new Map();
+function sameSerials(a,b){return JSON.stringify(a??null)===JSON.stringify(b??null);}
+function rejectedBeforeStock(error){
+  return error.code==='INVALID_CONTAINER_SERIAL'||/^(INSUFFICIENT_STOCK_SERVER|CARTON_NOT_FOUND|INVALID_ARTICLE_REFERENCE|INVALID_STOCK)$/.test(error.message);
+}
 function syncOneMovement(move){
   const key=JSON.stringify([move.userId,move.id]);
-  if(inFlightMovements.has(key))return inFlightMovements.get(key);
+  const active=inFlightMovements.get(key);
+  if(active)return ArticleModel.sameMovementIdentity(active.move,move)?active.pending:Promise.reject(Error('ID_COLLISION_OR_MOVEMENT_MISMATCH'));
   const apply=()=>applyMovementOnce(move);
   const attempt=navigator.locks?.request?navigator.locks.request('zs-movement:'+key,apply):apply();
   const pending=attempt.finally(()=>inFlightMovements.delete(key));
-  inFlightMovements.set(key,pending);
+  inFlightMovements.set(key,{move,pending});
   return pending;
 }
 async function applyMovementOnce(move){
@@ -1148,24 +1283,25 @@ async function applyMovementOnce(move){
   const existingSnap=await F.get(movementRef);
   if(existingSnap.exists()){
     const ex=existingSnap.val()||{};
-    const same=String(ex.userId||'')===String(move.userId||'')&&String(ex.cartonId||'')===String(move.cartonId||'')&&String(ex.type||'')===String(move.type||'')&&Number(ex.qty)===Number(move.qty);
-    if(!same||['articleKind','externalRef','partner','reference'].some(k=>String(ex[k]??'')!==String(metadata[k]??'')))throw Error('ID_COLLISION_OR_MOVEMENT_MISMATCH');
+    if(!ArticleModel.sameMovementIdentity(ex,move))throw Error('ID_COLLISION_OR_MOVEMENT_MISMATCH');
     return {stockAfter:Number(ex.stockAfter)||0,recovered:true};
   }
   const cartonRef=F.ref(S.db,`cartons/${move.cartonId}`), markerKey=String(move.id);
-  const tx=await F.runTransaction(cartonRef,c=>{
+  const tx=await articleTransaction(cartonRef,c=>{
     if(!actor())throw Error('AUTH_ACTOR_MISMATCH');
     if(!c)return;
     if(c.article!==move.article)throw Error('INVALID_ARTICLE_REFERENCE');
     const applied=c._zsApplied||{};
-    if(applied[markerKey])return c;
-    const cur=Number(c.stock)||0;
-    if(move.type!=='in'&&Number(move.qty)>cur)return;
-    const after=cur+(move.type==='in'?Number(move.qty):-Number(move.qty));
-    if(!Number.isSafeInteger(cur)||cur<0||!Number.isSafeInteger(after)||after<0)throw Error('INVALID_STOCK');
-    c.stock=after;c.updatedAt=Date.now();
-    c._zsApplied={...applied,[markerKey]:{stockAfter:after,appliedAt:Date.now(),userId:move.userId}};
-    return c;
+    const marker=applied[markerKey];
+    if(marker){
+      if(!sameSerials(marker.serialNumbers,metadata.serialNumbers)||!sameSerials(marker.serialOrigins,metadata.serialOrigins)||(marker.userId&&marker.userId!==move.userId)||
+        (marker.serialNumbers&&(marker.type!==move.type||['externalRef','partner','reference'].some(k=>(marker[k]??'')!==(metadata[k]??'')))))throw Error('ID_COLLISION_OR_MOVEMENT_MISMATCH');
+      return c;
+    }
+    const updated=ArticleModel.applyStockMovement(c,move);
+    const ack={stockAfter:updated.stock,appliedAt:Date.now(),userId:move.userId};
+    if(metadata.serialNumbers)Object.assign(ack,{type:move.type},metadata);
+    return {...updated,updatedAt:ack.appliedAt,_zsApplied:{...applied,[markerKey]:ack}};
   });
   if(!tx.committed){
     const snap=await F.get(cartonRef);if(!snap.exists())throw Error('CARTON_NOT_FOUND');
@@ -1179,19 +1315,24 @@ async function applyMovementOnce(move){
 }
 async function removeSyncedMovementMarker(move){
   // Cache listeners need this marker until the local queue acknowledges the server stock.
+  // Serial receipts also protect a late retry from a different device after a full out/in cycle.
+  if(move.serialNumbers)return;
   const F=S.firebase;
   try{await F.set(F.ref(S.db,`cartons/${move.cartonId}/_zsApplied/${move.id}`),null)}
   catch(e){console.warn('sync marker cleanup',e)}
 }
 async function runSyncEngine({manual=false}={}){
-  if(S.syncRunning||!S.native||!S.offlineReady||!S.connected||!S.db||!S.firebase||!canWrite())return {processed:0};
+  if(S.waitForCartons||S.offlineSession||S.syncRunning||!S.native||!S.offlineReady||!S.connected||!S.db||!S.firebase||!canWrite())return {processed:0};
   S.syncRunning=true;let processed=0,synced=0,conflicts=0,failed=0;
   try{
     await retryWebBookings();
     if(!S.connected||!canWrite())return {processed:0};
     const actor=S.user.uid;
     const batch=await window.ZeroStockOffline.getSyncBatch(20,actor);
+    const waiting=new Set();
     for(const move of batch){
+      const labels=ArticleModel.serialDependencies(move);
+      if(labels.some(key=>waiting.has(key))){for(const key of labels)waiting.add(key);continue;}
       if(!S.connected||!canWrite()||S.user.uid!==actor||S.firebase.auth?.currentUser?.uid!==actor)break;
       processed++;
       try{
@@ -1203,7 +1344,7 @@ async function runSyncEngine({manual=false}={}){
       }catch(e){
         console.error('sync movement',move.id,e);const kind=classifySyncError(e);
         if(kind==='CONFLICT'){await window.ZeroStockOffline.markConflict(move.id,e?.message||String(e));conflicts++}
-        else{const wait=syncBackoff((move.attempts||0)+1);await window.ZeroStockOffline.markRetry(move.id,e?.message||String(e),Date.now()+wait);failed++}
+        else{for(const key of labels)waiting.add(key);const wait=syncBackoff((move.attempts||0)+1);await window.ZeroStockOffline.markRetry(move.id,e?.message||String(e),Date.now()+wait);failed++}
       }
     }
     S.lastSyncAt=Date.now();await loadOfflineData();await refreshOfflineStats();render();
@@ -1224,13 +1365,16 @@ function readWebBookings(uid){
 function saveWebBooking(uid,move){localStorage.setItem('zs-web-booking:'+encodeURIComponent(uid)+':'+move.id,JSON.stringify(move));}
 function removeWebBooking(uid,id){localStorage.removeItem('zs-web-booking:'+encodeURIComponent(uid)+':'+id);}
 async function retryWebBookings(){
-  if(S.webSyncRunning||!canWrite()||!S.connected||!S.db||!S.firebase)return;
+  if(S.waitForCartons||S.offlineSession||S.webSyncRunning||!canWrite()||!S.connected||!S.db||!S.firebase)return;
   const uid=S.user.uid;S.webSyncRunning=true;
   try{
     for(const move of readWebBookings(uid)){
       if(!canWrite()||S.user.uid!==uid||!S.connected)break;
       try{await completeWebBooking(uid,move);}
-      catch(e){if(classifySyncError(e)==='RETRY')scheduleSync(5000);break;}
+      catch(e){
+        if(rejectedBeforeStock(e)){removeWebBooking(uid,move.id);toast('ZeroStock',e.message);continue;}
+        if(classifySyncError(e)==='RETRY')scheduleSync(5000);break;
+      }
     }
   }finally{S.webSyncRunning=false;}
 }
@@ -1254,7 +1398,7 @@ async function firebaseBook(id,type,q,reason,note,options={}){
   saveWebBooking(uid,move);
   try{await completeWebBooking(uid,move);return {pending:false};}
   catch(e){
-    if(/INSUFFICIENT_STOCK_SERVER|CARTON_NOT_FOUND|INVALID_ARTICLE_REFERENCE|INVALID_STOCK/.test(String(e.message))){removeWebBooking(uid,move.id);throw e;}
+    if(rejectedBeforeStock(e)){removeWebBooking(uid,move.id);throw e;}
     scheduleSync(5000);return {pending:true};
   }
 }
@@ -1276,10 +1420,63 @@ async function readProfileViaRest(user){
   return await res.json();
 }
 async function startOfflineSession(user){if(!S.native||!S.offlineReady||!window.ZeroStockOffline)return false;try{const cached=await window.ZeroStockOffline.getCachedUser(user.uid);const age=Date.now()-Number(cached?.cachedAt||0);if(!cached||cached.active===false||!['admin','employee','customer'].includes(cached.role)||!Number.isFinite(age)||age<0||age>OFFLINE_AUTH_MAX_AGE_MS)return false;S.user={uid:user.uid,name:cached.name||user.email||'User',role:cached.role};S.offlineSession=true;S.connected=false;await loadOfflineData();unlock();show(S.user.role==='customer'?'planner':'dashboard');render();toast('ZeroStock Offline',lang==='de'?'Lokale Daten geladen. Ausstehende Buchungen werden bei der nächsten Verbindung automatisch synchronisiert.':'Local data loaded. Pending transactions will synchronize automatically when the connection returns.');return true}catch(e){console.error('startOfflineSession',e);return false}}
-async function connectDb(user){try{
+let sessionObservers=[],sessionEpoch=0,profileRevision=0;
+function clearSessionObservers(){
+  sessionEpoch++;profileRevision++;clearTimeout(S.profileTimer);
+  for(const unsubscribe of sessionObservers)unsubscribe();
+  sessionObservers=[];S.transportOnline=false;S.waitForCartons=false;
+}
+function sameSession(user,epoch){return epoch===sessionEpoch&&S.firebase.auth?.currentUser?.uid===user.uid;}
+function applyLiveProfile(user,profile,refresh=false){
+  const role=String(profile?.role||'').trim().toLowerCase();
+  const active=profile?.active!==false&&['admin','employee','customer'].includes(role);
+  const changed=!S.user||S.offlineSession||S.user.role!==role;
+  const name=String(profile?.name||user.email||'User');
+  S.connected=S.transportOnline;S.offlineSession=false;
+  if(S.offlineReady)window.ZeroStockOffline.cacheUser({uid:user.uid,name,email:user.email||'',role,active}).catch(e=>console.warn('cache user',e));
+  if(!active){
+    clearSubs();S.user=null;clearPrivateState();S.instructions=[];S.customerSummary={};S.waitForCartons=false;
+    $('gateUid').textContent=user.uid;$('gateRoleState').textContent=lang==='de'?'Kein aktiver Zugriff.':'No active access.';
+    authView('authNoRole');return;
+  }
+  if(changed){clearSubs();clearPrivateState();S.instructions=[];S.customerSummary={};}
+  S.user={uid:user.uid,name,role};
+  if(changed||refresh){subscribe();unlock();if(changed)show(role==='customer'?'planner':'dashboard');}
+  render();
+}
+function watchOwnProfile(user,epoch){
+  const F=S.firebase;
+  sessionObservers.push(F.onValue(F.ref(S.db,'users/'+user.uid),snap=>{
+    if(!sameSession(user,epoch)||!S.transportOnline)return;
+    profileRevision++;applyLiveProfile(user,snap.val(),!S.connected);
+  },error=>{
+    if(sameSession(user,epoch)&&S.transportOnline&&/permission/i.test(error?.code||error?.message)){
+      profileRevision++;applyLiveProfile(user,null);
+    }
+  }));
+}
+async function refreshLiveProfile(user,epoch){
+  const revision=++profileRevision;
+  try{
+    const snapshot=await S.firebase.get(S.firebase.ref(S.db,'users/'+user.uid));
+    if(sameSession(user,epoch)&&S.transportOnline&&revision===profileRevision)applyLiveProfile(user,snapshot.val(),true);
+  }catch(e){
+    if(!sameSession(user,epoch)||!S.transportOnline||revision!==profileRevision)return;
+    if(/permission/i.test(e.code||e.message)){applyLiveProfile(user,null);return;}
+    clearTimeout(S.profileTimer);S.profileTimer=setTimeout(()=>refreshLiveProfile(user,epoch),3000);
+  }
+}
+async function connectDb(user){const epoch=sessionEpoch;try{
 S.db=S.firebase.getDatabase(S.firebase.app,FIREBASE_BASE_CONFIG.databaseURL);
-S.firebase.onValue(S.firebase.ref(S.db,'.info/connected'),x=>{const was=S.connected;S.connected=!!x.val();if(S.user)render();if(S.connected&&(!was||S.offlineStats.pending>0))scheduleSync(300)});
-if(S.native&&S.offlineReady&&navigator.onLine===false){if(await startOfflineSession(user))return}
+sessionObservers.push(S.firebase.onValue(S.firebase.ref(S.db,'.info/connected'),async snap=>{
+  if(!sameSession(user,epoch))return;
+  S.transportOnline=!!snap.val();S.connected=false;
+  if(!S.transportOnline){profileRevision++;clearTimeout(S.profileTimer);if(S.user)render();return;}
+  if(S.user)await refreshLiveProfile(user,epoch);
+}));
+if(S.native&&S.offlineReady&&navigator.onLine===false){
+  if(await startOfflineSession(user)){if(sameSession(user,epoch)){watchOwnProfile(user,epoch);if(S.transportOnline)await refreshLiveProfile(user,epoch);}return;}
+}
 
 const rolePath=`users/${user.uid}/role`;
 let role='',rawRole=null,source='Firebase SDK';
@@ -1310,8 +1507,10 @@ if(!['admin','employee','customer'].includes(role)){
   }
 }
 
+if(!sameSession(user,epoch))return;
 if(!['admin','employee','customer'].includes(role)){
-  if(await startOfflineSession(user))return;
+  if(!S.transportOnline&&await startOfflineSession(user)){if(sameSession(user,epoch))watchOwnProfile(user,epoch);return;}
+  if(S.transportOnline)applyLiveProfile(user,null);
   S.user=null;
   $('gateUid').textContent=user.uid;
   if($('gateRoleValue'))$('gateRoleValue').textContent=rawRole===null||rawRole===undefined?'(nicht vorhanden)':JSON.stringify(rawRole);
@@ -1331,9 +1530,10 @@ try{
   try{profile=await readProfileViaRest(user)||{}}catch{}
 }
 
-if(profile.active===false){S.user=null;$('gateUid').textContent=user.uid;if($('gateRoleValue'))$('gateRoleValue').textContent=role;if($('gateRoleState'))$('gateRoleState').textContent='Benutzer ist deaktiviert.';if($('gateRoleSource'))$('gateRoleSource').textContent='ZeroStock Benutzerprofil';if($('gateRoleDb'))$('gateRoleDb').textContent=FIREBASE_BASE_CONFIG.databaseURL;authView('authNoRole');return}
+if(!sameSession(user,epoch))return;
+if(profile.active===false){applyLiveProfile(user,profile);watchOwnProfile(user,epoch);return;}
 S.user={uid:user.uid,name:String(profile.name||user.email||'User'),role};
-S.offlineSession=false;
+S.offlineSession=false;S.connected=S.transportOnline;
 if(S.offlineReady)try{await window.ZeroStockOffline.cacheUser({uid:user.uid,name:S.user.name,email:user.email||'',role,active:profile.active!==false})}catch(e){console.warn('cache user',e)}
 
 // From this point onward the Firebase role is VALID.
@@ -1341,20 +1541,22 @@ if(S.offlineReady)try{await window.ZeroStockOffline.cacheUser({uid:user.uid,name
 unlock();
 try{
   if(S.offlineReady)await loadOfflineData();
-  subscribe();
-  if(S.connected)scheduleSync(500);
+  if(!sameSession(user,epoch))return;
+  subscribe();watchOwnProfile(user,epoch);
   const deep=new URLSearchParams(location.search).get('box');
   if(deep&&S.user.role!=='customer')setTimeout(()=>handleScan(deep),120);
   else show(S.user.role==='customer'?'planner':'dashboard');
   render();
 }catch(uiErr){
   console.error('ZeroStock UI startup error:',uiErr);
+  if(!sameSession(user,epoch)||!S.user)return;
   unlock();
   try{show(S.user.role==='customer'?'planner':'dashboard')}catch{}
   toast('ZeroStock','UI wurde gestartet; einzelne Ansicht konnte nicht initialisiert werden.');
 }
 return
 }catch(e){
+if(!sameSession(user,epoch))return;
 console.error('ZeroStock database/role error:',e);
 S.user=null;
 $('gateUid').textContent=user.uid;
@@ -1365,14 +1567,17 @@ if($('gateRoleDb'))$('gateRoleDb').textContent=FIREBASE_BASE_CONFIG.databaseURL;
 authView('authNoRole')
 }}
 function clearSubs(){S.unsubs.forEach(u=>{try{u()}catch{}});S.unsubs=[]}
-function subscribe(){clearSubs();const F=S.firebase,uid=S.user.uid;const internal=()=>canWrite()&&S.user.uid===uid;
-if(isAdmin())S.unsubs.push(F.onValue(F.ref(S.db,'users'),s=>{S.users=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));renderUsers()},e=>{console.error('users subscription',e);renderUsers()}));else S.users=[];
+let subscriptionRevision=0;
+function subscribe(){clearSubs();const revision=++subscriptionRevision,F=S.firebase,uid=S.user.uid;
+const current=()=>revision===subscriptionRevision&&S.user?.uid===uid;
+const internal=()=>current()&&canWrite();S.waitForCartons=canWrite();
+if(isAdmin())S.unsubs.push(F.onValue(F.ref(S.db,'users'),s=>{if(!current()||!isAdmin())return;S.users=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));renderUsers()},e=>{console.error('users subscription',e);renderUsers()}));else S.users=[];
 if(S.user.role==='customer'){S.cartons=[];S.movements=[];S.unsubs.push(F.onValue(F.ref(S.db,'instructions'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));S.instructions=S.offlineReady?await window.ZeroStockOffline.cacheInstructions(list):list;render()}));S.unsubs.push(F.onValue(F.ref(S.db,'customerSummary'),s=>{S.customerSummary=s.val()||{};render()}));return}
-S.unsubs.push(F.onValue(F.ref(S.db,'cartons'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));if(!internal())return;const cached=S.offlineReady?await window.ZeroStockOffline.cacheCartons(list):list;if(!internal())return;S.cartons=cached;await refreshOfflineStats();render();scheduleSummary()}));
+S.unsubs.push(F.onValue(F.ref(S.db,'cartons'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));if(!internal())return;const cached=S.offlineReady?await window.ZeroStockOffline.cacheCartons(list):list;if(!internal())return;S.cartons=cached;const first=S.waitForCartons;S.waitForCartons=false;await refreshOfflineStats();if(!internal())return;render();scheduleSummary();if(first&&S.connected)scheduleSync(50)}));
 S.unsubs.push(F.onValue(F.ref(S.db,'instructions'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));S.instructions=S.offlineReady?await window.ZeroStockOffline.cacheInstructions(list):list;render();scheduleSummary()}));
 S.unsubs.push(F.onValue(F.query(F.ref(S.db,'movements'),F.limitToLast(200)),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));if(!internal())return;const cached=S.offlineReady?await window.ZeroStockOffline.cacheMovements(list):list;if(!internal())return;S.movements=cached;await refreshOfflineStats();render()}))}
 async function loadFirebaseModules(){if(S.native&&window.ZeroStockFirebaseNative)return window.ZeroStockFirebaseNative;return{app:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-app.js`),auth:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-auth.js`),database:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-database.js`)}}
-async function initFirebase(){authView('authLoading');try{const M=await loadFirebaseModules(),A=M.app,U=M.auth,R=M.database,app=A.initializeApp(FIREBASE_BASE_CONFIG),auth=U.getAuth(app);try{await U.setPersistence(auth,U.browserLocalPersistence)}catch{}S.firebase={...U,...R,app,auth};U.onAuthStateChanged(auth,async user=>{clearSubs();S.user=null;S.cartons=[];S.instructions=[];S.movements=[];S.users=[];S.customerSummary={};S.connected=false;S.db=null;S.offlineSession=false;if(!user){authView('authLogin');return}await connectDb(user)})}catch(e){console.error(e);if(S.native&&S.offlineReady)authError('gateLoginError',lang==='de'?'Keine gespeicherte Anmeldung verfügbar. Für die erste Anmeldung ist Internet erforderlich.':'No cached sign-in available. Internet is required for the first sign-in.');else authError('gateLoginError',lang==='de'?'Firebase konnte nicht geladen werden. Internet prüfen.':'Firebase could not be loaded. Check internet.');authView('authLogin')}}
+async function initFirebase(){authView('authLoading');try{const M=await loadFirebaseModules(),A=M.app,U=M.auth,R=M.database,app=A.initializeApp(FIREBASE_BASE_CONFIG),auth=U.getAuth(app);try{await U.setPersistence(auth,U.browserLocalPersistence)}catch{}S.firebase={...U,...R,app,auth};U.onAuthStateChanged(auth,async user=>{clearSessionObservers();clearSubs();S.user=null;clearPrivateState();S.cartons=[];S.instructions=[];S.movements=[];S.users=[];S.customerSummary={};S.connected=false;S.db=null;S.offlineSession=false;if(!user){authView('authLogin');return}await connectDb(user)})}catch(e){console.error(e);if(S.native&&S.offlineReady)authError('gateLoginError',lang==='de'?'Keine gespeicherte Anmeldung verfügbar. Für die erste Anmeldung ist Internet erforderlich.':'No cached sign-in available. Internet is required for the first sign-in.');else authError('gateLoginError',lang==='de'?'Firebase konnte nicht geladen werden. Internet prüfen.':'Firebase could not be loaded. Check internet.');authView('authLogin')}}
 function safeAuthMessage(err){const c=String(err?.code||'');if(/invalid-credential|wrong-password|user-not-found|invalid-email/i.test(c))return lang==='de'?'Anmeldung fehlgeschlagen. E-Mail oder Passwort prüfen.':'Sign-in failed. Check email or password.';if(/too-many-requests/i.test(c))return lang==='de'?'Zu viele Versuche. Bitte später erneut versuchen.':'Too many attempts. Try again later.';if(/network-request-failed/i.test(c))return lang==='de'?'Keine Verbindung. Netzwerk prüfen.':'No connection. Check network.';return lang==='de'?'Anmeldung konnte nicht abgeschlossen werden.':'Sign-in could not be completed.'}
 async function login(){authError('gateLoginError','');const e=$('gateEmail').value.trim(),p=$('gatePassword').value;if(!e||!p)return authError('gateLoginError',lang==='de'?'E-Mail und Passwort eingeben.':'Enter email and password.');try{await S.firebase.signInWithEmailAndPassword(S.firebase.auth,e,p)}catch(x){authError('gateLoginError',safeAuthMessage(x))}}
 async function resetPassword(){authError('gateLoginError','');const e=$('gateEmail').value.trim();if(!e)return authError('gateLoginError',lang==='de'?'Zuerst E-Mail eingeben.':'Enter email first.');try{await S.firebase.sendPasswordResetEmail(S.firebase.auth,e);authError('gateLoginError',lang==='de'?'Reset-E-Mail wurde gesendet.':'Reset email sent.')}catch(x){authError('gateLoginError',x.message)}}
@@ -1404,8 +1609,8 @@ async function exportStockCsv(){
 
 async function exportMovesCsv(){
   if(!S.user||S.user.role==='customer')return;
-  const rows=[...S.movements].sort((a,b)=>(b.ts||0)-(a.ts||0)).map(m=>[new Date(m.ts||Date.now()).toISOString(),m.userName||'',m.article||'',m.type||'',m.qty??'',m.stockAfter??'',m.reason||'',m.note||'',m.syncStatus||'SYNCED',m.id||'',m.articleKind||ArticleModel.articleKind(S.cartons.find(c=>c.id===m.cartonId)),m.partner||'',m.reference||'',m.externalRef||'']);
-  return exportTextFile(`ZeroStock_Bewegungen_${zsDateStamp()}.csv`,makeCsv(['Zeit','Benutzer','Artikel','Typ','Menge','Bestand danach','Grund','Notiz','Sync','ID','Artikelart','Gegenstelle','Referenz','Externe Referenz'],rows),'text/csv;charset=utf-8','Bewegungen CSV');
+  const rows=[...S.movements].sort((a,b)=>(b.ts||0)-(a.ts||0)).map(m=>[new Date(m.ts||Date.now()).toISOString(),m.userName||'',m.article||'',m.type||'',m.qty??'',m.stockAfter??'',m.reason||'',m.note||'',m.syncStatus||'SYNCED',m.serverId||m.id||'',m.articleKind||ArticleModel.articleKind(S.cartons.find(c=>c.id===m.cartonId)),m.partner||'',m.reference||'',m.externalRef||'',(m.serialNumbers||[]).join('\n')]);
+  return exportTextFile(`ZeroStock_Bewegungen_${zsDateStamp()}.csv`,makeCsv(['Zeit','Benutzer','Artikel','Typ','Menge','Bestand danach','Grund','Notiz','Sync','ID','Artikelart','Gegenstelle','Referenz','Externe Referenz','Seriennummern'],rows),'text/csv;charset=utf-8','Bewegungen CSV');
 }
 
 async function exportBackupJson(){if(!isAdmin())return;const payload={format:'ZeroStock Backup',version:'5.0-phase11',createdAt:new Date().toISOString(),cartons:S.cartons,instructions:S.instructions,movements:S.movements};return exportTextFile(`ZeroStock_Backup_${zsDateStamp()}.json`,JSON.stringify(payload,null,2),'application/json;charset=utf-8','ZeroStock Datensicherung')}
@@ -1470,11 +1675,13 @@ document.addEventListener('keydown',e=>{
 });
 
 // UI events
+$('cKind').onchange=initialLabels;$('cSerials').oninput=initialLabels;$('bookSerials').oninput=bookPreview;$('assignUnits').onclick=assignUnits;
+document.querySelectorAll('[data-scan-into]').forEach(b=>b.onclick=()=>startScanner(b.dataset.scanInto));
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>show(b.dataset.view));document.querySelectorAll('[data-goto]').forEach(b=>b.onclick=()=>show(b.dataset.goto));document.querySelectorAll('[data-mview]').forEach(b=>b.onclick=()=>show(b.dataset.mview));document.querySelectorAll('[data-quick-type]').forEach(b=>b.onclick=()=>openQuickBook(b.dataset.quickType));document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{lang=b.dataset.lang;localStorage.setItem('zs-lang',lang);applyLang()});document.querySelectorAll('.closeModal').forEach(b=>b.onclick=closeAll);if($('notificationToggle'))$('notificationToggle').onchange=async e=>{try{await window.ZeroStockNotifications?.setEnabled?.(!!e.target.checked);if(e.target.checked)await window.ZeroStockNotifications?.init?.();refreshNotificationSettingsUI();scheduleNativeNotificationEvaluation(50)}catch(err){toast('ZeroStock',err.message||String(err))}};
 window.addEventListener('online',()=>{if(S.native&&S.offlineReady){scheduleSync(150);refreshOfflineStats().then(render).catch(()=>{})}});
 window.addEventListener('offline',()=>{if(S.native&&S.offlineReady){S.connected=false;refreshOfflineStats().then(render).catch(()=>{})}});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&S.native&&S.offlineReady&&navigator.onLine){scheduleSync(200)}});
-$('dashSearch').oninput=renderCartons;if($('quickBookSearch'))$('quickBookSearch').oninput=renderQuickBookList;$('cartonSearch').oninput=renderCartons;if($('addCarton'))$('addCarton').onclick=e=>{e.preventDefault();openCarton()};if($('saveCarton'))$('saveCarton').onclick=e=>{e.preventDefault();saveCarton()};$('addInstruction').onclick=()=>openInstruction();$('saveInstruction').onclick=saveInstruction;$('addMaterialRow').onclick=()=>{$('materialRows').append(matRow());instructionLive()};$('calculatePlan').onclick=calcPlan;if($('planQty'))$('planQty').oninput=calcPlan;if($('planInstruction'))$('planInstruction').onchange=calcPlan;if($('planRef'))$('planRef').oninput=calcPlan;if($('cStock'))$('cStock').oninput=cartonLive;if($('cWarn'))$('cWarn').oninput=cartonLive;if($('cMin'))$('cMin').oninput=cartonLive;if($('bookType'))$('bookType').onchange=bookPreview;if($('bookQty'))$('bookQty').oninput=bookPreview;$('confirmBook').onclick=confirmBook;$('startScan').onclick=startScanner;$('manualScan').onclick=manualCode;$('stopScan').onclick=closeAll;if($('nativeScanClose'))$('nativeScanClose').onclick=()=>stopNativeScanner();if($('nativeScanTorch'))$('nativeScanTorch').onclick=async()=>{try{const on=await window.ZeroStockNativeScanner?.toggleTorch?.();$('nativeScanTorch').classList.toggle('torchOn',!!on)}catch(e){toast('Scanner',lang==='de'?'Taschenlampe nicht verfügbar.':'Torch unavailable.')}};$('printLabel').onclick=()=>{
+$('dashSearch').oninput=renderCartons;if($('quickBookSearch'))$('quickBookSearch').oninput=renderQuickBookList;$('cartonSearch').oninput=renderCartons;if($('addCarton'))$('addCarton').onclick=e=>{e.preventDefault();openCarton()};if($('saveCarton'))$('saveCarton').onclick=e=>{e.preventDefault();saveCarton()};$('addInstruction').onclick=()=>openInstruction();$('saveInstruction').onclick=saveInstruction;$('addMaterialRow').onclick=()=>{$('materialRows').append(matRow());instructionLive()};$('calculatePlan').onclick=calcPlan;if($('planQty'))$('planQty').oninput=calcPlan;if($('planInstruction'))$('planInstruction').onchange=calcPlan;if($('planRef'))$('planRef').oninput=calcPlan;if($('cStock'))$('cStock').oninput=cartonLive;if($('cWarn'))$('cWarn').oninput=cartonLive;if($('cMin'))$('cMin').oninput=cartonLive;if($('bookType'))$('bookType').onchange=bookPreview;if($('bookQty'))$('bookQty').oninput=bookPreview;$('confirmBook').onclick=confirmBook;$('startScan').onclick=startScanner;$('manualScan').onclick=manualCode;$('stopScan').onclick=()=>{stopScanner();$('scanModal').classList.remove('open');};if($('nativeScanClose'))$('nativeScanClose').onclick=()=>{scannerSession++;stopNativeScanner();};if($('nativeScanTorch'))$('nativeScanTorch').onclick=async()=>{try{const on=await window.ZeroStockNativeScanner?.toggleTorch?.();$('nativeScanTorch').classList.toggle('torchOn',!!on)}catch(e){toast('Scanner',lang==='de'?'Taschenlampe nicht verfügbar.':'Torch unavailable.')}};$('printLabel').onclick=()=>{
       const box=$('qrBox');
       if(!box||(!box.querySelector('canvas')&&!box.querySelector('img')&&!box.querySelector('table'))){
         return toast('QR',lang==='de'?'QR-Code ist noch nicht bereit.':'QR code is not ready yet.');

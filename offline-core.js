@@ -1008,6 +1008,86 @@
     electron: () => window.CapacitorCustomPlatform.plugins.CapacitorSQLite
   });
 
+  // src/container-serials.mjs
+  function invalid(message) {
+    const error = new Error(message);
+    error.code = "INVALID_CONTAINER_SERIAL";
+    throw error;
+  }
+  function parseSerialNumbers(input) {
+    const list = typeof input === "string" ? input.split(/\r\n|[\r\n]/).filter((line) => line.trim()) : input;
+    if (!Array.isArray(list) || !list.length) invalid("Mindestens eine Seriennummer vom Containeretikett erfassen.");
+    const seen = /* @__PURE__ */ new Set();
+    for (const value of list) {
+      if (typeof value !== "string") invalid("Seriennummern als Text erfassen.");
+      const number = value.trim();
+      if (!number || number.length > 120 || /[\x00-\x1f\x7f]/.test(number) || /[\uD800-\uDFFF]/u.test(number)) {
+        invalid("Je Zeile eine Seriennummer mit h\xF6chstens 120 Zeichen erfassen.");
+      }
+      if (seen.has(number)) invalid("Seriennummer mehrfach erfasst: " + number);
+      seen.add(number);
+    }
+    return [...seen];
+  }
+  function unitKey(number) {
+    const bytes = new TextEncoder().encode(number);
+    return "s" + Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  }
+  function unitRevision(unit) {
+    if (!unit) return "new";
+    return unit.moveId ? "move:" + unit.moveId : "assigned:" + unit.updatedAt;
+  }
+  function serialOrigins(article, numbers) {
+    return numbers.map((number) => unitRevision(article.containerUnits?.[unitKey(number)]));
+  }
+  function inStock(article) {
+    return Object.values(article.containerUnits || {}).filter((unit) => unit.status === "in").length;
+  }
+  function unassignedStock(article) {
+    return Number(article.stock) - inStock(article);
+  }
+  function updateUnits(article, numbers, action, move) {
+    if (article.kind !== "container") invalid("Seriennummern geh\xF6ren zu Containerartikeln.");
+    const units = { ...article.containerUnits };
+    for (const [index, number] of numbers.entries()) {
+      const key = unitKey(number), previous = units[key];
+      if (move.serialOrigins && move.serialOrigins[index] !== unitRevision(previous)) {
+        invalid("Der Zustand wurde zwischenzeitlich ge\xE4ndert. Etikett und Bestand pr\xFCfen: " + number);
+      }
+      if (action === "assign" && previous) invalid("Seriennummer bereits zugeordnet: " + number);
+      if (action === "in" && previous?.status === "in") invalid("Container bereits im Lager: " + number);
+      if ((action === "out" || action === "shrink") && previous?.status !== "in") {
+        invalid("F\xFCr diese Seriennummer ist kein Container im Lager zugeordnet: " + number);
+      }
+      units[key] = {
+        number,
+        status: action === "assign" ? "in" : action,
+        updatedAt: move.ts,
+        ...move.id ? { moveId: move.id } : {},
+        ...move.partner ? { partner: move.partner } : {},
+        ...move.reference ? { reference: move.reference } : {}
+      };
+    }
+    const updated = { ...article, containerUnits: units };
+    updated.serialStock = inStock(updated);
+    return updated;
+  }
+  function applyStockMovement(article, move) {
+    const qty = Number(move.qty), current = Number(article.stock);
+    const stock = current + (move.type === "in" ? qty : -qty);
+    if (!["in", "out", "shrink"].includes(move.type) || !Number.isSafeInteger(qty) || qty <= 0 || !Number.isSafeInteger(current) || current < 0 || !Number.isSafeInteger(stock)) throw Error("INVALID_STOCK");
+    if (stock < 0) throw Error("INSUFFICIENT_STOCK_SERVER");
+    let result = article;
+    if (move.serialNumbers !== void 0) {
+      const numbers = parseSerialNumbers(move.serialNumbers);
+      if (numbers.length !== qty) invalid("Die Buchungsmenge muss der Anzahl Etiketten entsprechen.");
+      result = updateUnits(article, numbers, move.type, move);
+    } else if (article.containerUnits && move.type !== "in" && qty > unassignedStock(article)) {
+      invalid("F\xFCr diesen Bestand ist eine Buchung mit Seriennummern erforderlich.");
+    }
+    return { ...result, stock };
+  }
+
   // src/articles.mjs
   var ARTICLE_KINDS = Object.freeze(["carton", "plate", "container"]);
   var messages = {
@@ -1063,22 +1143,36 @@
       const value = text(record[key], maximum);
       if (value || key === "externalRef") result[key] = value;
     }
+    if (record.serialNumbers !== void 0) {
+      if (record.articleKind !== "container") fail("INVALID_BOOKING");
+      result.serialNumbers = parseSerialNumbers(record.serialNumbers);
+      if (record.serialOrigins !== void 0) {
+        if (!Array.isArray(record.serialOrigins) || record.serialOrigins.length !== result.serialNumbers.length || record.serialOrigins.some((value) => typeof value !== "string" || !value || value.length > 200)) fail("INVALID_BOOKING");
+        result.serialOrigins = [...record.serialOrigins];
+      }
+    }
     return result;
   }
   function createMovementMetadata(article, options = {}) {
-    return movementMetadata({
+    const numbers = articleKind(article) === "container" ? parseSerialNumbers(options.serialNumbers) : options.serialNumbers;
+    const metadata = movementMetadata({
       articleKind: articleKind(article),
       externalRef: article.externalRef || "",
       partner: options.partner,
-      reference: options.reference
+      reference: options.reference,
+      serialNumbers: numbers
     });
+    if (metadata.serialNumbers) metadata.serialOrigins = serialOrigins(article, metadata.serialNumbers);
+    return metadata;
   }
   function validateMovement(move) {
     if (!["in", "out", "shrink"].includes(move.type)) fail("INVALID_BOOKING");
+    const metadata = movementMetadata(move), qty = whole(move.qty, true, "INVALID_BOOKING");
+    if (metadata.serialNumbers && metadata.serialNumbers.length !== qty) fail("INVALID_BOOKING");
     return {
       ...move,
-      ...movementMetadata(move),
-      qty: whole(move.qty, true, "INVALID_BOOKING"),
+      ...metadata,
+      qty,
       cartonId: text(move.cartonId, 120, true),
       article: text(move.article, 120, true),
       userId: text(move.userId, 128, true),
@@ -1086,6 +1180,12 @@
       reason: text(move.reason, 500),
       note: text(move.note, 1e3)
     };
+  }
+  function sameMovementIdentity(a, b) {
+    return a.userId === b.userId && a.cartonId === b.cartonId && a.type === b.type && Number(a.qty) === Number(b.qty) && ["articleKind", "externalRef", "partner", "reference"].every((key) => (a[key] ?? "") === (b[key] ?? "")) && JSON.stringify(a.serialNumbers ?? null) === JSON.stringify(b.serialNumbers ?? null) && JSON.stringify(a.serialOrigins ?? null) === JSON.stringify(b.serialOrigins ?? null);
+  }
+  function serialDependencies(move) {
+    return (move.serialNumbers || []).map((number) => JSON.stringify([move.cartonId, number]));
   }
 
   // src/offline-core.js
@@ -1234,34 +1334,45 @@
     ready = true;
     return { available: true };
   }
-  async function pendingDeltas(cartons) {
-    const applied = new Map(cartons.map((c) => [String(c.id), c._zsApplied]));
-    const rows = await query(`SELECT id,carton_id,type,qty FROM movements
-                          WHERE sync_status IN ('PENDING','SYNCING','FAILED','CONFLICT')`);
-    const deltas = /* @__PURE__ */ new Map();
-    for (const row of rows) {
-      const cartonId = String(row.carton_id);
-      if (applied.get(cartonId)?.[row.id]) continue;
-      const delta = row.type === "in" ? Number(row.qty) : -Number(row.qty);
-      deltas.set(cartonId, (deltas.get(cartonId) || 0) + delta);
-    }
-    return deltas;
+  var stockWrites = Promise.resolve();
+  function serializeStockWrite(operation) {
+    const result = stockWrites.then(operation);
+    stockWrites = result.catch(() => {
+    });
+    return result;
   }
   async function cacheCartons(cartons = []) {
+    return serializeStockWrite(() => cacheCartonSnapshot(cartons));
+  }
+  async function cacheCartonSnapshot(cartons) {
     await init();
-    const deltas = await pendingDeltas(cartons);
-    for (const c of cartons) {
-      const id = String(c.id || "");
+    const rows = await query(`SELECT id,carton_id,type,qty,payload_json FROM movements
+    WHERE sync_status IN ('PENDING','SYNCING','FAILED') ORDER BY created_at,rowid`);
+    const pending = /* @__PURE__ */ new Map();
+    for (const row of rows) {
+      const list = pending.get(row.carton_id) || [];
+      list.push({ ...safeJson(row.payload_json), id: row.id, type: row.type, qty: row.qty });
+      pending.set(row.carton_id, list);
+    }
+    for (const server of cartons) {
+      const id = String(server.id || "");
       if (!id) continue;
-      const serverStock = Number(c.stock) || 0;
-      const effective = serverStock + (deltas.get(id) || 0);
+      let c = server;
+      for (const move of pending.get(id) || []) {
+        if (server._zsApplied?.[move.id]) continue;
+        try {
+          c = applyStockMovement(c, move);
+        } catch (error) {
+          if (error.code !== "INVALID_CONTAINER_SERIAL" && !/INSUFFICIENT_STOCK|INVALID_STOCK/.test(error.message)) throw error;
+        }
+      }
       await run(
         `INSERT INTO cartons(id,article,name,location,stock,min_stock,warn_stock,active,server_updated_at,local_updated_at,payload_json)
       VALUES(?,?,?,?,?,?,?,?,?,?,?)
       ON CONFLICT(id) DO UPDATE SET article=excluded.article,name=excluded.name,location=excluded.location,
       stock=excluded.stock,min_stock=excluded.min_stock,warn_stock=excluded.warn_stock,active=excluded.active,
       server_updated_at=excluded.server_updated_at,local_updated_at=excluded.local_updated_at,payload_json=excluded.payload_json`,
-        [id, String(c.article || id), String(c.name || ""), String(c.location || ""), effective, Number(c.min) || 0, Number(c.warn) || 0, c.active === false ? 0 : 1, Number(c.updatedAt) || 0, now(), JSON.stringify(c)]
+        [id, String(c.article || id), String(c.name || ""), String(c.location || ""), c.stock, Number(c.min) || 0, Number(c.warn) || 0, c.active === false ? 0 : 1, Number(c.updatedAt) || 0, now(), JSON.stringify(c)]
       );
     }
     const present = new Set(cartons.map((c) => String(c.id)));
@@ -1309,12 +1420,19 @@
     const rows = await query(`SELECT payload_json,id,name,active,updated_at FROM instructions ORDER BY name COLLATE NOCASE`);
     return rows.map((r) => ({ ...safeJson(r.payload_json), id: r.id, name: r.name || "", active: Number(r.active) !== 0, updatedAt: Number(r.updated_at) || 0 }));
   }
-  async function cacheMovements(items = []) {
+  function cacheMovements(items = []) {
+    return serializeStockWrite(() => cacheMovementSnapshot(items));
+  }
+  async function cacheMovementSnapshot(items) {
     await init();
     for (const m of items) {
       const sid = String(m.id || "");
       if (!sid) continue;
-      const existing = await query(`SELECT id FROM movements WHERE id=? LIMIT 1`, [sid]);
+      const existing = await query(`SELECT id,payload_json FROM movements WHERE id=? LIMIT 1`, [sid]);
+      if (existing.length && !sameMovementIdentity(safeJson(existing[0].payload_json), m)) {
+        await markConflict(sid, "ID_COLLISION_OR_MOVEMENT_MISMATCH");
+        existing.length = 0;
+      }
       const localId = existing.length ? sid : `server:${sid}`;
       await run(
         `INSERT INTO movements(id,server_id,ts,user_id,user_name,carton_id,article,type,qty,reason,note,stock_before,stock_after,sync_status,created_at,updated_at,payload_json)
@@ -1351,29 +1469,29 @@
       syncStatus: r.sync_status
     }));
   }
-  async function recordMovement({ cartonId, type, qty, reason = "", note = "", userId = "", userName = "", partner = "", reference = "" }) {
+  function recordMovement(input) {
+    return serializeStockWrite(() => recordLocalMovement(input));
+  }
+  async function recordLocalMovement({ cartonId, type, qty, reason = "", note = "", userId = "", userName = "", partner = "", reference = "", serialNumbers }) {
     await init();
-    const q = Number(qty);
-    if (!Number.isSafeInteger(q) || q < 1) throw new Error("INVALID_QUANTITY");
-    if (!["in", "out", "shrink"].includes(type)) throw new Error("INVALID_TYPE");
-    const rows = await query(`SELECT * FROM cartons WHERE id=? LIMIT 1`, [String(cartonId)]);
-    const c = rows[0];
-    if (!c) throw new Error("CARTON_NOT_FOUND_OFFLINE");
-    const before = Number(c.stock) || 0;
-    if (type !== "in" && q > before) throw new Error("INSUFFICIENT_STOCK");
-    const after = Math.max(0, before + (type === "in" ? q : -q));
-    if (!Number.isSafeInteger(before) || before < 0 || !Number.isSafeInteger(after)) throw new Error("Die Menge oder der lokale Bestand ist f\xFCr diese Buchung ung\xFCltig. Bitte Bestand und Synchronisierung pr\xFCfen.");
-    const id = uuid(), ts = now();
-    const metadata = createMovementMetadata(safeJson(c.payload_json) || {}, { partner, reference });
-    const payload = validateMovement({ id, cartonId: String(cartonId), article: c.article, type, qty: q, reason, note, userId, userName, stockBefore: before, stockAfter: after, ts, syncStatus: "PENDING", ...metadata });
     await CapacitorSQLite.beginTransaction({ database: DB });
     try {
-      await run(`UPDATE cartons SET stock=?,local_updated_at=? WHERE id=?`, [after, ts, String(cartonId)]);
+      const rows = await query("SELECT * FROM cartons WHERE id=? LIMIT 1", [String(cartonId)]);
+      const c = rows[0];
+      if (!c) throw Error("CARTON_NOT_FOUND_OFFLINE");
+      const before = Number(c.stock), article = { ...safeJson(c.payload_json), stock: before };
+      const id = uuid(), ts = now();
+      const metadata = createMovementMetadata(article, { partner, reference, serialNumbers });
+      const payload = validateMovement({ id, ts, cartonId: String(cartonId), article: c.article, type, qty, reason, note, userId, userName, stockBefore: before, syncStatus: "PENDING", ...metadata });
+      const updated = applyStockMovement(article, payload), after = updated.stock, q = payload.qty;
+      payload.stockAfter = after;
+      await run("UPDATE cartons SET stock=?,payload_json=?,local_updated_at=? WHERE id=?", [after, JSON.stringify(updated), ts, String(cartonId)]);
       await run(`INSERT INTO movements(id,ts,user_id,user_name,carton_id,article,type,qty,reason,note,stock_before,stock_after,sync_status,created_at,updated_at,payload_json)
       VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [id, ts, userId, userName, String(cartonId), c.article, type, q, reason, note, before, after, "PENDING", ts, ts, JSON.stringify(payload)]);
       await run(`INSERT INTO sync_queue(id,entity_type,entity_id,operation,payload_json,status,attempts,created_at,updated_at)
       VALUES(?,?,?,?,?,'PENDING',0,?,?)`, [id, "movement", id, "CREATE", JSON.stringify(payload), ts, ts]);
       await CapacitorSQLite.commitTransaction({ database: DB });
+      return payload;
     } catch (e) {
       try {
         await CapacitorSQLite.rollbackTransaction({ database: DB });
@@ -1381,7 +1499,6 @@
       }
       throw e;
     }
-    return payload;
   }
   async function getPendingMovements() {
     await init();
@@ -1390,7 +1507,7 @@
   async function getMovementsByStatus(statuses = []) {
     if (!statuses.length) return [];
     const marks = statuses.map(() => "?").join(",");
-    const rows = await query(`SELECT * FROM movements WHERE sync_status IN (${marks}) ORDER BY created_at ASC`, statuses);
+    const rows = await query(`SELECT * FROM movements WHERE sync_status IN (${marks}) ORDER BY created_at,rowid`, statuses);
     return rows.map((r) => ({ ...movementMetadata(safeJson(r.payload_json) || {}), id: r.id, ts: Number(r.ts) || 0, userId: r.user_id || "", userName: r.user_name || "", cartonId: r.carton_id, article: r.article || "", type: r.type, qty: Number(r.qty) || 0, reason: r.reason || "", note: r.note || "", stockBefore: Number(r.stock_before) || 0, stockAfter: Number(r.stock_after) || 0, syncStatus: r.sync_status }));
   }
   async function getSyncBatch(limit = 20, userId = null) {
@@ -1398,9 +1515,19 @@
     const t = now();
     const rows = await query(`SELECT q.*,m.ts,m.user_id,m.user_name,m.carton_id,m.article,m.type,m.qty,m.reason,m.note,m.stock_before,m.stock_after,m.sync_status
     FROM sync_queue q JOIN movements m ON m.id=q.entity_id
-    WHERE q.entity_type='movement' AND q.status IN ('PENDING','FAILED') AND (q.next_retry_at IS NULL OR q.next_retry_at<=?)
-    AND (? IS NULL OR m.user_id=?) ORDER BY q.created_at ASC LIMIT ?`, [t, userId, userId, Number(limit) || 20]);
-    return rows.map((r) => ({ ...movementMetadata(safeJson(r.payload_json) || {}), id: r.id, entityId: r.entity_id, status: r.status, attempts: Number(r.attempts) || 0, ts: Number(r.ts) || 0, userId: r.user_id || "", userName: r.user_name || "", cartonId: r.carton_id, article: r.article || "", type: r.type, qty: Number(r.qty) || 0, reason: r.reason || "", note: r.note || "", stockBefore: Number(r.stock_before) || 0, stockAfter: Number(r.stock_after) || 0, syncStatus: r.sync_status }));
+    WHERE q.entity_type='movement' AND q.status IN ('PENDING','FAILED','SYNCING') ORDER BY q.created_at,q.rowid`);
+    const blocked = /* @__PURE__ */ new Set(), batch = [];
+    for (const r of rows) {
+      const metadata = movementMetadata(safeJson(r.payload_json) || {});
+      const labels = serialDependencies({ ...metadata, cartonId: r.carton_id });
+      if (r.status === "SYNCING" || Number(r.next_retry_at) > t || userId !== null && r.user_id !== userId || labels.some((key) => blocked.has(key))) {
+        for (const key of labels) blocked.add(key);
+        continue;
+      }
+      batch.push({ ...metadata, id: r.id, entityId: r.entity_id, status: r.status, attempts: Number(r.attempts) || 0, ts: Number(r.ts) || 0, userId: r.user_id || "", userName: r.user_name || "", cartonId: r.carton_id, article: r.article || "", type: r.type, qty: Number(r.qty) || 0, reason: r.reason || "", note: r.note || "", stockBefore: Number(r.stock_before) || 0, stockAfter: Number(r.stock_after) || 0, syncStatus: r.sync_status });
+      if (batch.length >= (Number(limit) || 20)) break;
+    }
+    return batch;
   }
   async function markSyncing(id) {
     await init();

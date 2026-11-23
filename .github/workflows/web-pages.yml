@@ -6,6 +6,7 @@ on:
       - v5-web-main
       - v5-ui-web
       - feat/plates-container-quantities
+      - feat/container-serials
       - main
   workflow_dispatch:
 
