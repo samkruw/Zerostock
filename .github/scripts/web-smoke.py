@@ -63,6 +63,7 @@ try:
             stage = label + ':firebase-bootstrap'
             page.goto(url, wait_until='networkidle')
             page.locator('#authLogin.active').wait_for(timeout=45000)
+            assert page.locator('#launchScreen .launchPart').count() == 3
             assert page.locator('#gateLoginError').inner_text() == ''
             assert page.evaluate('Boolean(S.firebase?.auth)')
             assert page.evaluate('S.firebase.auth.app.options.projectId') == 'zerostock-c5f5f'
@@ -70,7 +71,7 @@ try:
             assert page.evaluate('ZeroStockUpdates.currentVersion()') == version
             assert page.evaluate('ZeroStockUpdates.isNewer("5.0.0", "5.0.0-rc.1")')
             assert page.evaluate('ZeroStockUpdates.isNewer("5.0.1", "5.0.0")')
-            assert page.evaluate("v => ZeroStockUpdates.isNewer(v, '5.2.0')", version)
+            assert page.evaluate("v => ZeroStockUpdates.isNewer(v, '5.3.0')", version)
             stage = label + ':service-worker'
             page.wait_for_function('Boolean(navigator.serviceWorker.controller)', timeout=45000)
             assert 'zerostock-v'+version in page.evaluate('caches.keys()')

@@ -8,6 +8,7 @@ on:
       - feat/plates-container-quantities
       - feat/container-serials
       - feat/business-ui
+      - feat/brand-launch
       - main
   workflow_dispatch:
 
