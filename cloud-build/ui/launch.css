@@ -1,0 +1,127 @@
+/* One registered sprite supplies the assembled mark and its three folded sections. */
+.brandMark::before, .launchPart {
+  content: "";
+  display: block;
+  background-image: url("./brand.png");
+  background-size: 400% 100%;
+  background-repeat: no-repeat;
+}
+.brandMark::before { width: 94%; height: 94%; background-position: 0 0; }
+.launchScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  padding: var(--zs-safe-top) var(--zs-safe-right) var(--zs-safe-bottom) var(--zs-safe-left);
+  background: #0d2522;
+  color: #f3fff7;
+  --assemble: cubic-bezier(.16,.81,.23,1);
+}
+.launchScreen[hidden] { display: none !important; }
+.launchBackdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: linear-gradient(115deg,#071c1cec 5%,#102e29dc 48%,#11372acb 80%,#0a2828e8),
+              var(--warehouse-photo) center 55% / cover no-repeat;
+}
+.launchBackdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 49% 42%,#75d0a41a,transparent 53%),
+              linear-gradient(0deg,#071d1bbd,transparent 39%);
+}
+.launchLockup { display: grid; justify-items: center; text-align: center; transform: translateY(-3vh); }
+.launchFrame {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(178px,23vw,236px);
+  aspect-ratio: 1.4;
+}
+.launchGuides {
+  --stroke: linear-gradient(#a0ddc4,#a0ddc4);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    var(--stroke) left top/14px 1px, var(--stroke) left top/1px 14px,
+    var(--stroke) right top/14px 1px, var(--stroke) right top/1px 14px,
+    var(--stroke) left bottom/14px 1px, var(--stroke) left bottom/1px 14px,
+    var(--stroke) right bottom/14px 1px, var(--stroke) right bottom/1px 14px;
+  background-repeat: no-repeat;
+  opacity: .35;
+}
+.launchMark {
+  position: relative;
+  width: 85%;
+  height: 100%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+.launchPart { position: absolute; width: auto; height: 117%; aspect-ratio: 1; }
+.launchUpper { background-position: 33.33333% 0; }
+.launchBridge { background-position: 66.66667% 0; }
+.launchBase { background-position: 100% 0; }
+.launchName {
+  margin: 20px 0 0;
+  font-size: clamp(40px,5vw,62px);
+  line-height: 1.08;
+  font-weight: 690;
+  letter-spacing: -.072em;
+}
+.launchName span { font-weight: 415; color: #d8f5e4; }
+.launchScope { margin-top: 9px; color: #c3ddcf; font-size: 14px; letter-spacing: .05em; }
+.launchSkip {
+  position: absolute;
+  right: calc(16px + var(--zs-safe-right));
+  bottom: calc(16px + var(--zs-safe-bottom));
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 7px;
+  border: 1px solid #8eafa080;
+  background: #102f28cc;
+  color: #e1f2e7;
+  font-size: 13px;
+}
+.launchSkip:focus-visible { outline-color: #b5edcf; }
+@media (prefers-reduced-motion: no-preference) {
+  .launchScreen:not([hidden]) { animation: launchExit 180ms ease-in 1510ms forwards; }
+  .launchBackdrop { animation: launchCamera 1650ms ease-out both; }
+  .launchGuides { animation: launchGuides 1180ms ease-out both; }
+  .launchBase { animation: launchBase 630ms var(--assemble) 65ms both; }
+  .launchBridge { animation: launchBridge 620ms var(--assemble) 225ms both; }
+  .launchUpper { animation: launchUpper 660ms var(--assemble) 335ms both; }
+  .launchName { animation: launchType 510ms var(--assemble) 535ms both; }
+  .launchScope { animation: launchType 430ms var(--assemble) 690ms both; }
+}
+@keyframes launchBase {
+  from { transform: translate(-17%,18%); opacity: 0; }
+  to { transform: translate(0); opacity: 1; }
+}
+@keyframes launchBridge {
+  from { transform: translate(16%,-12%); opacity: 0; }
+  to { transform: translate(0); opacity: 1; }
+}
+@keyframes launchUpper {
+  from { transform: translate(-9%,-24%); opacity: 0; }
+  to { transform: translate(0); opacity: 1; }
+}
+@keyframes launchType {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes launchGuides {
+  0% { opacity: 0; transform: scale(1.09); }
+  45% { opacity: .65; }
+  100% { opacity: .23; transform: scale(1); }
+}
+@keyframes launchCamera { from { transform: scale(1.045); } to { transform: scale(1); } }
+@keyframes launchExit { to { opacity: 0; visibility: hidden; } }
+@media (max-height: 425px) { .launchFrame { width: 150px; } .launchName { margin-top: 6px; font-size: 35px; } }
+@media print, (prefers-reduced-motion: reduce) { .launchScreen { display: none !important; } }

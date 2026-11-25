@@ -13,21 +13,81 @@
 <title>ZeroStock</title>
 <link rel="stylesheet" href="../ui/workspace.css">
 <link rel="stylesheet" href="../ui/scanner.css">
+<link rel="stylesheet" href="../ui/launch.css">
 </head>
 <body>
+<div class="launchScreen" id="launchScreen" hidden>
+  <div class="launchBackdrop" aria-hidden="true"></div>
+  <div class="launchLockup" aria-hidden="true">
+    <div class="launchFrame"><span class="launchGuides"></span><div class="launchMark">
+      <span class="launchPart launchBase"></span><span class="launchPart launchBridge"></span><span class="launchPart launchUpper"></span>
+    </div></div>
+    <div class="launchName">Zero<span>Stock</span></div><div class="launchScope" id="launchScope">Lagerverwaltung</div>
+  </div>
+  <button type="button" class="launchSkip" id="launchSkip">Überspringen</button>
+</div>
+<script>
+(() => {
+  const screen = document.getElementById('launchScreen');
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (motion.matches || new URLSearchParams(location.search).has('box')) return;
+  try {
+    if (sessionStorage.getItem('zs-launch-shown')) return;
+    sessionStorage.setItem('zs-launch-shown','1');
+  } catch { /* A storage restriction still permits a normal launch. */ }
+  try {
+    if (localStorage.getItem('zs-lang') === 'en') {
+      document.getElementById('launchSkip').textContent = 'Skip';
+      document.getElementById('launchScope').textContent = 'Warehouse management';
+    }
+  } catch { /* German is the default when preferences are unavailable. */ }
+
+  screen.hidden = false;
+  let timer;
+  function dismiss() {
+    screen.hidden = true;
+    clearTimeout(timer);
+    screen.removeEventListener('click',dismiss);
+    screen.removeEventListener('animationend',onAnimationEnd);
+    window.removeEventListener('keydown',onKey,true);
+    window.removeEventListener('pagehide',dismiss);
+    motion.removeEventListener?.('change',onMotionChange);
+  }
+  function onAnimationEnd(event) {
+    if (event.target === screen && event.animationName === 'launchExit') dismiss();
+  }
+  function onKey(event) {
+    if (event.key === 'Tab') return dismiss();
+    if (event.key === 'Escape' || event.key === 'Enter') {
+      event.preventDefault();
+      event.stopPropagation();
+      dismiss();
+    }
+  }
+  function onMotionChange(event) { if (event.matches) dismiss(); }
+  screen.addEventListener('click',dismiss);
+  screen.addEventListener('animationend',onAnimationEnd);
+  window.addEventListener('keydown',onKey,true);
+  window.addEventListener('pagehide',dismiss,{once:true});
+  motion.addEventListener?.('change',onMotionChange);
+  // Also finish if the browser suspends CSS animations during startup.
+  timer = setTimeout(dismiss,1900);
+})();
+</script>
+
 <div class="authGate" id="authGate"><div class="authShell">
   <div class="authPhoto"><div><p data-i18n="workspaceName">Lagerverwaltung</p><small data-i18n="loginScope">Bestand, Container und Packplanung</small></div></div>
   <div class="authCard">
-<div class="authBrand"><span class="brandMark" aria-hidden="true"><span class="icon" data-icon="brand" aria-hidden="true"></span></span><b class="wordmark">Zero<span>Stock</span></b></div>
+<div class="authBrand"><span class="brandMark" aria-hidden="true"></span><b class="wordmark">Zero<span>Stock</span></b></div>
 <div class="authView active" id="authLoading"><h2>ZeroStock wird gestartet</h2><p>Anmeldung wird geladen …</p></div>
 <div class="authView" id="authLogin"><h2 data-i18n="loginTitle">Anmelden</h2><p data-i18n="loginIntro">Melde dich mit deinem ZeroStock-Konto an.</p><div class="authForm"><label>E-Mail<input id="gateEmail" enterkeyhint="next" type="email" autocomplete="username" inputmode="email" placeholder="name@firma.ch"></label><label>Passwort<input id="gatePassword" enterkeyhint="go" type="password" autocomplete="current-password" placeholder="••••••••"></label><button class="btn primary" id="gateLogin"><span data-i18n="loginTitle">Anmelden</span><span aria-hidden="true">→</span></button><button class="authLink" id="gateReset" data-i18n="forgotPassword">Passwort vergessen?</button></div><div class="authError" id="gateLoginError" role="status"></div></div>
 <div class="authView" id="authNoRole"><h2>Firebase-Rolle konnte nicht geladen werden</h2><p>Der Login funktioniert. Dieser Bildschirm erscheint jetzt nur noch, wenn der Rollenwert selbst nicht gelesen werden kann.</p><div class="dangerbox"><div class="note"><code>/users/&lt;UID&gt;/role</code> muss <b>admin</b>, <b>employee</b> oder <b>customer</b> sein.<br><br><b>Gelesener Rollenwert:</b> <code id="gateRoleValue">—</code><br><b>Prüfung:</b> <span id="gateRoleState">—</span><br><b>Quelle:</b> <span id="gateRoleSource">—</span><br><b>Datenbank:</b> <code id="gateRoleDb">—</code></div></div><div class="authForm" style="margin-top:14px"><button class="btn primary" id="gateRetryRole">Rolle erneut prüfen</button><button class="btn" id="gateLogoutRole">Abmelden</button></div><div class="authMeta"><span>UID</span><span id="gateUid">—</span></div></div>
 <div class="authMeta authFooter"><span data-i18n="workspaceName">Lagerverwaltung</span><span class="releaseVersion"></span></div></div>
 </div></div>
 
-<div class="mobilehead"><div class="mobileBrand"><span class="brandMark" aria-hidden="true"><span class="icon" data-icon="brand" aria-hidden="true"></span></span><b class="wordmark">Zero<span>Stock</span></b></div><span id="mobileConn">Login</span></div>
+<div class="mobilehead"><div class="mobileBrand"><span class="brandMark" aria-hidden="true"></span><b class="wordmark">Zero<span>Stock</span></b></div><span id="mobileConn">Login</span></div>
 <div class="app locked" id="appShell">
-<aside><div class="brand"><span class="brandMark" aria-hidden="true"><span class="icon" data-icon="brand" aria-hidden="true"></span></span><b class="wordmark">Zero<span>Stock</span></b></div><nav id="nav" aria-label="Hauptnavigation">
+<aside><div class="brand"><span class="brandMark" aria-hidden="true"></span><b class="wordmark">Zero<span>Stock</span></b></div><nav id="nav" aria-label="Hauptnavigation">
 <button data-view="dashboard" class="active"><span data-i18n="dashboard">Dashboard</span><span class="icon" data-icon="dashboard" aria-hidden="true"></span></button>
 <button data-view="scan" data-internal><span data-i18n="scan">QR scannen</span><span class="icon" data-icon="scan" aria-hidden="true"></span></button>
 <button data-view="cartons" data-internal><span data-i18n="cartons">Kartons</span><span class="icon" data-icon="cartons" aria-hidden="true"></span></button>

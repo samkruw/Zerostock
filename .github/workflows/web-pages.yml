@@ -37,6 +37,7 @@ jobs:
         run: 'python .github/scripts/web-smoke.py'
       - name: Test article and container controllers with isolated fixtures
         run: |
+          python .github/scripts/brand-start.py --root .
           python .github/scripts/articles-ui.py --root .
           python .github/scripts/articles-regressions.py --root .
       - name: Test content readability and Android safe areas with isolated fixtures

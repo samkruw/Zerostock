@@ -43,7 +43,8 @@ try {
   const htmlFile = path.join(destination,'index.html');
   const html = fs.readFileSync(htmlFile,'utf8');
   const ui = path.join(cloud,'ui');
-  const styles = ['workspace.css','scanner.css'].map(file => fs.readFileSync(path.join(ui,file),'utf8')).join('\n');
+  const sheets = ['workspace.css','scanner.css','launch.css'];
+  const styles = sheets.map(file => fs.readFileSync(path.join(ui,file),'utf8')).join('\n');
   const types = {'.woff2':'font/woff2','.webp':'image/webp','.png':'image/png'};
   const embedded = styles.replace(/url\("\.\/([^"/]+)"\)/g,(_,file) => {
     const type = types[path.extname(file)];
@@ -51,15 +52,15 @@ try {
     return 'url("data:'+type+';base64,'+fs.readFileSync(path.join(ui,file)).toString('base64')+'")';
   });
   const license = fs.readFileSync(path.join(ui,'Inter-OFL.txt'),'utf8');
-  const themed = html.replace(/<link rel="stylesheet" href="\.\.\/ui\/workspace\.css">\s*<link rel="stylesheet" href="\.\.\/ui\/scanner\.css">/,
-    () => '<style>\n/* '+license+' */\n'+embedded+'\n</style>');
+  const styleLinks = sheets.map(file => '<link rel="stylesheet" href="../ui/'+file+'">').join('\n');
+  const themed = html.replace(styleLinks,() => '<style>\n/* '+license+' */\n'+embedded+'\n</style>');
   if (themed === html) throw new Error('Workspace stylesheet insertion point missing.');
   fs.writeFileSync(htmlFile,themed.replace(/(<meta name="app-version" content=")5\.1\.0("\s*\/?>)/,`$1${version}$2`));
   const pkgFile = path.join(destination,'package.json');
   const pkg = JSON.parse(fs.readFileSync(pkgFile,'utf8'));
   pkg.dependencies['@capacitor/app']='8.1.2';
   pkg.scripts['web:build']='esbuild src/articles.mjs --bundle --format=iife --global-name=ZeroStockArticles --target=es2022 --outfile=articles.js && '+pkg.scripts['web:build'];
-  pkg.scripts['assets:android'] += ' --iconBackgroundColor "#ace9c3" --iconBackgroundColorDark "#ace9c3" --splashBackgroundColor "#ace9c3" --splashBackgroundColorDark "#ace9c3"';
+  pkg.scripts['assets:android'] += ' --iconBackgroundColor "#102d29" --iconBackgroundColorDark "#102d29" --splashBackgroundColor "#102d29" --splashBackgroundColorDark "#102d29"';
   pkg.scripts['test:articles']='node --test scripts/test-articles.mjs';
   pkg.scripts['test:all']+=' && npm run test:articles';
   if (fs.existsSync(path.join(destination,'scripts/test-offline-articles.mjs'))) {

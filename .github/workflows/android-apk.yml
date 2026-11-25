@@ -2,7 +2,7 @@ name: ZeroStock V5 Android APK
 
 on:
   push:
-    branches: [main, v5-cloud-build, feat/plates-container-quantities, feat/container-serials, feat/business-ui]
+    branches: [main, v5-cloud-build, feat/plates-container-quantities, feat/container-serials, feat/business-ui, feat/brand-launch]
     tags: ['v*']
     paths:
       - cloud-build/**
@@ -12,6 +12,7 @@ on:
       - .github/scripts/articles*.py
       - .github/scripts/articles-fixture.js
       - .github/scripts/ui-readability.py
+      - .github/scripts/brand-start.py
       - icon-*.png
   workflow_dispatch:
 
@@ -19,7 +20,7 @@ permissions:
   contents: read
 
 env:
-  ZEROSTOCK_RELEASE_VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '5.3.0' }}
+  ZEROSTOCK_RELEASE_VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '5.3.1' }}
 
 concurrency:
   group: zerostock-android-${{ github.ref }}
@@ -33,7 +34,7 @@ jobs:
     if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
     uses: ./.github/workflows/android-native-check.yml
     with:
-      version: '5.3.0'
+      version: '5.3.1'
       version_code: ${{ fromJSON(github.run_number) }}
 
   verify-source:
@@ -67,6 +68,7 @@ jobs:
             mcr.microsoft.com/playwright/python:v1.56.0-noble bash -euc '
               export PYTHONPATH=/tmp/qa
               python -m pip install --disable-pip-version-check --target "$PYTHONPATH" playwright==1.56.0 || { echo "::error::Installing the Playwright Python client failed"; exit 1; }
+              python /checkout/.github/scripts/brand-start.py --root /web || { echo "::error::Brand startup checks failed"; exit 1; }
               python /checkout/.github/scripts/articles-ui.py --root /web || { echo "::error::Article UI flow failed"; exit 1; }
               python /checkout/.github/scripts/articles-regressions.py --root /web || { echo "::error::Booking recovery checks failed"; exit 1; }
               python /checkout/.github/scripts/ui-readability.py --root /web || { echo "::error::Layout checks failed"; exit 1; }

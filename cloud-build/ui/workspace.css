@@ -7,6 +7,7 @@
 :root {
   color-scheme: light;
   --bg: #f3f5f2;
+  --warehouse-photo: url("./warehouse.webp");
   --p: #fff;
   --p2: #f5f7f4;
   --txt: #182e2a;
@@ -76,15 +77,13 @@ small,.note { font-size: 13px; line-height: 1.5; }
 [data-icon="pin"] { --row: 19; }
 [data-icon="chevron"] { --row: 20; }
 [data-icon="logout"] { --row: 21; }
-[data-icon="brand"] { --row: 22; }
 
 /* Application frame */
 .app { min-height: 100vh; display: grid; grid-template-columns: 226px minmax(0, 1fr); }
 aside { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: auto; display: flex; flex-direction: column; gap: 28px; background: var(--rail); color: #f4fbf6; padding: 30px 16px 20px; }
 .brand,.mobileBrand,.authBrand { display: flex; gap: 10px; align-items: center; }
 .brand { padding: 0 12px 28px; border-bottom: 1px solid #3a5650; }
-.brandMark { width: 36px; height: 36px; display: inline-grid; flex: none; place-items: center; border-radius: 9px; background: var(--mint); color: #153e32; }
-.brandMark .icon { --size: 24px; }
+.brandMark { width: 36px; height: 36px; display: inline-grid; flex: none; place-items: center; border-radius: 9px; background: #102d29; border: 1px solid #60877a; }
 .wordmark { font-size: 24px; font-weight: 740; letter-spacing: -.065em; line-height: 1; }
 .wordmark span { font-weight: 475; }
 #nav { display: grid; gap: 3px; }
@@ -138,7 +137,7 @@ main:has(#dashboardView.active) .toolbar [data-goto="scan"] { display: none; }
 .card strong,.taskStat b { display: block; font-size: clamp(26px,2.6vw,38px); font-weight: 620; font-variant-numeric: tabular-nums; line-height: 1.2; margin-top: 8px; letter-spacing: -.055em; }
 .cards strong.green { color: var(--txt); }
 .dashboardHero { isolation: isolate; position: relative; overflow: hidden; margin-bottom: 18px; border-radius: var(--radius); background: #193f36; color: #fff; }
-.heroPhoto,.authPhoto { background: #345046 url("./warehouse.webp") center 55% / cover no-repeat; }
+.heroPhoto,.authPhoto { background: #345046 var(--warehouse-photo) center 55% / cover no-repeat; }
 .heroPhoto { z-index: -1; position: absolute; inset: 0 0 0 53%; background-position: center 61%; clip-path: polygon(13% 0,100% 0,100% 100%,0 100%); }
 .heroContent { width: 59%; padding: 24px 28px; }
 .heroContent h2 { font-size: clamp(24px,2.05vw,33px); font-weight: 560; }
