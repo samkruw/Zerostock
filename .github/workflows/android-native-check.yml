@@ -45,10 +45,4 @@ jobs:
           node scripts/configure-release.mjs
       - name: Compile native release
         working-directory: ${{ env.ZS_SRC }}/android
-        run: |
-          if ./gradlew --no-daemon assembleRelease > "$RUNNER_TEMP/native-build.log" 2>&1; then
-            echo '::notice::Unsigned native Android compilation passed; no signing secrets used.'
-          else
-            python3 "$GITHUB_WORKSPACE/cloud-build/report-gradle-failure.py" "$RUNNER_TEMP/native-build.log"
-            exit 1
-          fi
+        run: bash "$GITHUB_WORKSPACE/cloud-build/build-android.sh"

@@ -20,7 +20,7 @@ permissions:
   contents: read
 
 env:
-  ZEROSTOCK_RELEASE_VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '5.3.1' }}
+  ZEROSTOCK_RELEASE_VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '5.3.2' }}
 
 concurrency:
   group: zerostock-android-${{ github.ref }}
@@ -34,7 +34,7 @@ jobs:
     if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
     uses: ./.github/workflows/android-native-check.yml
     with:
-      version: '5.3.1'
+      version: '5.3.2'
       version_code: ${{ fromJSON(github.run_number) }}
 
   verify-source:
@@ -136,13 +136,7 @@ jobs:
           node scripts/configure-release.mjs
       - name: Build unsigned release APK
         working-directory: ${{ env.ZS_SRC }}/android
-        run: |
-          if ./gradlew --no-daemon assembleRelease > "$RUNNER_TEMP/native-build.log" 2>&1; then
-            echo '::notice::Native release compilation passed.'
-          else
-            python3 "$GITHUB_WORKSPACE/cloud-build/report-gradle-failure.py" "$RUNNER_TEMP/native-build.log"
-            exit 1
-          fi
+        run: bash "$GITHUB_WORKSPACE/cloud-build/build-android.sh"
       - name: Decode temporary keystore
         env:
           KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
