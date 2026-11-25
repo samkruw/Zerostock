@@ -3,6 +3,12 @@ import argparse,functools,http.server,os,threading,unittest
 from pathlib import Path
 from urllib.parse import urlsplit
 from playwright.sync_api import sync_playwright
+def open_article_tools(page, article_id):
+    details = page.locator(f'#cartonRows details[data-id="{article_id}"]')
+    if details.get_attribute('open') is None:
+        details.locator('summary').click()
+
+
 parser=argparse.ArgumentParser();parser.add_argument('--root',type=Path,required=True);args=parser.parse_args()
 class Quiet(http.server.SimpleHTTPRequestHandler):
     def log_message(self,*_):pass
@@ -134,7 +140,7 @@ class Regressions(unittest.TestCase):
         for field,value in [('cArticle','NEW'),('cName','Neu'),('cLocation','L1'),('cSerials','0001\n0002')]:page.locator('#'+field).fill(value)
         self.assertEqual(page.locator('#cStock').input_value(),'2')
         page.locator('#saveCarton').click();page.locator('#cartonModal').wait_for(state='hidden')
-        page.locator('.editC[data-id="NEW"]').click();page.locator('#cStock').fill('1');page.locator('#saveCarton').click()
+        open_article_tools(page,'NEW');page.locator('.editC[data-id="NEW"]').click();page.locator('#cStock').fill('1');page.locator('#saveCarton').click()
         self.assertTrue(page.locator('#cartonModal').is_visible())
         self.assertEqual(page.evaluate('uiFixture.data.cartons.NEW.stock'),2)
     def test_native_scanner_clears_all_forms_and_root_background(self):

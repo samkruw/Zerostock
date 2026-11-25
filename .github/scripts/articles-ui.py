@@ -9,6 +9,12 @@ import threading
 from urllib.parse import urlsplit
 from playwright.sync_api import sync_playwright
 
+def open_article_tools(page, article_id):
+    details = page.locator(f'#cartonRows details[data-id="{article_id}"]')
+    if details.get_attribute('open') is None:
+        details.locator('summary').click()
+
+
 parser=argparse.ArgumentParser()
 parser.add_argument('--root',type=Path,required=True)
 parser.add_argument('--screenshots',type=Path)
@@ -73,19 +79,21 @@ try:
             stage=label+':planner'
             before=page.evaluate('JSON.stringify(uiFixture.data.cartons)')
             page.evaluate("show('planner')");page.locator('#planInstruction').select_option(cfg);page.locator('#planQty').fill('8')
+            assert '7 von 8' in page.locator('#planResult .planSummary h4').inner_text()
+            assert '2 × PL-P' in page.locator('#planResult .planSummary').inner_text()
             assert '7' in page.locator('#planResult .configCapacity').inner_text()
             assert '32' in page.locator('#planResult [data-article-id="P"]').inner_text()
             assert 'Fehlt: 2' in page.locator('#planResult [data-article-id="P"]').inner_text()
             assert page.evaluate('JSON.stringify(uiFixture.data.cartons)')==before
             stage=label+':concurrent-admin-edit'
-            page.evaluate("show('cartons')");page.locator('#cartonRows .editC[data-id="C"]').click()
+            page.evaluate("show('cartons')");open_article_tools(page,'C');page.locator('#cartonRows .editC[data-id="C"]').click()
             assert page.locator('#cKind').is_disabled()
             page.evaluate("uiFixture.data.cartons.C.stock=9;uiFixture.data.cartons.C._zsApplied={retained:{stockAfter:9}};uiFixture.emit()")
             page.locator('#cName').fill('Container A bearbeitet');page.locator('#saveCarton').click();wait_closed(page,'#cartonModal')
             page.wait_for_timeout(220);page.evaluate('closeAll()')
             assert page.evaluate('uiFixture.data.cartons.C.stock')==9
             assert page.evaluate('Boolean(uiFixture.data.cartons.C._zsApplied.retained)')
-            page.locator('#cartonRows .editC[data-id="C"]').click();page.locator('#cStock').fill('8')
+            open_article_tools(page,'C');page.locator('#cartonRows .editC[data-id="C"]').click();page.locator('#cStock').fill('8')
             page.evaluate('uiFixture.data.cartons.C.stock=7;uiFixture.emit()')
             page.locator('#saveCarton').click()
             assert page.locator('#cartonModal').is_visible()
@@ -100,7 +108,12 @@ try:
             assert page.evaluate('uiFixture.data.cartons.C.stock')==9
             assert page.evaluate('Object.keys(uiFixture.data.movements).length')==0
             assert '00a/A.1' in page.locator('#unitList').inner_text()
-            page.locator('#unitsModal .closeModal').click()
+            page.locator('[data-book-unit="00a/A.1"]').click()
+            assert page.locator('#bookType').input_value()=='out'
+            assert page.locator('#bookSerials').input_value()=='00a/A.1'
+            assert '1 Container' in page.locator('#confirmBook').inner_text()
+            assert '9 → 8' in page.locator('#bookPreview').inner_text()
+            page.locator('#bookModal .closeModal').click()
             stage=label+':container-booking'
             page.locator('#cartonRows .book[data-id="C"]').click();page.locator('#bookType').select_option('out')
             assert page.locator('#bookQty').get_attribute('readonly') is not None
@@ -124,6 +137,12 @@ try:
             assert "'=SUM(1+1)" in csv and 'REF-3' in csv and 'CT-A' in csv
             assert 'Seriennummern' in csv and '00a/A.1' in csv
             page.evaluate("show('movements')");assert '00a/A.1' in page.locator('#movementRows').inner_text()
+            page.evaluate("show('cartons')")
+            page.locator('.units[data-id="C"]').click()
+            page.locator('[data-book-unit="00a/A.1"]').click()
+            assert page.locator('#bookType').input_value()=='in'
+            assert '6 → 7' in page.locator('#bookPreview').inner_text()
+            page.locator('#bookModal .closeModal').click()
             page.evaluate("handleScan('00a/A.1')")
             assert page.locator('#bookType').input_value()=='in' and page.locator('#bookSerials').input_value()=='00a/A.1'
             page.locator('#confirmBook').click();wait_closed(page,'#bookModal')

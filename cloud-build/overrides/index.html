@@ -4,442 +4,70 @@
 <meta charset="utf-8">
 <meta name="app-version" content="5.1.0">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#060b14">
+<meta name="theme-color" content="#133832">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ZeroStock">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <title>ZeroStock</title>
-<style>
-:root{--bg:#050a11;--p:#0b1522;--p2:#0e1b2b;--line:#1b3550;--txt:#eef8ff;--muted:#88a1b7;--cyan:#34d8ff;--blue:#4776ff;--green:#32d583;--yellow:#fdbb3d;--red:#ff626b;--violet:#956dff;--shadow:0 24px 70px rgba(0,0,0,.34)}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(900px 550px at 90% -10%,rgba(71,118,255,.17),transparent 60%),var(--bg);color:var(--txt);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial}button,input,select,textarea{font:inherit}button{cursor:pointer}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
-.app{min-height:100vh;display:grid;grid-template-columns:250px 1fr}.app.locked{visibility:hidden;pointer-events:none}
-aside{height:100vh;position:sticky;top:0;padding:19px 14px;background:rgba(5,10,17,.91);border-right:1px solid #13263a;backdrop-filter:blur(14px);display:flex;flex-direction:column}.brand{display:flex;align-items:center;gap:10px;padding:5px 9px 20px}.logo{width:39px;height:39px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--blue),var(--violet));font-weight:900;box-shadow:0 0 25px rgba(52,216,255,.22)}.brand b{display:block}.brand small,.muted{color:var(--muted)}nav{display:grid;gap:6px}nav button{border:1px solid transparent;background:transparent;color:#a6bdd0;text-align:left;padding:11px 12px;border-radius:11px;display:flex;justify-content:space-between}nav button.active,nav button:hover{color:white;background:linear-gradient(90deg,rgba(52,216,255,.12),rgba(71,118,255,.07));border-color:#1c3d5d}.sidefoot{margin-top:auto;border-top:1px solid #14273b;padding:13px 8px;color:var(--muted);font-size:11px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;background:var(--green)}.dot.off{background:var(--red)}
-main{padding:22px 26px 50px;min-width:0}.top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px}.top h1{margin:3px 0;font-size:27px}.eyebrow{font-size:11px;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase}.toolbar,.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid #244665;background:#0c1928;color:white;padding:10px 13px;border-radius:11px}.btn.primary{background:linear-gradient(135deg,#1197c0,#315ae8);border-color:#29c2ed}.btn.red{border-color:#6c343b;color:#ff9ca3}.btn:disabled{opacity:.4;cursor:not-allowed}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:16px}.card,.panel{background:linear-gradient(180deg,rgba(15,29,47,.97),rgba(8,17,29,.97));border:1px solid #17314a;border-radius:16px;box-shadow:var(--shadow)}.card{padding:16px}.card small{color:var(--muted)}.card strong{display:block;font-size:28px;margin-top:5px}.green{color:var(--green)}.yellow{color:var(--yellow)}.red{color:var(--red)}.panel{overflow:hidden}.ph{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #142a40}.ph h3{font-size:14px;margin:0}.ph small{color:var(--muted)}.body{padding:16px}.grid{display:grid;grid-template-columns:1.4fr .75fr;gap:15px}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:760px}th,td{padding:12px 13px;border-bottom:1px solid #11263b;text-align:left;font-size:12px}th{color:#7f9bb3;font-weight:650;background:#091421}tr:hover td{background:rgba(52,216,255,.025)}
-.status{padding:4px 7px;border-radius:99px;font-size:10px;font-weight:800;display:inline-block}.status.ok{background:rgba(50,213,131,.12);color:#6ce6ab;border:1px solid rgba(50,213,131,.25)}.status.warn{background:rgba(253,187,61,.12);color:#ffd06b;border:1px solid rgba(253,187,61,.25)}.status.crit{background:rgba(255,98,107,.12);color:#ff9298;border:1px solid rgba(255,98,107,.25)}.search{width:230px;max-width:100%;background:#07111d;color:white;border:1px solid #1d3a58;border-radius:10px;padding:9px 10px}.view{display:none}.view.active{display:block}
-.scanhero{padding:28px;text-align:center}.scanbox{max-width:520px;margin:auto;border:1px dashed #2b587e;border-radius:18px;padding:26px;background:rgba(52,216,255,.035)}.scanicon{font-size:62px}.scanbox h2{margin:8px 0}.scanbox p,.note{color:var(--muted);font-size:12px;line-height:1.55}.scanbox .btn{min-width:180px;margin:5px}.instruction{display:grid;grid-template-columns:1fr auto;gap:12px;padding:13px 16px;border-bottom:1px solid #11253a}.instruction small{color:var(--muted);display:block;margin-top:4px}.plannerTop{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end}.result,.livecalc{margin-top:15px;border:1px solid #1b3a56;border-radius:14px;padding:15px;background:#091522}.reqgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.req{border:1px solid #18344e;border-radius:10px;padding:10px}.req small{display:block;color:var(--muted)}
-label{font-size:11px;color:#91aabd;display:grid;gap:6px}input,select,textarea{width:100%;background:#07111d;color:white;border:1px solid #1d3a58;border-radius:10px;padding:10px}textarea{min-height:80px;resize:vertical}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;place-items:center;padding:18px;z-index:80}.modal.open{display:grid}.modalbox{width:min(660px,100%);max-height:90vh;overflow:auto;background:#0a1522;border:1px solid #254866;border-radius:17px;box-shadow:0 30px 100px rgba(0,0,0,.6)}.mf{padding:16px}.mfoot{display:flex;justify-content:flex-end;gap:8px;padding:13px 16px;border-top:1px solid #142a40}.toast{position:fixed;right:16px;bottom:90px;display:none;background:#0d1c2b;border:1px solid #2c5578;border-radius:13px;padding:12px 14px;z-index:100;max-width:360px}.toast.show{display:block}.toast small{display:block;color:var(--muted);margin-top:4px}.lang{display:flex;border:1px solid #24445f;border-radius:10px;overflow:hidden}.lang button{border:0;background:#091522;color:#8fa9bf;padding:8px 10px}.lang button.active{background:#14304a;color:white}.rolepill{font-size:10px;padding:4px 7px;border-radius:99px;border:1px solid #2b4c68;color:#a8c3d9}.dangerbox{border:1px solid rgba(255,98,107,.3);background:rgba(255,98,107,.06);border-radius:12px;padding:12px}.camera{position:relative;background:black;border-radius:13px;overflow:hidden;aspect-ratio:4/3}.camera video{width:100%;height:100%;object-fit:cover}.guide{position:absolute;inset:18%;border:2px solid var(--cyan);border-radius:14px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}.materialRows{display:grid;gap:8px}.matrow{display:grid;grid-template-columns:1fr 130px 42px;gap:7px;align-items:end}.iconbtn{border:1px solid #2d4c67;background:#0a1827;color:white;border-radius:9px;padding:9px}.empty{padding:24px 16px;text-align:center;color:var(--muted);font-size:12px}.empty b{display:block;color:var(--txt);font-size:14px;margin-bottom:5px}.onboarding{margin-bottom:16px;border:1px solid #24577a;background:linear-gradient(135deg,rgba(50,215,255,.08),rgba(71,118,255,.07));border-radius:16px;padding:18px}.onboarding h2{margin:0 0 6px;font-size:20px}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:14px}.step{border:1px solid #1c3c58;border-radius:12px;padding:12px;background:#091522}.step.done{border-color:rgba(49,213,131,.35);background:rgba(49,213,131,.06)}.step.active{border-color:rgba(50,215,255,.45);background:rgba(50,215,255,.07)}.step small{display:block;color:var(--muted);margin-top:5px}.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.kv div{border:1px solid #17324c;border-radius:10px;padding:9px}.kv span{display:block;color:var(--muted);font-size:9px}.kv strong{font-size:19px}
-.mobilehead{display:none}.mobileBottom{display:none}.fabScan{display:none}.installbar{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:86px;z-index:70;width:min(520px,calc(100% - 24px));background:#0d1b2b;border:1px solid #2d5a7e;border-radius:14px;padding:11px 12px;box-shadow:0 20px 60px rgba(0,0,0,.45);align-items:center;justify-content:space-between;gap:10px}.installbar.show{display:flex}
-.authGate{position:fixed;inset:0;z-index:1000;background:radial-gradient(800px 500px at 80% -10%,rgba(71,118,255,.18),transparent 60%),radial-gradient(700px 450px at 0% 10%,rgba(52,216,255,.10),transparent 60%),#050a11;display:grid;place-items:center;padding:20px}.authGate.hidden{display:none}.authCard{width:min(460px,100%);background:linear-gradient(180deg,#0e1c2d,#08131f);border:1px solid #1d3c59;border-radius:22px;padding:24px;box-shadow:0 35px 120px rgba(0,0,0,.55)}.authBrand{display:flex;align-items:center;gap:12px;margin-bottom:22px}.authLogo{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--cyan),var(--blue),var(--violet));font-size:22px;font-weight:900}.authBrand h1{font-size:22px;margin:0}.authBrand small{display:block;color:var(--muted);margin-top:3px}.authView{display:none}.authView.active{display:block}.authView h2{margin:0 0 6px;font-size:19px}.authView p{color:var(--muted);font-size:12px;line-height:1.55;margin:0 0 16px}.authForm{display:grid;gap:12px}.authError{display:none;margin-top:12px;border:1px solid rgba(255,98,107,.32);background:rgba(255,98,107,.07);color:#ff9aa0;padding:10px 12px;border-radius:10px;font-size:12px}.authError.show{display:block}.authMeta{margin-top:16px;padding-top:14px;border-top:1px solid #173049;display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--muted);font-size:10px}.authLink{border:0;background:transparent;color:var(--cyan);padding:0;text-decoration:underline}
-@media(max-width:980px){.app{grid-template-columns:1fr}aside{display:none}.mobilehead{display:flex;position:sticky;top:0;z-index:50;padding:10px 14px;background:rgba(5,10,17,.94);border-bottom:1px solid #142a40;justify-content:space-between}main{padding:15px 15px 92px}.grid{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}.plannerTop{grid-template-columns:1fr 1fr}.mobileBottom{display:grid;position:fixed;left:0;right:0;bottom:0;z-index:60;grid-template-columns:repeat(5,1fr);background:rgba(5,10,17,.96);backdrop-filter:blur(18px);border-top:1px solid #17314a;padding:7px 7px calc(7px + var(--zs-safe-bottom))}.mobileBottom button{border:0;background:transparent;color:#8da7bc;padding:7px 3px;border-radius:10px;font-size:10px;display:grid;gap:2px;place-items:center}.mobileBottom button span:first-child{font-size:19px}.mobileBottom button.active{background:rgba(52,216,255,.11);color:#fff}.fabScan{display:grid;position:fixed;right:16px;bottom:90px;z-index:55;width:58px;height:58px;border-radius:50%;place-items:center;border:1px solid #35c8ee;background:linear-gradient(135deg,#129bc3,#315bea);color:#fff;font-size:24px;box-shadow:0 16px 45px rgba(0,0,0,.4)}}
-@media(max-width:570px){.top{align-items:flex-start;flex-direction:column}.formgrid,.plannerTop{grid-template-columns:1fr}.reqgrid{grid-template-columns:1fr}.matrow{grid-template-columns:1fr 90px 42px}.steps{grid-template-columns:1fr}.modal{align-items:end;padding:0}.modalbox{width:100%;max-height:92vh;border-radius:18px 18px 0 0}.mfoot{position:sticky;bottom:0;background:#0a1522}.authGate{padding:12px}.authCard{padding:20px;border-radius:18px}}
-
-/* Print label stays clean white */
-
-.authLogo,.logo{overflow:hidden;padding:0!important;background:#fff!important}
-.authLogo img,.logo img{width:100%;height:100%;display:block;object-fit:cover}
-
-
-#cartonModal.open{display:grid!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
-#cartonModal .modalbox{position:relative;z-index:2}
-
-
-.userGrid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
-.userRow{display:grid;grid-template-columns:minmax(180px,1.4fr) minmax(155px,.8fr) minmax(105px,.5fr) auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #edf2f2}
-.userRow:last-child{border-bottom:0}.userIdentity b{display:block}.userIdentity small{display:block;color:var(--muted);margin-top:3px;word-break:break-all}
-.userStatus{font-size:10px;font-weight:800;border-radius:999px;padding:5px 8px;display:inline-block}
-.userStatus.active{background:#e9f8f0;color:#118654;border:1px solid #bee7cf}.userStatus.off{background:#fff0ef;color:#b6413d;border:1px solid #edc0bd}
-@media(max-width:850px){.userGrid{grid-template-columns:1fr}.userRow{grid-template-columns:1fr 1fr}.userRow .actions{grid-column:1/-1}}
-@media(max-width:570px){.userRow{grid-template-columns:1fr}.userRow .actions{grid-column:auto}}
-@media print{
-  html,body{background:#fff !important}
-  .modal{background:#fff !important}
-}
-
-
-
-/* =========================================================
-   ZeroStock V5.0 Foundation — Command Scan Design System
-   Phase 1: Command Glass desktop + Scan First mobile foundation
-   ========================================================= */
-:root{
-  --bg:#060b14;
-  --p:#111827;
-  --p2:#172033;
-  --line:#26354a;
-  --txt:#f8fafc;
-  --muted:#b1bfd0;
-  --cyan:#26d8b0;
-  --blue:#0a84ff;
-  --green:#22c55e;
-  --yellow:#f59e0b;
-  --red:#ef4444;
-  --violet:#8b5cf6;
-  --brand:#20e3b2;
-  --brand-dark:#10b98d;
-  --surface-light:#1f2937;
-  --shadow:0 18px 55px rgba(0,0,0,.28);
-}
-html,body{
-  background:
-    radial-gradient(900px 520px at 82% -8%,rgba(32,227,178,.10),transparent 62%),
-    radial-gradient(760px 480px at -8% 12%,rgba(10,132,255,.08),transparent 66%),
-    var(--bg) !important;
-  color:var(--txt) !important;
-}
-body{color-scheme:dark}
-.app{background:transparent!important}
-
-/* Brand */
-.wordmark{font-style:normal;letter-spacing:-.025em}
-.wordmark span{color:#f8fafc}
-.wordmark em{font-style:normal;color:var(--brand)}
-.logo,.authLogo{
-  background:#07111c!important;
-  border:1px solid rgba(32,227,178,.25)!important;
-  box-shadow:0 0 28px rgba(32,227,178,.16)!important;
-}
-.logo{width:44px!important;height:44px!important;border-radius:14px!important}
-.authLogo{width:56px!important;height:56px!important;border-radius:17px!important}
-.logo img,.authLogo img{object-fit:cover!important}
-
-/* Sidebar */
-aside{
-  background:rgba(7,13,24,.94)!important;
-  border-right:1px solid #1b293c!important;
-  box-shadow:none!important;
-  backdrop-filter:blur(18px)!important;
-}
-.brand{border-bottom:1px solid #19273a!important;margin-bottom:10px!important;padding-bottom:18px!important}
-.brand b{font-size:18px;color:var(--txt)!important}
-.brand small{color:var(--muted)!important}
-nav button{
-  color:#a5b4c7!important;
-  border:1px solid transparent!important;
-  border-radius:12px!important;
-  transition:.16s ease;
-}
-nav button:hover{background:#111c2d!important;color:#fff!important;border-color:#21364d!important}
-nav button.active{
-  background:linear-gradient(90deg,rgba(32,227,178,.14),rgba(10,132,255,.06))!important;
-  color:#f8fafc!important;
-  border-color:rgba(32,227,178,.24)!important;
-  box-shadow:inset 3px 0 0 var(--brand);
-}
-.sidefoot{border-top:1px solid #1a2a3d!important;color:var(--muted)!important}
-
-/* Top bar */
-main{background:transparent!important}
-.top{
-  background:rgba(12,20,33,.80)!important;
-  border:1px solid #1f3045!important;
-  border-radius:18px!important;
-  padding:16px 18px!important;
-  box-shadow:0 12px 40px rgba(0,0,0,.18)!important;
-  backdrop-filter:blur(16px);
-}
-.top h1{font-size:28px!important;color:#fff!important;letter-spacing:-.02em}
-.eyebrow{color:var(--brand)!important;font-weight:800!important;letter-spacing:.11em!important}
-
-/* Surfaces */
-.card,.panel,.result,.livecalc,.req,.step,.onboarding{
-  background:linear-gradient(180deg,rgba(17,24,39,.96),rgba(11,18,30,.98))!important;
-  border-color:#223249!important;
-  color:var(--txt)!important;
-}
-.card,.panel{box-shadow:var(--shadow)!important}
-.card:hover{border-color:#2f4661!important}
-.ph{background:#101b2b;border-bottom-color:#26354a!important;align-items:flex-start;padding:18px;gap:12px}
-.ph>div{min-width:0}
-.ph h3{color:#f8fafc!important;line-height:1.35}
-.ph small{display:block;margin-top:5px;font-size:13px;line-height:1.5}
-th{background:#0d1624!important;color:#8fa2b8!important}
-th,td{border-bottom-color:#1c2b3e!important}
-tr:hover td{background:rgba(32,227,178,.035)!important}
-.note,.muted,.ph small,.card small,.instruction small,.req small,.step small{color:var(--muted)!important}
-
-/* Inputs */
-input,select,textarea,.search{
-  background:#0b1320!important;
-  color:#f8fafc!important;
-  border:1px solid #2b3c52!important;
-  border-radius:12px!important;
-  outline:none;
-}
-input:focus,select:focus,textarea:focus,.search:focus{
-  border-color:rgba(32,227,178,.72)!important;
-  box-shadow:0 0 0 3px rgba(32,227,178,.10)!important;
-}
-input::placeholder,textarea::placeholder{color:#aab9ca;opacity:1}
-label{color:#a7b6c7!important}
-
-/* Buttons */
-.btn{
-  background:#101b2b!important;
-  color:#f8fafc!important;
-  border:1px solid #2b4059!important;
-  border-radius:12px!important;
-  font-weight:650;
-  box-shadow:none!important;
-}
-.btn:hover{background:#162438!important;border-color:#3a5676!important}
-.btn.primary{
-  background:#1765c1!important;
-  border-color:#4589dd!important;
-  box-shadow:none!important;
-}
-.btn.primary:hover{background:#1256a8!important}
-.btn:focus-visible,.moreMenu button:focus-visible,.taskFilters button:focus-visible,.mobileBottom button:focus-visible{outline:2px solid #6ef0d0;outline-offset:3px}
-.btn.red{background:rgba(239,68,68,.08)!important;border-color:rgba(239,68,68,.35)!important;color:#ff9999!important}
-.iconbtn{background:#101b2b!important;border-color:#2b4059!important}
-.authLink{color:var(--brand)!important}
-
-/* Status */
-.status.ok,.userStatus.active{background:rgba(34,197,94,.12)!important;color:#65e58f!important;border-color:rgba(34,197,94,.28)!important}
-.status.warn{background:rgba(245,158,11,.12)!important;color:#ffc25a!important;border-color:rgba(245,158,11,.28)!important}
-.status.crit,.userStatus.off{background:rgba(239,68,68,.12)!important;color:#ff8585!important;border-color:rgba(239,68,68,.28)!important}
-.rolepill{color:#6be9c6!important;background:rgba(32,227,178,.08)!important;border-color:rgba(32,227,178,.24)!important}
-.dot{background:var(--brand)!important;box-shadow:0 0 10px rgba(32,227,178,.65)}
-.dot.off{background:var(--red)!important;box-shadow:none}
-.green{color:#4ee58b!important}.yellow{color:#f7bc4c!important}.red{color:#ff777f!important}
-
-/* Scanner */
-.scanbox{background:rgba(32,227,178,.035)!important;border-color:rgba(32,227,178,.34)!important}
-.guide{border-color:var(--brand)!important;box-shadow:0 0 0 999px rgba(0,0,0,.48),0 0 30px rgba(32,227,178,.16)!important}
-
-/* Modals / login */
-.modal{background:rgba(2,6,12,.78)!important;backdrop-filter:blur(8px)}
-.modalbox{
-  background:#0d1725!important;
-  border:1px solid #2b4058!important;
-  box-shadow:0 32px 100px rgba(0,0,0,.58)!important;
-}
-.mfoot{background:#0d1725!important;border-top-color:#1f3044!important}
-.authGate{
-  background:
-    radial-gradient(900px 520px at 82% -8%,rgba(32,227,178,.12),transparent 62%),
-    radial-gradient(700px 440px at 0% 10%,rgba(10,132,255,.09),transparent 62%),
-    #060b14!important;
-}
-.authCard{
-  background:linear-gradient(180deg,rgba(17,24,39,.98),rgba(8,14,24,.99))!important;
-  border:1px solid #24384f!important;
-  box-shadow:0 35px 120px rgba(0,0,0,.58)!important;
-}
-.authBrand h1{font-size:26px!important}
-.authBrand small{color:#9cafc0!important}
-.authMeta{border-top-color:#1d2b3e!important;color:#7f93a9!important}
-.dangerbox{background:rgba(239,68,68,.07)!important;border-color:rgba(239,68,68,.30)!important}
-
-/* Mobile */
-.mobilehead{
-  background:rgba(6,11,20,.94)!important;
-  border-bottom:1px solid #1f3045!important;
-  backdrop-filter:blur(18px)!important;
-  align-items:center!important;
-}
-.mobileBrand{display:flex;align-items:center;gap:9px}
-.mobileBrand img{width:34px;height:34px;border-radius:10px;border:1px solid rgba(32,227,178,.22);box-shadow:0 0 18px rgba(32,227,178,.10)}
-.mobileBrand b{font-size:16px}
-#mobileConn{font-size:11px;color:#9bb0c5}
-.mobileBottom{
-  background:rgba(6,11,20,.96)!important;
-  border-top:1px solid #1f3045!important;
-  backdrop-filter:blur(20px)!important;
-}
-.mobileBottom button{color:#879aaf!important}
-.mobileBottom button.active{color:#fff!important;background:rgba(32,227,178,.10)!important;box-shadow:inset 0 2px 0 var(--brand)}
-.fabScan{
-  background:linear-gradient(135deg,#20e3b2,#0fb78c)!important;
-  border-color:#49efc6!important;
-  color:#06120f!important;
-  box-shadow:0 14px 34px rgba(32,227,178,.25)!important;
-}
-.installbar{position:static;transform:none;width:100%;margin:0 0 16px;padding:14px 16px;background:#101b2b!important;border-color:#2a4058!important;color:#fff!important;box-shadow:none!important;gap:12px}
-.installCopy{min-width:0;flex:1}
-.installbar b{display:block;font-size:14px;line-height:1.4}
-.installbar small{display:block;color:var(--muted)!important;font-size:12px;line-height:1.5;margin-top:3px}
-.installbar .actions{flex-wrap:nowrap;align-items:center;flex-shrink:0;gap:8px}
-.installbar .btn{min-height:44px;padding:9px 12px;font-size:13px}
-#installDismiss{width:44px;font-size:22px;padding:0}
-::selection{background:#217b69;color:#fff}
-
-/* Scrollbars */
-*{scrollbar-color:#31465d #0a1320;scrollbar-width:thin}
-*::-webkit-scrollbar-track{background:#0a1320}
-*::-webkit-scrollbar-thumb{background:#31465d;border-color:#0a1320}
-
-@media(max-width:980px){
-  .top{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
-  main{padding-top:14px!important}
-}
-
-
-/* =========================================================
-   ZeroStock V5 Foundation — Command Scan
-   Phase 1 only: visual shell + responsive interaction model.
-   No Firebase business logic is changed here.
-   ========================================================= */
-:root{--zs-glass:rgba(14,24,38,.82);--zs-glass-2:rgba(18,31,48,.92);--zs-glow:rgba(32,227,178,.16);--zs-radius:18px;--zs-safe-top:var(--safe-area-inset-top,env(safe-area-inset-top,0px));--zs-safe-right:var(--safe-area-inset-right,env(safe-area-inset-right,0px));--zs-safe-bottom:var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px));--zs-safe-left:var(--safe-area-inset-left,env(safe-area-inset-left,0px))}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(32,227,178,.025),transparent 35%,rgba(10,132,255,.02));z-index:-1}
-.app{grid-template-columns:86px minmax(0,1fr)!important;transition:grid-template-columns .18s ease}
-aside{width:86px;overflow:hidden;z-index:65;transition:width .18s ease,padding .18s ease}
-aside:hover,aside:focus-within{width:252px;box-shadow:18px 0 50px rgba(0,0,0,.26)!important}
-aside .brand{white-space:nowrap;padding-left:6px!important}
-aside .brand>div:last-child,aside nav button span:first-child,aside .sidefoot>*:not(:first-child){opacity:0;visibility:hidden;transition:opacity .12s ease}
-aside:hover .brand>div:last-child,aside:focus-within .brand>div:last-child,aside:hover nav button span:first-child,aside:focus-within nav button span:first-child,aside:hover .sidefoot>*:not(:first-child),aside:focus-within .sidefoot>*:not(:first-child){opacity:1;visibility:visible}
-aside nav button{width:222px;display:grid!important;grid-template-columns:28px 1fr;gap:12px;align-items:center;padding:11px 12px!important}
-aside nav button span:first-child{grid-column:2;grid-row:1}
-aside nav button span:last-child{text-align:center;font-size:18px;grid-column:1;grid-row:1}
-.logo{flex:0 0 auto}.top{position:sticky;top:14px;z-index:30}
-.card,.panel,.quickAction,.syncStrip{backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
-.card{min-height:108px;border-radius:var(--zs-radius)!important;position:relative;overflow:hidden}
-.card:after{content:"";position:absolute;inset:auto 0 0;height:2px;background:linear-gradient(90deg,var(--brand),transparent 72%);opacity:.55}
-.cards{gap:14px!important}.card strong{font-size:31px!important;letter-spacing:-.04em}
-.quickActions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 16px}
-.quickAction{border:1px solid #23364d;background:linear-gradient(180deg,rgba(17,28,44,.94),rgba(9,17,29,.96));color:#fff;border-radius:16px;padding:15px;text-align:left;display:grid;grid-template-columns:34px 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;transition:.16s ease}
-.quickAction:hover{transform:translateY(-1px);border-color:rgba(32,227,178,.45);box-shadow:0 12px 35px rgba(0,0,0,.20),0 0 24px rgba(32,227,178,.06)}
-.quickAction>span{grid-row:1/3;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:rgba(32,227,178,.10);color:var(--brand);font-size:18px}.quickAction b{font-size:13px}.quickAction small{color:var(--muted);font-size:10px;margin-top:2px}
-.panel{border-radius:var(--zs-radius)!important}.ph{min-height:60px}.ph h3{font-size:18px!important}.tablewrap{scrollbar-gutter:stable}
-.scanbox{max-width:620px!important;padding:38px!important;border-radius:24px!important}.scanicon{width:98px;height:98px;margin:0 auto 18px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle,rgba(32,227,178,.22),rgba(32,227,178,.05) 58%,transparent 62%);color:var(--brand);font-size:50px!important;box-shadow:0 0 40px rgba(32,227,178,.12)}
-.mobileScanHome{display:none}
-.authCard{position:relative;overflow:hidden}.authCard:before{content:"";position:absolute;inset:-80px -80px auto auto;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(32,227,178,.14),transparent 68%);pointer-events:none}
-.authLogo img,.logo img{width:100%;height:100%;border-radius:inherit}
-@media(max-width:1180px){.quickActions{grid-template-columns:repeat(2,minmax(0,1fr))}.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
-@media(max-width:980px){
- .app{grid-template-columns:1fr!important}.top{position:static}.quickActions{display:none}.mobileScanHome{display:grid;gap:10px;margin-bottom:14px}.scanHomeButton{min-height:190px;border:1px solid rgba(32,227,178,.34);border-radius:24px;background:radial-gradient(circle at 50% 42%,rgba(32,227,178,.15),rgba(15,25,40,.96) 48%);color:#fff;display:grid;place-items:center;align-content:center;gap:3px;box-shadow:0 16px 44px rgba(0,0,0,.22)}
- .scanHomeButton .scanGlyph{width:82px;height:82px;border:2px solid var(--brand);border-radius:50%;display:grid;place-items:center;color:var(--brand);font-size:38px;box-shadow:0 0 34px rgba(32,227,178,.18)}.scanHomeButton b{font-size:18px;letter-spacing:.08em;margin-top:8px}.scanHomeButton small{color:var(--muted)}
- .syncStrip{border:1px solid #24374d;background:rgba(13,23,37,.88);border-radius:13px;padding:10px 12px;color:#9eb1c3;font-size:11px;display:flex;align-items:center}
- .cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}.grid{gap:12px!important}.card{min-height:92px}.card strong{font-size:27px!important}
- .mobileBottom{grid-template-columns:repeat(5,1fr)!important;padding-top:5px!important}.mobileBottom .scanNav{margin-top:-22px;background:transparent!important;box-shadow:none!important}.mobileBottom .scanNav span:first-child{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#20e3b2,#0fb78c);color:#04120e!important;border:2px solid #5af2cf;font-size:26px!important;box-shadow:0 12px 30px rgba(32,227,178,.28)}.mobileBottom .scanNav span:last-child{margin-top:2px;color:#dffdf4}
- .fabScan{display:none!important}.mobilehead{min-height:58px}.mobileBrand img{width:38px;height:38px}
-}
-@media(max-width:570px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}.card{padding:13px!important}.card strong{font-size:24px!important}.scanHomeButton{min-height:170px}.top h1{font-size:24px!important}.panel{border-radius:15px!important}}
-
-/* =========================================================
-   ZeroStock V5 — Phase 2 + 3
-   Navigation split + complete Scan-First mobile home
-   ========================================================= */
-.mobileOnly{display:none}
-.desktopOnly{display:block}
-.mobileHomeStack{display:none}
-.mobileSection{background:linear-gradient(180deg,rgba(17,24,39,.96),rgba(10,17,29,.98));border:1px solid #223249;border-radius:17px;overflow:hidden}
-.mobileSectionHead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px;border-bottom:1px solid #1d2b3f}
-.mobileSectionHead b{font-size:13px}.mobileSectionHead small{color:var(--muted)}
-.mobileHomeList{display:grid}
-.mobileMove,.mobileWarning{display:grid;grid-template-columns:1fr auto;gap:10px;padding:12px 14px;border-bottom:1px solid #17263a;align-items:center}
-.mobileMove:last-child,.mobileWarning:last-child{border-bottom:0}
-.mobileMove b,.mobileWarning b{display:block;font-size:13px}.mobileMove small,.mobileWarning small{color:var(--muted);display:block;margin-top:3px}
-.mobileMoveQty{font-size:16px;font-weight:850;text-align:right}.mobileMoveQty.in{color:#4ee58b}.mobileMoveQty.out{color:#ff8585}
-.mobileWarnBadge{min-width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.24);color:#ff8c91;font-weight:900}
-.mobileSyncCard{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border-radius:14px;background:#0d1725;border:1px solid #22364d}
-.mobileSyncCard .left{display:flex;align-items:center;gap:8px;min-width:0}.mobileSyncCard b{display:block;font-size:12px}.mobileSyncCard small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
-.mobileScanHero{display:grid;place-items:center;text-align:center;padding:18px;border-radius:20px;background:linear-gradient(160deg,rgba(32,227,178,.12),rgba(10,132,255,.07));border:1px solid rgba(32,227,178,.28);box-shadow:0 18px 48px rgba(0,0,0,.2)}
-.mobileScanHero button{width:116px;height:116px;border-radius:50%;border:2px solid #57efd0;background:linear-gradient(145deg,#20e3b2,#0fb78c);color:#04120e;display:grid;place-items:center;align-content:center;gap:2px;box-shadow:0 20px 45px rgba(32,227,178,.24);font-weight:900}
-.mobileScanHero .glyph{font-size:37px;line-height:1}.mobileScanHero button b{font-size:15px;letter-spacing:.06em}.mobileScanHero button small{font-size:9px;opacity:.75}
-.mobileQuickBook{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-.mobileQuickBook button{border:1px solid #29405a;background:#101b2b;color:#fff;border-radius:15px;padding:13px 7px;display:grid;gap:6px;place-items:center;font-size:11px;font-weight:750}
-.mobileQuickBook button span{font-size:23px}.mobileQuickBook button[data-quick-type="in"] span{color:#56e79a}.mobileQuickBook button[data-quick-type="out"] span{color:#7fc5ff}.mobileQuickBook button[data-quick-type="shrink"] span{color:#ffb85c}
-.mobileAllLink{border:0;background:transparent;color:var(--brand);font-weight:800;font-size:11px}
-.moreMenu{display:grid;gap:10px}.moreMenu button{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;border:1px solid #2b4059;background:#101b2b;color:#f8fafc;border-radius:14px;padding:16px;min-height:76px}.moreMenu button>span:first-child{display:flex;align-items:center;gap:14px;min-width:0}.moreMenu button>span:first-child>span{display:grid;gap:4px;min-width:0}.moreMenu b{font-size:16px;line-height:1.35;overflow-wrap:anywhere}.moreMenu small{font-size:13px;line-height:1.5}.moreMenu button i{font-style:normal;font-size:22px;color:var(--brand);width:24px;flex-shrink:0;text-align:center}.moreMenu button>span:last-child{color:var(--muted);font-size:24px}.moreMenu button:hover{background:#162438;border-color:#4a6686}
-.taskCard{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:13px 14px;border-bottom:1px solid #17263a}.taskCard:last-child{border-bottom:0}.taskIcon{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.22);color:#ffc25a}.taskCard.crit .taskIcon{background:rgba(239,68,68,.10);border-color:rgba(239,68,68,.24);color:#ff8585}.taskCard small{display:block;color:var(--muted);margin-top:3px}.taskCard button{border:0;background:transparent;color:var(--brand);font-weight:800}
-.taskSummary{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;padding:14px;border-bottom:1px solid #17263a}.taskStat{padding:11px;border:1px solid #22354c;border-radius:12px;background:#0c1522}.taskStat small{display:block;color:var(--muted);font-size:10px}.taskStat b{display:block;font-size:20px;margin-top:3px}.taskFilters{display:flex;gap:7px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid #17263a}.taskFilters button{border:1px solid #294059;background:#0b1522;color:#9db0c3;border-radius:999px;padding:7px 10px;font-size:11px}.taskFilters button.active{border-color:var(--brand);color:#eafff9;background:rgba(32,227,178,.10)}.taskCard.high .taskIcon{background:rgba(245,158,11,.10);border-color:rgba(245,158,11,.22);color:#ffc25a}.taskCard.critical .taskIcon{background:rgba(239,68,68,.10);border-color:rgba(239,68,68,.24);color:#ff8585}.taskMeta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.taskPill{font-size:9px;padding:3px 6px;border-radius:999px;border:1px solid #294059;color:#a7bacb}.taskPill.critical{border-color:rgba(239,68,68,.35);color:#ff8f95}.taskPill.high{border-color:rgba(245,158,11,.35);color:#ffc25a}@media(max-width:570px){.taskSummary{grid-template-columns:repeat(2,1fr)}.taskCard{grid-template-columns:auto 1fr}.taskCard>button{grid-column:2;justify-self:start}}
-.quickBookSelectList{display:grid;gap:7px;max-height:46vh;overflow:auto}.quickBookItem{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid #263b54;background:#0f1a2a;color:#fff;border-radius:13px;padding:11px;text-align:left}.quickBookItem small{color:var(--muted);display:block;margin-top:3px}.quickBookItem .stock{font-weight:900;font-size:17px}
-@media(max-width:980px){
- .desktopOnly{display:none!important}.mobileOnly{display:block!important}
- .mobileHomeStack{display:grid!important;gap:12px}
- #dashboardView>.cards,#dashboardView>.quickActions,#dashboardView>.grid,#dashboardView>#onboarding,#dashboardView>.mobileScanHome{display:none!important}
- .mobileBottom{grid-template-columns:1fr 1fr 1.12fr 1fr 1fr!important}
- .mobileBottom button{font-size:12px;min-height:64px;gap:4px;color:#b1bfd0!important}
- .mobileBottom .scanNav{transform:none;margin-top:0}
- .mobileBottom .scanNav span:first-child{width:44px!important;height:44px!important;box-shadow:none}
- .fabScan{display:none!important}
- .top{display:none!important}
- .mobilehead{padding:calc(10px + var(--zs-safe-top)) calc(13px + var(--zs-safe-right)) 10px calc(13px + var(--zs-safe-left))!important;min-height:57px}
- .mobileBottom{padding-left:calc(7px + var(--zs-safe-left));padding-right:calc(7px + var(--zs-safe-right))}
- main{padding:14px calc(12px + var(--zs-safe-right)) calc(104px + var(--zs-safe-bottom)) calc(12px + var(--zs-safe-left))!important}
- #cartonsView .tablewrap{overflow:visible;padding:12px}
- #cartonsView table{min-width:0}
- #cartonsView thead{display:none}
- #cartonsView tbody{display:grid;gap:10px}
- #cartonsView tr{display:grid;background:#101b2b;border:1px solid #2b4059;border-radius:14px;padding:16px}
- #cartonsView td{border:0!important;padding:3px 0!important;display:block;font-size:14px;line-height:1.5}
- #cartonsView td:nth-child(1) b{font-size:18px;line-height:1.4}
- #cartonsView td:nth-child(3){color:var(--muted)}
- #cartonsView td:nth-child(4){display:flex;align-items:baseline;gap:8px;font-size:32px;font-weight:800;margin:8px 0;color:#f8fafc;font-variant-numeric:tabular-nums}
- #cartonsView td:nth-child(4):before{content:"Bestand";font-size:13px;font-weight:500;color:var(--muted)}
- #cartonsView td:nth-child(5):before{content:"Minimum: ";color:var(--muted);font-size:13px}
- #cartonsView td:nth-child(6):before{content:"Warnbestand: ";color:var(--muted);font-size:13px}
- #cartonsView td:last-child{margin-top:12px}
- #cartonsView td .btn{min-height:44px;font-size:13px}
- #cartonsView .ph{align-items:flex-start;flex-direction:column;gap:16px}
- #cartonsView .ph .actions,#cartonsView .ph .search{width:100%}
- .ph .actions .btn{min-height:44px}
- .taskStat small{font-size:12px}.taskStat b{font-size:24px}
- .taskCard{align-items:start;gap:12px;padding:16px}.taskCard>div:nth-child(2){min-width:0}.taskCard b{font-size:16px;line-height:1.4;overflow-wrap:anywhere}.taskCard small{font-size:13px;line-height:1.6;margin-top:5px}.taskCard>button{min-height:44px;padding:10px 8px;font-size:15px}.taskFilters button{min-height:44px;font-size:12px}.taskPill{font-size:10px}
-}
-@media(max-width:570px){.installbar{display:none;align-items:flex-start;flex-wrap:wrap}.installbar.show{display:flex}.installCopy{flex-basis:100%}.installbar .actions{width:100%;justify-content:flex-end}.installbar .btn.primary{margin-right:auto}}
-
-@media print{aside,.mobilehead,.mobileBottom,.fabScan,.top,.no-print,.installbar,.authGate{display:none!important}main{padding:0}.app{display:block}.panel{box-shadow:none;border:none}body{background:white;color:black}}
-
-/* ZeroStock V5 Phase 5 - Native scanner overlay */
-.nativeScannerOverlay{position:fixed;inset:0;z-index:9999;display:none;background:transparent;color:#fff;pointer-events:none}.nativeScannerOverlay.open{display:block}.nativeScannerShade{position:absolute;inset:0;background:linear-gradient(rgba(1,8,12,.46),rgba(1,8,12,.2) 24%,rgba(1,8,12,.2) 76%,rgba(1,8,12,.56));pointer-events:none}.nativeScannerTop{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;padding:max(18px,var(--zs-safe-top)) 18px 12px;pointer-events:auto}.nativeScannerTop button,.nativeScannerBottom button{width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(4,18,18,.58);backdrop-filter:blur(14px);color:#fff;font-size:22px}.nativeScannerTitle{text-align:center}.nativeScannerTitle b{display:block;font-size:15px;letter-spacing:.12em}.nativeScannerTitle small{display:block;color:#c9e9df;margin-top:3px}.nativeScannerFrame{position:absolute;left:50%;top:48%;width:min(74vw,330px);height:min(42vw,210px);transform:translate(-50%,-50%);border-radius:22px;box-shadow:0 0 0 9999px rgba(0,0,0,.18);pointer-events:none}.nativeScannerFrame:before,.nativeScannerFrame:after{content:"";position:absolute;inset:0;border-radius:22px}.nativeScannerFrame:before{border:2px solid rgba(32,227,178,.38)}.nativeScannerCorners{position:absolute;inset:0;background:linear-gradient(var(--brand),var(--brand)) left top/42px 4px no-repeat,linear-gradient(var(--brand),var(--brand)) left top/4px 42px no-repeat,linear-gradient(var(--brand),var(--brand)) right top/42px 4px no-repeat,linear-gradient(var(--brand),var(--brand)) right top/4px 42px no-repeat,linear-gradient(var(--brand),var(--brand)) left bottom/42px 4px no-repeat,linear-gradient(var(--brand),var(--brand)) left bottom/4px 42px no-repeat,linear-gradient(var(--brand),var(--brand)) right bottom/42px 4px no-repeat,linear-gradient(var(--brand),var(--brand)) right bottom/4px 42px no-repeat;border-radius:22px;filter:drop-shadow(0 0 10px rgba(32,227,178,.45))}.nativeScannerLine{position:absolute;left:8%;right:8%;top:50%;height:2px;background:linear-gradient(90deg,transparent,var(--brand),transparent);box-shadow:0 0 14px var(--brand);animation:zsScanLine 2s ease-in-out infinite}@keyframes zsScanLine{0%,100%{transform:translateY(-62px);opacity:.45}50%{transform:translateY(62px);opacity:1}}.nativeScannerBottom{position:absolute;left:18px;right:18px;bottom:max(24px,var(--zs-safe-bottom));display:flex;align-items:center;justify-content:center;gap:18px;pointer-events:auto}.nativeScannerHint{position:absolute;left:18px;right:18px;bottom:96px;text-align:center;color:#e7fff8;font-size:13px;text-shadow:0 2px 8px #000}.nativeScannerOverlay .torchOn{background:var(--brand);color:#032018;border-color:#7fffe0}.native-app.native-scanning body{background:transparent!important}.native-app.native-scanning #appShell,.native-app.native-scanning .gate,.native-app.native-scanning .mobileBottom,.native-app.native-scanning .fabScan,.native-app.native-scanning .installbar,.native-app.native-scanning .toast{visibility:hidden!important}.native-app.native-scanning .nativeScannerOverlay{visibility:visible!important}
-
-/* Typed articles and configuration planning share the existing readable V5 surfaces. */
-[hidden]{display:none!important}
-.articleKind{display:inline-block;margin:4px 4px 0 0;padding:3px 7px;border:1px solid var(--line);border-radius:8px;color:var(--muted);font-size:11px;font-weight:600;vertical-align:middle}
-.articleFilters button{min-height:44px;font-size:13px}.articleFilters{padding:12px}
-.configCapacity{font-size:18px;margin:14px 0 8px}.configCapacity strong{font-size:26px;font-variant-numeric:tabular-nums}
-.instruction b,.req b{overflow-wrap:anywhere}
-#exportsView .quickActions{display:grid!important}
-@media(max-width:980px){.mfoot{padding-bottom:calc(13px + var(--zs-safe-bottom))}.instruction{grid-template-columns:minmax(0,1fr)}.instruction .actions .btn{min-height:44px}.articleFilters{gap:6px}}
-
-</style>
-<style>
-html.native-scanning,html.native-scanning body{background:transparent!important}
-html.native-scanning body .modal.open,html.native-scanning body #cartonModal.open{display:none!important}
-.serialEntry{display:grid;gap:6px;min-width:0}.serialEntry textarea,.unitNumber{font-family:ui-monospace,monospace;font-size:1rem;overflow-wrap:anywhere}.serialEntry .btn{justify-self:start}.unitRows{list-style:none;padding:0;margin:12px 0;display:grid;gap:6px}.unitRows li{border-bottom:1px solid var(--line,#344154);padding:8px 0;display:grid;gap:4px}.unitRows small,.serialHint{color:var(--muted,#bdcada)}.serialLines{display:block;white-space:pre-line;overflow-wrap:anywhere}.serialError{color:#ffc4b5;margin:0}.serialError:empty{display:none}#scanModal{z-index:140}.serialEntry[hidden],#initialSerials[hidden],#assignSection[hidden]{display:none!important}
-</style></head>
+<link rel="stylesheet" href="../ui/workspace.css">
+<link rel="stylesheet" href="../ui/scanner.css">
+</head>
 <body>
-<div class="authGate" id="authGate"><div class="authCard">
-<div class="authBrand"><div class="authLogo"><img src="./icon-192.png" alt="ZeroStock"></div><div><h1 class="wordmark"><span>Zero</span><em>Stock</em></h1><small>Lager &amp; Packing · LIVE</small></div></div>
-<div class="authView active" id="authLoading"><h2>ZeroStock wird gestartet</h2><p>Firebase Authentication wird geladen …</p></div>
-<div class="authView" id="authLogin"><h2>Anmelden</h2><p>Bitte mit deinem ZeroStock-Benutzer einloggen.</p><div class="authForm"><label>E-Mail<input id="gateEmail" type="email" autocomplete="username" inputmode="email" placeholder="name@firma.ch"></label><label>Passwort<input id="gatePassword" type="password" autocomplete="current-password" placeholder="••••••••"></label><button class="btn primary" id="gateLogin">Einloggen</button><button class="authLink" id="gateReset">Passwort vergessen?</button></div><div class="authError" id="gateLoginError"></div></div>
+<div class="authGate" id="authGate"><div class="authShell">
+  <div class="authPhoto"><div><p data-i18n="workspaceName">Lagerverwaltung</p><small data-i18n="loginScope">Bestand, Container und Packplanung</small></div></div>
+  <div class="authCard">
+<div class="authBrand"><span class="brandMark" aria-hidden="true"><span class="icon" data-icon="brand" aria-hidden="true"></span></span><b class="wordmark">Zero<span>Stock</span></b></div>
+<div class="authView active" id="authLoading"><h2>ZeroStock wird gestartet</h2><p>Anmeldung wird geladen …</p></div>
+<div class="authView" id="authLogin"><h2 data-i18n="loginTitle">Anmelden</h2><p data-i18n="loginIntro">Melde dich mit deinem ZeroStock-Konto an.</p><div class="authForm"><label>E-Mail<input id="gateEmail" enterkeyhint="next" type="email" autocomplete="username" inputmode="email" placeholder="name@firma.ch"></label><label>Passwort<input id="gatePassword" enterkeyhint="go" type="password" autocomplete="current-password" placeholder="••••••••"></label><button class="btn primary" id="gateLogin"><span data-i18n="loginTitle">Anmelden</span><span aria-hidden="true">→</span></button><button class="authLink" id="gateReset" data-i18n="forgotPassword">Passwort vergessen?</button></div><div class="authError" id="gateLoginError" role="status"></div></div>
 <div class="authView" id="authNoRole"><h2>Firebase-Rolle konnte nicht geladen werden</h2><p>Der Login funktioniert. Dieser Bildschirm erscheint jetzt nur noch, wenn der Rollenwert selbst nicht gelesen werden kann.</p><div class="dangerbox"><div class="note"><code>/users/&lt;UID&gt;/role</code> muss <b>admin</b>, <b>employee</b> oder <b>customer</b> sein.<br><br><b>Gelesener Rollenwert:</b> <code id="gateRoleValue">—</code><br><b>Prüfung:</b> <span id="gateRoleState">—</span><br><b>Quelle:</b> <span id="gateRoleSource">—</span><br><b>Datenbank:</b> <code id="gateRoleDb">—</code></div></div><div class="authForm" style="margin-top:14px"><button class="btn primary" id="gateRetryRole">Rolle erneut prüfen</button><button class="btn" id="gateLogoutRole">Abmelden</button></div><div class="authMeta"><span>UID</span><span id="gateUid">—</span></div></div>
-<div class="authMeta"><span>Firebase Project</span><span>zerostock-c5f5f</span></div><div class="authMeta"><span>Version</span><span>v5.0 Phase 10</span></div>
+<div class="authMeta authFooter"><span data-i18n="workspaceName">Lagerverwaltung</span><span class="releaseVersion"></span></div></div>
 </div></div>
 
-<div class="mobilehead"><div class="mobileBrand"><img src="./icon-192.png" alt="ZeroStock"><b class="wordmark"><span>Zero</span><em>Stock</em></b></div><span id="mobileConn">● Login</span></div>
+<div class="mobilehead"><div class="mobileBrand"><span class="brandMark" aria-hidden="true"><span class="icon" data-icon="brand" aria-hidden="true"></span></span><b class="wordmark">Zero<span>Stock</span></b></div><span id="mobileConn">Login</span></div>
 <div class="app locked" id="appShell">
-<aside><div class="brand"><div class="logo"><img src="./icon-192.png" alt="ZeroStock"></div><div><b class="wordmark"><span>Zero</span><em>Stock</em></b><small>Lager &amp; Packing</small></div></div><nav id="nav">
-<button data-view="dashboard" class="active"><span data-i18n="dashboard">Dashboard</span><span>⌂</span></button>
-<button data-view="scan" data-internal><span data-i18n="scan">QR scannen</span><span>▣</span></button>
-<button data-view="cartons" data-internal><span data-i18n="cartons">Kartons</span><span>▦</span></button>
-<button data-view="instructions"><span>Packing Instructions</span><span>≡</span></button>
-<button data-view="planner"><span data-i18n="planner">Planner</span><span>◆</span></button>
-<button data-view="movements" data-internal><span data-i18n="movements">Bewegungen</span><span>↕</span></button>
-<button data-view="tasks" data-internal><span>Aufgaben</span><span>!</span></button>
-<button data-view="exports" data-internal><span>Export</span><span>⇩</span></button>
-<button data-view="users" data-admin><span data-i18n="users">Benutzer</span><span>♙</span></button>
-<button data-view="settings" data-admin><span data-i18n="settings">Einstellungen</span><span>⚙</span></button></nav>
-<div class="sidefoot"><div><span class="dot off" id="connDot"></span><span id="connText">Firebase</span></div><br><span id="roleLabel">—</span><br><br><span>V5 Phase 10 · Share & Files</span></div></aside>
-<main><div class="top"><div><div class="eyebrow">ZEROSTOCK · LAGER &amp; PACKING</div><h1 id="pageTitle">Dashboard</h1></div><div class="toolbar"><div class="lang"><button data-lang="de" class="active">DE</button><button data-lang="en">EN</button></div><button class="btn primary" data-goto="scan" data-internal>▣ <span data-i18n="scan">QR scannen</span></button><button class="btn" id="logoutBtn">Logout</button></div></div>
+<aside><div class="brand"><span class="brandMark" aria-hidden="true"><span class="icon" data-icon="brand" aria-hidden="true"></span></span><b class="wordmark">Zero<span>Stock</span></b></div><nav id="nav" aria-label="Hauptnavigation">
+<button data-view="dashboard" class="active"><span data-i18n="dashboard">Dashboard</span><span class="icon" data-icon="dashboard" aria-hidden="true"></span></button>
+<button data-view="scan" data-internal><span data-i18n="scan">QR scannen</span><span class="icon" data-icon="scan" aria-hidden="true"></span></button>
+<button data-view="cartons" data-internal><span data-i18n="cartons">Kartons</span><span class="icon" data-icon="cartons" aria-hidden="true"></span></button>
+<button data-view="instructions"><span data-i18n="configurations">Konfigurationen</span><span class="icon" data-icon="instructions" aria-hidden="true"></span></button>
+<button data-view="planner"><span data-i18n="planner">Planner</span><span class="icon" data-icon="planner" aria-hidden="true"></span></button>
+<button data-view="movements" data-internal><span data-i18n="movements">Bewegungen</span><span class="icon" data-icon="movements" aria-hidden="true"></span></button>
+<button data-view="tasks" data-internal><span>Aufgaben</span><span class="icon" data-icon="tasks" aria-hidden="true"></span></button>
+<button data-view="exports" data-internal><span>Export</span><span class="icon" data-icon="exports" aria-hidden="true"></span></button>
+<button data-view="users" data-admin><span data-i18n="users">Benutzer</span><span class="icon" data-icon="users" aria-hidden="true"></span></button>
+<button data-view="settings" data-admin><span data-i18n="settings">Einstellungen</span><span class="icon" data-icon="settings" aria-hidden="true"></span></button></nav>
+<div class="sidefoot"><div><span class="dot off" id="connDot"></span><span id="connText">Offline</span></div><strong id="roleLabel">—</strong></div></aside>
+<main><div class="top"><div><div class="eyebrow" data-i18n="workspaceName">Lagerverwaltung</div><h1 id="pageTitle">Dashboard</h1></div><div class="toolbar"><div class="lang"><button data-lang="de" class="active">DE</button><button data-lang="en">EN</button></div><button class="btn primary" data-goto="scan" data-internal><span class="icon" data-icon="scan" aria-hidden="true"></span> <span data-i18n="scan">QR scannen</span></button><button class="btn" id="logoutBtn"><span class="icon" data-icon="logout" aria-hidden="true"></span><span data-i18n="signOut">Abmelden</span></button></div></div>
 
 <div class="installbar" id="installBar" role="region" aria-label="App installieren"><div class="installCopy"><b>ZeroStock installieren</b><small>Als App auf Desktop oder Android installieren.</small></div><div class="actions"><button class="btn primary" id="installBtn">Installieren</button><button class="btn" id="installDismiss" aria-label="Installationshinweis schliessen">×</button></div></div>
 
 <section class="view active" id="dashboardView">
 <div id="onboarding" class="onboarding desktopOnly" style="display:none"></div>
+<div class="dashboardHero" data-internal>
+  <div class="heroPhoto" aria-hidden="true"></div>
+  <div class="heroContent"><h2 data-i18n="homeDispatch">Im Lager buchen</h2>
+    <p data-i18n="homeScanHint">Regalschild oder Containeretikett scannen.</p>
+    <button class="btn heroAction" data-goto="scan"><span class="icon" data-icon="scan" aria-hidden="true"></span><span data-i18n="openScanner">Scanner öffnen</span></button>
+  </div></div>
 <div class="mobileHomeStack mobileOnly" data-internal>
   <div class="mobileSyncCard"><div class="left"><span class="dot off" id="homeSyncDot"></span><div><b id="homeSyncTitle">Offline</b><small id="homeSyncText">Live-Sync nicht verfügbar</small></div></div><span class="status warn" id="homeSyncBadge">OFFLINE</span></div>
-  <div class="mobileScanHero"><button type="button" data-goto="scan" aria-label="Scannen"><span class="glyph">⌗</span><b>SCANNEN</b><small>QR · BARCODE</small></button></div>
   <div class="mobileQuickBook">
-    <button type="button" data-quick-type="in"><span>＋</span>Eingang</button>
-    <button type="button" data-quick-type="out"><span>−</span>Abgang</button>
-    <button type="button" data-quick-type="shrink"><span>△</span>Schwund</button>
+    <button type="button" data-quick-type="in"><span class="icon" data-icon="in" aria-hidden="true"></span>Eingang</button>
+    <button type="button" data-quick-type="out"><span class="icon" data-icon="out" aria-hidden="true"></span>Abgang</button>
+    <button type="button" data-quick-type="shrink"><span class="icon" data-icon="warning" aria-hidden="true"></span>Schwund</button>
   </div>
   <div class="mobileSection"><div class="mobileSectionHead"><div><b>Letzte Buchungen</b><small>Aktuelle Lagerbewegungen</small></div><button class="mobileAllLink" data-goto="movements">Alle</button></div><div id="mobileRecentMoves" class="mobileHomeList"></div></div>
   <div class="mobileSection"><div class="mobileSectionHead"><div><b>Warnbestände</b><small id="mobileWarningSummary">Keine kritischen Artikel</small></div><button class="mobileAllLink" data-goto="tasks">Alle</button></div><div id="mobileWarnings" class="mobileHomeList"></div></div>
 </div>
-<div class="cards desktopOnly"><div class="card"><small data-i18n="cartons">Kartons</small><strong id="kCartons">0</strong></div><div class="card"><small data-i18n="stockOk">Bestand OK</small><strong class="green" id="kOk">0</strong></div><div class="card"><small data-i18n="warning">Warnung</small><strong class="yellow" id="kWarn">0</strong></div><div class="card"><small data-i18n="critical">Kritisch</small><strong class="red" id="kCrit">0</strong></div></div>
-<div class="quickActions desktopOnly" data-internal><button class="quickAction" data-goto="scan"><span>⌗</span><b>Container scannen</b><small>QR / Barcode öffnen</small></button><button class="quickAction" data-goto="cartons"><span>▦</span><b>Bestand buchen</b><small>Artikel & Lagerbestand</small></button><button class="quickAction" data-goto="movements"><span>↕</span><b>Bewegungen</b><small>Journal prüfen</small></button><button class="quickAction" data-goto="planner"><span>◆</span><b>Planner</b><small>TINST Kapazität</small></button></div>
-<div class="grid desktopOnly"><div class="panel" id="inventoryPanel"><div class="ph"><div><h3 data-i18n="inventory">Bestände</h3><small data-i18n="liveStock">Aktueller Kartonbestand</small></div><input class="search" id="dashSearch" placeholder="Suchen…"></div><div class="tablewrap"><table><thead><tr><th data-i18n="article">Artikel</th><th data-i18n="location">Lagerplatz</th><th data-i18n="stock">Bestand</th><th data-i18n="status">Status</th><th></th></tr></thead><tbody id="dashRows"></tbody></table></div></div><div class="panel"><div class="ph"><div><h3 data-i18n="packingCapacity">Packing-Kapazität</h3><small data-i18n="basedOnStock">auf Basis des aktuellen Bestands</small></div></div><div id="capacityList"></div></div></div>
+<div class="cards desktopOnly"><div class="card"><span class="icon" data-icon="cartons" aria-hidden="true"></span><small data-i18n="cartons">Kartons</small><strong id="kCartons">0</strong></div><div class="card"><span class="icon" data-icon="good" aria-hidden="true"></span><small data-i18n="stockOk">Bestand OK</small><strong class="green" id="kOk">0</strong></div><div class="card"><span class="icon" data-icon="warning" aria-hidden="true"></span><small data-i18n="warning">Warnung</small><strong class="yellow" id="kWarn">0</strong></div><div class="card"><span class="icon" data-icon="critical" aria-hidden="true"></span><small data-i18n="critical">Kritisch</small><strong class="red" id="kCrit">0</strong></div></div>
+<div class="grid desktopOnly"><div class="panel" id="inventoryPanel"><div class="ph"><div><h3 data-i18n="inventory">Bestände</h3><small data-i18n="liveStock">Aktueller Kartonbestand</small></div><label class="searchField"><span class="icon" data-icon="search" aria-hidden="true"></span><input class="search" id="dashSearch" type="search" aria-label="Bestand durchsuchen" placeholder="Suchen…"></label></div><div class="tablewrap"><table><thead><tr><th data-i18n="article">Artikel</th><th data-i18n="location">Lagerplatz</th><th data-i18n="stock">Bestand</th><th data-i18n="status">Status</th><th></th></tr></thead><tbody id="dashRows"></tbody></table></div></div><div class="panel"><div class="ph"><div><h3 data-i18n="packingCapacity">Packing-Kapazität</h3><small data-i18n="basedOnStock">auf Basis des aktuellen Bestands</small></div></div><div id="capacityList"></div></div></div>
 </section>
 
-<section class="view" id="scanView"><div class="panel scanhero"><div class="scanbox"><div class="scanicon">▣</div><h2 data-i18n="scanCarton">Karton scannen</h2><p data-i18n="scanText">QR-Regalschild scannen und danach Eingang, Abgang oder Schwund buchen.</p><button class="btn primary" id="startScan" data-book>📷 <span data-i18n="openCamera">Kamera öffnen</span></button><button class="btn" id="manualScan" data-book data-i18n="manualCode">Code eingeben</button><div id="scanSelected"></div></div></div></section>
+<section class="view" id="scanView"><div class="panel scanhero"><div class="scanbox"><div class="scanicon"><span class="icon" data-icon="scan" aria-hidden="true"></span></div><h2 data-i18n="scanCarton">Karton scannen</h2><p data-i18n="scanText">QR-Regalschild scannen und danach Eingang, Abgang oder Schwund buchen.</p><button class="btn primary" id="startScan" data-book><span class="icon" data-icon="scan" aria-hidden="true"></span> <span data-i18n="openCamera">Kamera öffnen</span></button><button class="btn" id="manualScan" data-book data-i18n="manualCode">Code eingeben</button><div id="scanSelected"></div></div></div></section>
 
-<section class="view" id="cartonsView"><div class="panel"><div class="ph"><div><h3 data-i18n="cartons">Kartons</h3><small data-i18n="masterData">Stammdaten & QR-Regalschilder</small></div><div class="actions"><input class="search" id="cartonSearch" placeholder="Suchen…"><button type="button" class="btn primary" id="addCarton" data-admin>+ <span data-i18n="newCarton">Karton</span></button></div></div><div class="taskFilters articleFilters" aria-label="Artikelart filtern"><button type="button" data-article-filter="all" class="active" aria-pressed="true">Alle</button><button type="button" data-article-filter="carton" aria-pressed="false">Kartons</button><button type="button" data-article-filter="plate" aria-pressed="false">Plates</button><button type="button" data-article-filter="container" aria-pressed="false">Container</button></div><div class="tablewrap"><table><thead><tr><th data-i18n="article">Artikel</th><th data-i18n="description">Bezeichnung</th><th data-i18n="location">Lagerplatz</th><th data-i18n="stock">Bestand</th><th data-i18n="minStock">Minimum</th><th data-i18n="warningStock">Warnbestand</th><th></th></tr></thead><tbody id="cartonRows"></tbody></table></div></div></section>
+<section class="view" id="cartonsView"><div class="panel"><div class="ph"><div><h3 data-i18n="stock">Bestand</h3><small data-i18n="masterData">Stammdaten & QR-Regalschilder</small></div><div class="actions"><label class="searchField"><span class="icon" data-icon="search" aria-hidden="true"></span><input class="search" id="cartonSearch" type="search" aria-label="Artikel oder Seriennummer suchen" placeholder="Artikel oder Seriennummer"></label><button type="button" class="btn primary" id="addCarton" data-admin>+ <span data-i18n="newCarton">Karton</span></button></div></div><div class="taskFilters articleFilters" aria-label="Artikelart filtern"><button type="button" data-article-filter="all" class="active" aria-pressed="true">Alle</button><button type="button" data-article-filter="carton" aria-pressed="false">Kartons</button><button type="button" data-article-filter="plate" aria-pressed="false">Plates</button><button type="button" data-article-filter="container" aria-pressed="false">Container</button></div><div class="tablewrap"><table><thead><tr><th data-i18n="article">Artikel</th><th data-i18n="location">Lagerplatz</th><th data-i18n="stock">Bestand</th><th data-i18n="status">Status</th><th><span class="srOnly" data-i18n="actionsLabel">Aktionen</span></th></tr></thead><tbody id="cartonRows"></tbody></table></div></div></section>
 
 <section class="view" id="instructionsView"><div class="panel"><div class="ph"><div><h3>Konfigurationen</h3><small data-i18n="instructionHelp">Selbst anlegen und Kartonbedarf definieren</small></div><button class="btn primary" id="addInstruction" data-admin>+ <span data-i18n="newInstruction">Instruction</span></button></div><div id="instructionList"></div></div></section>
 
@@ -455,9 +83,9 @@ html.native-scanning body .modal.open,html.native-scanning body #cartonModal.ope
 <div class="panel"><div class="ph"><div><h3>Aktueller Benutzer</h3><small>Firebase Authentication</small></div></div><div class="body"><div class="result"><b id="currentUserName">—</b><div class="note" id="currentUserEmail">—</div><div style="margin-top:8px"><span class="rolepill" id="currentUserRole">—</span></div></div><p class="note">Neue Mitarbeiter werden direkt hier angelegt. ZeroStock erstellt Account, UID und Rolle automatisch.</p></div></div>
 </div></section>
 
-<section class="view" id="tasksView"><div class="panel"><div class="ph"><div><h3>Aufgaben</h3><small>Bestand, Sync und künftige operative Workflows</small></div><span class="status" id="taskOpenBadge">0 OFFEN</span></div><div class="taskSummary"><div class="taskStat"><small>Offen</small><b id="taskStatOpen">0</b></div><div class="taskStat"><small>Kritisch</small><b id="taskStatCritical">0</b></div><div class="taskStat"><small>Bestand</small><b id="taskStatStock">0</b></div><div class="taskStat"><small>Sync</small><b id="taskStatSync">0</b></div></div><div class="taskFilters"><button data-task-filter="ALL" class="active">Alle</button><button data-task-filter="STOCK">Bestand</button><button data-task-filter="SYNC">Sync</button><button data-task-filter="DELIVERY">Lieferung</button><button data-task-filter="RETURN">Return</button></div><div id="taskList"></div></div></section>
+<section class="view" id="tasksView"><div class="panel"><div class="ph"><div><h3>Aufgaben</h3><small>Bestandswarnungen und offene Buchungen</small></div><span class="status" id="taskOpenBadge">0 OFFEN</span></div><div class="taskSummary"><div class="taskStat"><small>Offen</small><b id="taskStatOpen">0</b></div><div class="taskStat"><small>Kritisch</small><b id="taskStatCritical">0</b></div><div class="taskStat"><small>Bestand</small><b id="taskStatStock">0</b></div><div class="taskStat"><small>Sync</small><b id="taskStatSync">0</b></div></div><div class="taskFilters"><button data-task-filter="ALL" class="active">Alle</button><button data-task-filter="STOCK">Bestand</button><button data-task-filter="SYNC">Sync</button><button data-task-filter="DELIVERY">Lieferung</button><button data-task-filter="RETURN">Return</button></div><div id="taskList"></div></div></section>
 
-<section class="view" id="moreView"><div class="panel"><div class="ph"><div><h3>Mehr</h3><small>Weitere ZeroStock-Bereiche</small></div></div><div class="body"><div class="moreMenu" id="moreMenu"><button data-goto="instructions"><span><i>≡</i><span><b>Konfigurationen</b><small class="muted">Packing und Plate-Bedarf</small></span></span><span>›</span></button><button data-goto="planner"><span><i>◆</i><span><b>Planner</b><small class="muted">Packing-Kapazität planen</small></span></span><span>›</span></button><button data-goto="movements" data-internal><span><i>↕</i><span><b>Bewegungen</b><small class="muted">Buchungsjournal</small></span></span><span>›</span></button><button data-goto="exports" data-internal><span><i>⇩</i><span><b>Export</b><small class="muted">Excel, CSV & Sicherung</small></span></span><span>›</span></button><button data-goto="users" data-admin><span><i>♙</i><span><b>Benutzer</b><small class="muted">Rollen und Zugriffe</small></span></span><span>›</span></button><button data-goto="settings" data-admin><span><i>⚙</i><span><b>Einstellungen</b><small class="muted">Firebase und Systemstatus</small></span></span><span>›</span></button></div></div></div></section>
+<section class="view" id="moreView"><div class="panel"><div class="ph"><div><h3>Mehr</h3><small>Weitere ZeroStock-Bereiche</small></div></div><div class="body"><div class="moreMenu" id="moreMenu"><button data-goto="instructions"><span><span class="icon" data-icon="instructions" aria-hidden="true"></span><span><b>Konfigurationen</b><small class="muted">Packing und Plate-Bedarf</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button><button data-goto="planner"><span><span class="icon" data-icon="planner" aria-hidden="true"></span><span><b>Planner</b><small class="muted">Packing-Kapazität planen</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button><button data-goto="movements" data-internal><span><span class="icon" data-icon="movements" aria-hidden="true"></span><span><b>Bewegungen</b><small class="muted">Buchungsjournal</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button><button data-goto="exports" data-internal><span><span class="icon" data-icon="exports" aria-hidden="true"></span><span><b>Export</b><small class="muted">Excel, CSV & Sicherung</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button><button data-goto="users" data-admin><span><span class="icon" data-icon="users" aria-hidden="true"></span><span><b>Benutzer</b><small class="muted">Rollen und Zugriffe</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button><button data-goto="settings" data-admin><span><span class="icon" data-icon="settings" aria-hidden="true"></span><span><b>Einstellungen</b><small class="muted">Firebase und Systemstatus</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button></div></div></div></section>
 
 <section class="view" id="settingsView"><div class="panel">
 <div class="ph"><div><h3>Firebase / Multiuser</h3><small>Produktivkonfiguration</small></div></div>
@@ -483,13 +111,13 @@ html.native-scanning body .modal.open,html.native-scanning body #cartonModal.ope
 <label>E-Mail<input id="uEmail" type="email" autocomplete="email" inputmode="email" placeholder="marco@firma.ch"></label>
 <label>Rolle<select id="uRole"><option value="employee">Mitarbeiter / Employee</option><option value="admin">Admin</option><option value="customer">Kunde / Customer</option></select></label>
 <label>Sprache<select id="uLanguage"><option value="de">Deutsch</option><option value="en">English</option></select></label>
-</div><div class="result"><b>Automatisch</b><div class="note">ZeroStock erstellt den Firebase-Login über eine getrennte Session, speichert Rolle und UID und sendet eine E-Mail zum Setzen des Passworts. Dein Admin-Login bleibt bestehen.</div></div><div class="authError" id="userCreateError"></div></div><div class="mfoot"><button type="button" class="btn closeModal">Abbrechen</button><button type="button" class="btn primary" id="createUserBtn">Benutzer anlegen</button></div></div></div><div class="modal" id="bookModal" role="dialog" aria-modal="true" aria-labelledby="bookTitle"><div class="modalbox"><div class="ph"><div><h3 id="bookTitle">Buchung</h3><small id="bookSubtitle"></small></div></div><div class="mf"><div class="kv"><div><span data-i18n="stock">Bestand</span><strong id="bookStock"></strong></div><div><span data-i18n="warningStock">Warnbestand</span><strong id="bookWarn"></strong></div><div><span data-i18n="minStock">Minimum</span><strong id="bookMin"></strong></div></div><br><div class="formgrid"><label data-i18n="bookingType">Buchungsart<select id="bookType"><option value="in">Eingang / Stock In</option><option value="out">Abgang / Stock Out</option><option value="shrink">Schwund / Shrinkage</option></select></label><label data-i18n="quantity">Menge<input id="bookQty" type="number" min="1" inputmode="numeric"></label><label class="full" id="reasonWrap" style="display:none"><span data-i18n="reason">Grund</span><select id="bookReason"><option value="damaged">Beschädigt / Damaged</option><option value="lost">Verloren / Lost</option><option value="count">Zähldifferenz / Count discrepancy</option><option value="waste">Ausschuss / Waste</option><option value="other">Sonstiges / Other</option></select></label><div id="containerBookingFields" class="full formgrid" hidden><div class="serialEntry full"><label for="bookSerials" data-i18n="labelSerials">Seriennummern vom Etikett</label><textarea id="bookSerials" rows="3" autocorrect="off" autocapitalize="off" spellcheck="false" aria-describedby="bookSerialsHelp"></textarea><small class="note" id="bookSerialsHelp" data-i18n="oneSerial">Eine Nummer je Container und Zeile.</small><button type="button" class="btn" data-scan-into="bookSerials" data-i18n="scanLabel">Etikett scannen</button></div><p id="bookSerialError" class="serialError full" role="status"></p><label><span id="bookPartnerLabel">Empfänger / Ziel</span><input id="bookPartner" maxlength="120"></label><label><span data-i18n="reference">Referenz (optional)</span><input id="bookReference" maxlength="200"></label></div><label class="full"><span data-i18n="note">Notiz</span><textarea id="bookNote" maxlength="1000"></textarea></label></div><div id="bookPreview" class="result"></div></div><div class="mfoot"><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button class="btn primary" id="confirmBook" data-i18n="post">Buchen</button></div></div></div>
+</div><div class="result"><b>Automatisch</b><div class="note">ZeroStock erstellt den Firebase-Login über eine getrennte Session, speichert Rolle und UID und sendet eine E-Mail zum Setzen des Passworts. Dein Admin-Login bleibt bestehen.</div></div><div class="authError" id="userCreateError"></div></div><div class="mfoot"><button type="button" class="btn closeModal">Abbrechen</button><button type="button" class="btn primary" id="createUserBtn">Benutzer anlegen</button></div></div></div><div class="modal" id="bookModal" role="dialog" aria-modal="true" aria-labelledby="bookTitle"><div class="modalbox"><div class="ph"><div><h3 id="bookTitle">Buchung</h3><small id="bookSubtitle"></small></div></div><div class="mf"><div class="kv"><div><span data-i18n="stock">Bestand</span><strong id="bookStock"></strong></div><div><span data-i18n="warningStock">Warnbestand</span><strong id="bookWarn"></strong></div><div><span data-i18n="minStock">Minimum</span><strong id="bookMin"></strong></div></div><br><div class="formgrid"><label data-i18n="bookingType">Buchungsart<select id="bookType"><option value="in">Eingang / Stock In</option><option value="out">Abgang / Stock Out</option><option value="shrink">Schwund / Shrinkage</option></select></label><label data-i18n="quantity">Menge<input id="bookQty" type="number" min="1" inputmode="numeric"></label><label class="full" id="reasonWrap" style="display:none"><span data-i18n="reason">Grund</span><select id="bookReason"><option value="damaged">Beschädigt / Damaged</option><option value="lost">Verloren / Lost</option><option value="count">Zähldifferenz / Count discrepancy</option><option value="waste">Ausschuss / Waste</option><option value="other">Sonstiges / Other</option></select></label><div id="containerBookingFields" class="full formgrid" hidden><div class="serialEntry full"><div class="serialHead"><label for="bookSerials" data-i18n="labelSerials">Seriennummern vom Etikett</label><button type="button" class="btn" data-scan-into="bookSerials"><span class="icon" data-icon="scan" aria-hidden="true"></span><span data-i18n="scanLabel">Etikett scannen</span></button></div><textarea id="bookSerials" rows="3" autocorrect="off" autocapitalize="off" spellcheck="false" aria-describedby="bookSerialsHelp"></textarea><small class="note" id="bookSerialsHelp" data-i18n="oneSerial">Eine Nummer je Container und Zeile.</small></div><p id="bookSerialError" class="serialError full" role="status"></p><label><span id="bookPartnerLabel">Empfänger / Ziel</span><input id="bookPartner" maxlength="120"></label><label><span data-i18n="reference">Referenz (optional)</span><input id="bookReference" maxlength="200"></label></div><label class="full"><span data-i18n="note">Notiz</span><textarea id="bookNote" maxlength="1000"></textarea></label></div></div><div class="mfoot bookFooter"><div id="bookPreview" aria-live="polite"></div><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button class="btn primary" id="confirmBook">Buchen</button></div></div></div>
 
 <div class="modal" id="cartonModal" role="dialog" aria-modal="true" aria-labelledby="cartonModalTitle"><div class="modalbox"><div class="ph"><h3 id="cartonModalTitle">Karton</h3></div><div class="mf"><div class="formgrid"><label><span data-i18n="articleType">Artikelart</span><select id="cKind"><option value="carton">Karton</option><option value="plate">Plate</option><option value="container">Container</option></select></label><label><span data-i18n="externalReference">Externe Artikelreferenz (optional)</span><input id="cExternalRef" maxlength="120"><small class="note">Für eine spätere Zuordnung, z. B. zu Container Track.</small></label><label data-i18n="article">Artikel<input id="cArticle"></label><label data-i18n="description">Bezeichnung<input id="cName"></label><label data-i18n="location">Lagerplatz<input id="cLocation"></label><label data-i18n="stock">Bestand<input id="cStock" type="number" min="0"></label><label data-i18n="warningStock">Warnbestand<input id="cWarn" type="number" min="0"></label><label data-i18n="minStock">Mindestbestand<input id="cMin" type="number" min="0"></label><div class="full" id="initialSerials" hidden><div class="serialEntry full"><label for="cSerials" data-i18n="labelSerials">Seriennummern vom Etikett</label><textarea id="cSerials" rows="3" autocorrect="off" autocapitalize="off" spellcheck="false" aria-describedby="cSerialsHelp"></textarea><small class="note" id="cSerialsHelp" data-i18n="oneSerial">Eine Nummer je Container und Zeile.</small><button type="button" class="btn" data-scan-into="cSerials" data-i18n="scanLabel">Etikett scannen</button></div></div></div><div id="cartonLive" class="livecalc"></div></div><div class="mfoot"><button type="button" class="btn red" id="deleteCartonModal" style="display:none;margin-right:auto">Löschen</button><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button type="button" class="btn primary" id="saveCarton" data-i18n="save">Speichern</button></div></div></div>
 
 <div class="modal" id="instructionModal" role="dialog" aria-modal="true" aria-labelledby="instructionModalTitle"><div class="modalbox"><div class="ph"><h3 id="instructionModalTitle">Packing Instruction</h3></div><div class="mf"><div class="formgrid"><label><span data-i18n="configurationType">Konfigurationsart</span><select id="iKind"><option value="packing">Packing Instruction</option><option value="container">Container-Konfiguration</option></select></label><label id="iContainerWrap" hidden><span data-i18n="targetContainer">Containertyp</span><select id="iContainer"></select></label><label>Instruction / Name<input id="iName"></label><label data-i18n="description">Beschreibung<input id="iDesc"></label><label data-i18n="version">Version<input id="iVersion" value="1.0"></label><label data-i18n="active">Status<select id="iActive"><option value="true">Aktiv / Active</option><option value="false">Inaktiv / Inactive</option></select></label></div><br><b id="iMaterialsLabel">Benötigte Kartons pro Packing</b><div class="materialRows" id="materialRows"></div><button class="btn" id="addMaterialRow">+ <span id="addMaterialText">Karton hinzufügen</span></button><div id="instructionLive" class="livecalc"></div></div><div class="mfoot"><button class="btn closeModal" data-i18n="cancel">Abbrechen</button><button class="btn primary" id="saveInstruction" data-i18n="save">Speichern</button></div></div></div>
 
-<div class="modal" id="unitsModal" role="dialog" aria-modal="true" aria-labelledby="unitsTitle"><div class="modalbox"><div class="ph"><div><h3 id="unitsTitle"></h3><small id="unitSummary"></small></div></div><div class="mf"><ul class="unitRows" id="unitList"></ul><section id="assignSection"><h4 data-i18n="assignExisting">Vorhandenen Bestand zuordnen</h4><div class="serialEntry full"><label for="assignSerials" data-i18n="labelSerials">Seriennummern vom Etikett</label><textarea id="assignSerials" rows="3" autocorrect="off" autocapitalize="off" spellcheck="false" aria-describedby="assignSerialsHelp"></textarea><small class="note" id="assignSerialsHelp" data-i18n="oneSerial">Eine Nummer je Container und Zeile.</small><button type="button" class="btn" data-scan-into="assignSerials" data-i18n="scanLabel">Etikett scannen</button></div><button class="btn primary" id="assignUnits" data-i18n="assignUnits">Etiketten zuordnen</button></section><p class="serialHint" id="assignHint"></p><p class="serialError" id="assignError" role="status"></p></div><div class="mfoot"><button class="btn closeModal" id="closeUnits" data-i18n="close">Schliessen</button></div></div></div>
+<div class="modal" id="unitsModal" role="dialog" aria-modal="true" aria-labelledby="unitsTitle"><div class="modalbox"><div class="ph"><div><h3 id="unitsTitle" tabindex="-1"></h3><small id="unitSummary"></small></div></div><div class="mf"><ul class="unitRows" id="unitList"></ul><section id="assignSection"><h4 data-i18n="assignExisting">Vorhandenen Bestand zuordnen</h4><div class="serialEntry full"><label for="assignSerials" data-i18n="labelSerials">Seriennummern vom Etikett</label><textarea id="assignSerials" rows="3" autocorrect="off" autocapitalize="off" spellcheck="false" aria-describedby="assignSerialsHelp"></textarea><small class="note" id="assignSerialsHelp" data-i18n="oneSerial">Eine Nummer je Container und Zeile.</small><button type="button" class="btn" data-scan-into="assignSerials" data-i18n="scanLabel">Etikett scannen</button></div><button class="btn primary" id="assignUnits" data-i18n="assignUnits">Etiketten zuordnen</button></section><p class="serialHint" id="assignHint"></p><p class="serialError" id="assignError" role="status"></p></div><div class="mfoot"><button class="btn closeModal" id="closeUnits" data-i18n="close">Schliessen</button></div></div></div>
 <div class="modal" id="quickBookModal"><div class="modalbox"><div class="ph"><div><h3 id="quickBookTitle">Schnellbuchung</h3><small>Artikel auswählen</small></div></div><div class="mf"><input class="search" id="quickBookSearch" placeholder="Artikel, Bezeichnung oder Lagerplatz…" style="width:100%;margin-bottom:10px"><div class="quickBookSelectList" id="quickBookList"></div></div><div class="mfoot"><button class="btn closeModal">Abbrechen</button></div></div></div>
 <div class="modal" id="scanModal"><div class="modalbox"><div class="ph"><h3 data-i18n="scanQR">QR scannen</h3></div><div class="mf"><div class="camera"><video id="scanVideo" playsinline></video><div class="guide"></div></div><br><button class="btn" id="stopScan" data-i18n="cancel">Abbrechen</button></div></div></div>
 <div class="modal" id="labelModal"><div class="modalbox"><div class="ph"><div><h3 data-i18n="shelfLabel">Regalschild</h3><small>QR-Code drucken und am Lagerplatz befestigen</small></div></div><div class="mf" id="labelContent"></div><div class="mfoot no-print"><button class="btn closeModal" data-i18n="close">Schliessen</button><button class="btn" id="shareLabel">Teilen / PNG</button><button class="btn primary" id="printLabel" data-i18n="print">Drucken</button></div></div></div>
@@ -506,7 +134,7 @@ html.native-scanning body .modal.open,html.native-scanning body #cartonModal.ope
 </div>
 <div class="toast" id="toast"><b id="toastTitle"></b><small id="toastText"></small></div>
 
-<div class="mobileBottom" id="mobileBottom"><button data-mview="dashboard" class="active"><span>⌂</span><span>Home</span></button><button data-mview="cartons"><span>▦</span><span>Bestand</span></button><button data-mview="scan" class="scanNav"><span>⌗</span><span>Scan</span></button><button data-mview="tasks"><span>!</span><span>Aufgaben</span></button><button data-mview="more"><span>•••</span><span>Mehr</span></button></div>
+<nav class="mobileBottom" id="mobileBottom" aria-label="Mobile Navigation"><button data-mview="dashboard" class="active"><span class="icon" data-icon="dashboard" aria-hidden="true"></span><span data-i18n="homeLabel">Übersicht</span></button><button data-mview="cartons"><span class="icon" data-icon="cartons" aria-hidden="true"></span><span>Bestand</span></button><button data-mview="scan" class="scanNav"><span class="icon" data-icon="scan" aria-hidden="true"></span><span>Scan</span></button><button data-mview="tasks"><span class="icon" data-icon="tasks" aria-hidden="true"></span><span>Aufgaben</span></button><button data-mview="more"><span class="icon" data-icon="more" aria-hidden="true"></span><span>Mehr</span></button></nav>
 <button class="fabScan" id="fabScan" aria-label="QR scannen">▣</button>
 
 
@@ -593,6 +221,8 @@ Object.assign(D.en,{serials:'Serial numbers',labelSerials:'Serial numbers on the
 Object.assign(D.de,{configurationLabel:'Konfiguration',cartons:'Artikel',newCarton:'Artikel',masterData:'Kartons, Plates und Container',noCartons:'Noch keine Artikel angelegt',firstCreateCarton:'Lege zuerst mindestens einen Artikel an.',addFirstCarton:'Ersten Artikel anlegen',newInstruction:'Konfiguration',noInstructions:'Noch keine Konfiguration angelegt',instructionHelp:'Packing und Plate-Bedarf je Container konfigurieren',requiredCartons:'Benötigte Artikel pro Packing',addCarton:'Artikel hinzufügen',articleType:'Artikelart',externalReference:'Externe Artikelreferenz (optional)',configurationType:'Konfigurationsart',targetContainer:'Containertyp',configurations:'Konfigurationen',reference:'Referenz (optional)'});
 Object.assign(D.en,{configurationLabel:'Configuration',cartons:'Articles',newCarton:'Article',masterData:'Cartons, plates and containers',noCartons:'No articles created yet',firstCreateCarton:'Create at least one article first.',addFirstCarton:'Add first article',newInstruction:'Configuration',noInstructions:'No configuration created yet',instructionHelp:'Configure packing and plates per container',requiredCartons:'Required articles per packing',addCarton:'Add article',articleType:'Article type',externalReference:'External article reference (optional)',configurationType:'Configuration type',targetContainer:'Container type',configurations:'Configurations',reference:'Reference (optional)'});
 
+Object.assign(D.de,{dashboard:'Lagerübersicht',homeLabel:'Übersicht',forgotPassword:'Passwort vergessen?',liveStock:'Kartons, Plates und Container',loginScope:'Bestand, Container und Packplanung',loginTitle:'Anmelden',loginIntro:'Melde dich mit deinem ZeroStock-Konto an.',workspaceName:'Lagerverwaltung',homeDispatch:'Im Lager buchen',homeScanHint:'Regalschild oder Containeretikett scannen.',openScanner:'Scanner öffnen',actionsLabel:'Artikelaktionen',signOut:'Abmelden'});
+Object.assign(D.en,{dashboard:'Warehouse overview',homeLabel:'Home',forgotPassword:'Forgot password?',liveStock:'Cartons, plates and containers',loginScope:'Inventory, containers and packing plans',loginTitle:'Sign in',loginIntro:'Sign in with your ZeroStock account.',workspaceName:'Warehouse management',homeDispatch:'Book a movement',homeScanHint:'Scan a shelf code or a container label.',openScanner:'Open scanner',actionsLabel:'Article actions',signOut:'Sign out'});
 function openArticleModal(id,focusId){
   closeAll();const modal=$(id);modal.classList.add('open');modal.style.removeProperty('display');modal.setAttribute('aria-hidden','false');
   $(focusId)?.focus();
@@ -658,6 +288,10 @@ function setI18nText(el,text){
 }
 function applyLang(){
   document.documentElement.lang=lang;
+  document.querySelectorAll('.releaseVersion').forEach(el=>{el.textContent='v'+document.querySelector('meta[name="app-version"]').content});
+  $('cartonSearch').placeholder=lang==='de'?'Artikel oder Seriennummer':'Article or serial number';
+  $('cartonSearch').setAttribute('aria-label',$('cartonSearch').placeholder);
+  $('dashSearch').placeholder=lang==='de'?'Suchen…':'Search…';
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     const text=D[lang]?.[el.dataset.i18n];
     if(text)setI18nText(el,text);
@@ -665,7 +299,7 @@ function applyLang(){
   document.querySelectorAll('[data-lang]').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
   render();
 }
-function renderOnboarding(){const b=$('onboarding');if(!S.user||S.user.role==='customer'){b.style.display='none';return}const c=S.cartons.length>0,i=S.instructions.length>0;b.style.display='block';if(c&&i){b.innerHTML=`<h2>✓ ${t('ready')}</h2><p class="note">${t('setupComplete')}</p><div class="steps"><div class="step done"><b>${t('stepCartons')}</b><small>${S.cartons.length} ${t('cartons')}</small></div><div class="step done"><b>${t('stepInstructions')}</b><small>${S.instructions.length}</small></div><div class="step done"><b>${t('stepPlanner')}</b><small>${t('ready')}</small></div></div>`;return}b.innerHTML=`<h2>${t('startZero')}</h2><p class="note">${t('startZeroText')}</p><div class="steps"><div class="step ${c?'done':'active'}"><b>${t('stepCartons')}</b><small>${c?S.cartons.length:t('noCartons')}</small></div><div class="step ${c&&!i?'active':i?'done':''}"><b>${t('stepInstructions')}</b><small>${i?S.instructions.length:t('noInstructions')}</small></div><div class="step"><b>${t('stepPlanner')}</b><small>${i?t('ready'):'—'}</small></div></div><div class="actions" style="margin-top:14px">${!c&&isAdmin()?`<button type="button" class="btn primary" id="firstC">+ ${t('addFirstCarton')}</button>`:c&&!i&&isAdmin()?`<button class="btn primary" id="firstI">+ ${t('addFirstInstruction')}</button>`:''}</div>`;$('firstC')?.addEventListener('click',()=>openCarton());$('firstI')?.addEventListener('click',()=>openInstruction())}
+function renderOnboarding(){const b=$('onboarding');if(!S.user||S.user.role==='customer'){b.style.display='none';return}const c=S.cartons.length>0,i=S.instructions.length>0;if(c&&i){b.style.display='none';return}b.style.display='block';b.innerHTML=`<h2>${t('startZero')}</h2><p class="note">${t('startZeroText')}</p><div class="steps"><div class="step ${c?'done':'active'}"><b>${t('stepCartons')}</b><small>${c?S.cartons.length:t('noCartons')}</small></div><div class="step ${c&&!i?'active':i?'done':''}"><b>${t('stepInstructions')}</b><small>${i?S.instructions.length:t('noInstructions')}</small></div><div class="step"><b>${t('stepPlanner')}</b><small>${i?t('ready'):'—'}</small></div></div><div class="actions" style="margin-top:14px">${!c&&isAdmin()?`<button type="button" class="btn primary" id="firstC">+ ${t('addFirstCarton')}</button>`:c&&!i&&isAdmin()?`<button class="btn primary" id="firstI">+ ${t('addFirstInstruction')}</button>`:''}</div>`;$('firstC')?.addEventListener('click',()=>openCarton());$('firstI')?.addEventListener('click',()=>openInstruction())}
 
 function randomTemporaryPassword(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';const a=new Uint32Array(28);crypto.getRandomValues(a);return [...a].map(n=>chars[n%chars.length]).join('')}
 function renderUsers(){
@@ -710,7 +344,7 @@ function renderMobileHome(){
   warnings.innerHTML=ws.map(c=>{const st=status(c);return `<div class="mobileWarning"><div><b>${esc(c.article)} · ${esc(c.name||'')}</b><small>${esc(c.location||'—')} · Minimum ${c.min} · Warnung ${c.warn}</small></div><div class="mobileWarnBadge">${c.stock}</div></div>`}).join('')||`<div class="empty"><b>Alles im grünen Bereich</b><span>Keine Warn- oder kritischen Bestände.</span></div>`;
   const online=!!S.connected,pending=Number(S.offlineStats?.pending)||0,offlineOk=canOfflineBook();
   $('homeSyncDot')?.classList.toggle('off',!online);
-  if($('homeSyncTitle'))$('homeSyncTitle').textContent=online?'Online · Firebase verbunden':'Offline · SQLite aktiv';
+  if($('homeSyncTitle'))$('homeSyncTitle').textContent=online?'Online':offlineOk?'Offline · lokal verfügbar':'Offline';
   if($('homeSyncText'))$('homeSyncText').textContent=online?`Live-Daten · ${pending} lokale Buchung${pending===1?'':'en'} offen`:offlineOk?`Offline buchbar · ${pending} Buchung${pending===1?'':'en'} wartet auf Sync`:'Offline · lokale Daten nicht verfügbar';
   if($('homeSyncBadge')){const conflicts=Number(S.offlineStats?.conflicts)||0,failed=Number(S.offlineStats?.failed)||0;$('homeSyncBadge').className='status '+(conflicts||failed?'crit':online?'ok':offlineOk?'warn':'crit');$('homeSyncBadge').textContent=conflicts?`${conflicts} KONFLIKT`:failed?`${failed} FEHLER`:online?(pending?`${pending} OFFEN`:'LIVE'):(offlineOk?'OFFLINE READY':'OFFLINE')}
 }
@@ -788,7 +422,7 @@ try{renderUsers()}catch(e){console.error('renderUsers',e)}
 try{renderMobileHome()}catch(e){console.error('renderMobileHome',e)}
 try{renderTasks()}catch(e){console.error('renderTasks',e)}
 try{renderSyncQueue()}catch(e){console.error('renderSyncQueue',e)}
-$('connDot')?.classList.toggle('off',!S.connected);if($('connText'))$('connText').textContent=S.connected?'Firebase · Live':'Firebase · Offline';if($('mobileConn'))$('mobileConn').textContent=S.connected?'● Live':'● Offline';if($('firebaseStatusBadge'))$('firebaseStatusBadge').className='status '+(S.connected?'ok':'warn');if($('firebaseStatusBadge'))$('firebaseStatusBadge').textContent=S.connected?'LIVE':'OFFLINE';if($('firebaseStatusHelp'))$('firebaseStatusHelp').textContent=S.connected?'Produktive Realtime Database verbunden.':'Verbindung zur produktiven Realtime Database wird hergestellt.';if($('syncEngineBadge')){const p=Number(S.offlineStats?.pending)||0,c=Number(S.offlineStats?.conflicts)||0,f=Number(S.offlineStats?.failed)||0;$('syncEngineBadge').className='status '+(c||f?'crit':p?'warn':'ok');$('syncEngineBadge').textContent=c?`${c} KONFLIKT`:f?`${f} FEHLER`:p?`${p} OFFEN`:'SYNCHRON'};if($('syncEngineHelp'))$('syncEngineHelp').textContent=S.native?(S.connected?'Automatische Synchronisierung aktiv.':'Offline: Buchungen bleiben lokal und werden bei Rückkehr der Verbindung automatisch gesendet.'):'PWA verwendet weiterhin direkte Firebase-Buchungen.';scheduleNativeNotificationEvaluation();refreshNotificationSettingsUI()}
+$('connDot')?.classList.toggle('off',!S.connected);if($('connText'))$('connText').textContent=S.connected?'Online':'Offline';$('mobileConn')?.classList.toggle('online',S.connected);if($('mobileConn'))$('mobileConn').textContent=S.connected?'Online':'Offline';if($('firebaseStatusBadge'))$('firebaseStatusBadge').className='status '+(S.connected?'ok':'warn');if($('firebaseStatusBadge'))$('firebaseStatusBadge').textContent=S.connected?'LIVE':'OFFLINE';if($('firebaseStatusHelp'))$('firebaseStatusHelp').textContent=S.connected?'Produktive Realtime Database verbunden.':'Verbindung zur produktiven Realtime Database wird hergestellt.';if($('syncEngineBadge')){const p=Number(S.offlineStats?.pending)||0,c=Number(S.offlineStats?.conflicts)||0,f=Number(S.offlineStats?.failed)||0;$('syncEngineBadge').className='status '+(c||f?'crit':p?'warn':'ok');$('syncEngineBadge').textContent=c?`${c} KONFLIKT`:f?`${f} FEHLER`:p?`${p} OFFEN`:'SYNCHRON'};if($('syncEngineHelp'))$('syncEngineHelp').textContent=S.native?(S.connected?'Automatische Synchronisierung aktiv.':'Offline: Buchungen bleiben lokal und werden bei Rückkehr der Verbindung automatisch gesendet.'):'PWA verwendet weiterhin direkte Firebase-Buchungen.';scheduleNativeNotificationEvaluation();refreshNotificationSettingsUI()}
 async function deleteCarton(id){
   try{
     if(!isAdmin())throw new Error(lang==='de'?'Nur Admins können Kartons löschen.':'Only admins can delete cartons.');
@@ -834,16 +468,27 @@ function renderUnits(){
   $('unitsTitle').textContent=t('serials')+' · '+c.article;
   $('unitSummary').textContent=lang==='de'?`${c.stock} im Lager · ${remaining} ohne Zuordnung`:`${c.stock} in stock · ${remaining} unassigned`;
   $('unitList').innerHTML=units.map(u=>{
-    const info=[unitState(u),u.partner,u.reference,u.updatedAt&&new Date(u.updatedAt).toLocaleDateString(lang==='de'?'de-CH':'en-GB')].filter(Boolean);
-    return `<li><strong class="unitNumber">${esc(u.number)}</strong><small>${info.map(esc).join(' · ')}</small></li>`;
+    const state=u.status==='in'?'ok':u.status==='out'?'warn':'crit';
+    const info=[u.partner,u.reference,u.updatedAt&&new Date(u.updatedAt).toLocaleDateString(lang==='de'?'de-CH':'en-GB')].filter(Boolean);
+    const action=u.status==='in'?(lang==='de'?'Abgang':'Dispatch'):(lang==='de'?'Rückkehr':'Receive');
+    return `<li><div class="unitInfo"><strong class="unitNumber">${esc(u.number)}</strong>
+      <small><span class="status ${state}">${esc(unitState(u))}</span> ${info.map(esc).join(' · ')}</small></div>
+      <button type="button" class="btn" data-book-unit="${esc(u.number)}" aria-label="${esc(action+' · '+u.number)}">${action}</button></li>`;
   }).join('');
   $('assignSection').hidden=remaining<=0||!S.connected;
   $('assignHint').textContent=remaining>0&&!S.connected?(lang==='de'?'Zum Zuordnen ist eine Live-Verbindung erforderlich.':'Connect to assign labels to existing stock.'):'';
 }
+$('unitList').addEventListener('click',event=>{
+  const button=event.target.closest('[data-book-unit]');
+  if(!button||!canWrite())return;
+  const article=S.cartons.find(c=>c.id===unitsId);
+  const unit=Object.values(article?.containerUnits||{}).find(u=>u.number===button.dataset.bookUnit);
+  if(unit)openBook(article.id,unit);
+});
 function openUnits(id){
   if(!canWrite())return;
   unitsId=id;$('assignSerials').value='';$('assignError').textContent='';renderUnits();
-  openArticleModal('unitsModal',$('assignSection').hidden?'closeUnits':'assignSerials');
+  openArticleModal('unitsModal','unitsTitle');
 }
 // Firebase can invoke the callback again when another device changes the article.
 async function articleTransaction(ref,mutate){
@@ -878,7 +523,28 @@ function renderCartons(){
   const list=S.cartons.filter(c=>matches(c,q)&&(filter==='all'||ArticleModel.articleKind(c)===filter));
   const badge=c=>`<span class="articleKind">${esc(ArticleModel.kindLabel(ArticleModel.articleKind(c),lang))}</span>`;
   $('dashRows').innerHTML=dash.map(c=>{const st=status(c);return `<tr><td><b>${esc(c.article)}</b> ${badge(c)}<br><span class="muted">${esc(c.name)}</span></td><td>${esc(c.location)}</td><td>${c.stock}</td><td><span class="status ${st.key}">${st.txt}</span></td><td><button class="btn book" data-id="${esc(c.id)}" ${canWrite()?'':'disabled'}>${lang==='de'?'Buchen':'Post'}</button></td></tr>`;}).join('')||`<tr><td colspan="5"><div class="empty"><b>${t('noCartons')}</b></div></td></tr>`;
-  $('cartonRows').innerHTML=list.map(c=>`<tr><td><b>${esc(c.article)}</b> ${badge(c)}</td><td>${esc(c.name)}</td><td>${esc(c.location)}</td><td>${c.stock}</td><td>${c.min}</td><td>${c.warn}</td><td><div class="actions"><button class="btn book" data-id="${esc(c.id)}" ${canWrite()?'':'disabled'}>${lang==='de'?'Buchen':'Post'}</button>${c.kind==='container'&&canWrite()?`<button class="btn units" data-id="${esc(c.id)}">${t('serials')}</button>`:''}<button class="btn label" data-id="${esc(c.id)}">QR</button>${isAdmin()?`<button class="btn editC" data-id="${esc(c.id)}">${lang==='de'?'Bearbeiten':'Edit'}</button><button class="btn red deleteC" data-id="${esc(c.id)}">${lang==='de'?'Löschen':'Delete'}</button>`:''}</div></td></tr>`).join('')||`<tr><td colspan="7"><div class="empty"><b>${S.cartons.length?(lang==='de'?'Keine passenden Artikel':'No matching articles'):t('noCartons')}</b></div></td></tr>`;
+  const openTools=new Set([...$('cartonRows').querySelectorAll('details[open]')].map(el=>el.dataset.id));
+  $('cartonRows').innerHTML=list.map(c=>{
+    const kind=ArticleModel.articleKind(c), state=status(c), id=esc(c.id);
+    const symbol=kind==='plate'?'planner':kind==='container'?'container':'cartons';
+    const detailsLabel=(lang==='de'?'Weitere Aktionen für ':'More actions for ')+c.article;
+    const kindName=ArticleModel.kindLabel(kind,lang);
+    return `<tr>
+      <td class="articleId"><span class="articleIcon" data-kind="${kind}" title="${esc(kindName)}"><span class="icon" data-icon="${symbol}" aria-hidden="true"></span></span>
+        <div><b class="articleCode">${esc(c.article)}</b><small>${esc(c.name)} <span class="srOnly">· ${esc(kindName)}</span></small></div></td>
+      <td class="articleSpot"><span class="icon" data-icon="pin" aria-hidden="true"></span>${esc(c.location||'—')}</td>
+      <td class="stockCell" data-label="${t('stock')}">${esc(c.stock)}</td>
+      <td class="articleState"><span class="status ${state.key}">${state.txt}</span></td>
+      <td class="actionCell"><div class="articleActions">
+        <button type="button" class="btn book" data-id="${id}" ${canWrite()?'':'disabled'}>${t('post')}</button>
+        ${kind==='container'&&canWrite()?`<button type="button" class="btn units" data-id="${id}">${t('serials')}</button>`:''}
+        <details class="articleTools" data-id="${id}" ${openTools.has(c.id)?'open':''}>
+          <summary aria-label="${esc(detailsLabel)}" title="${esc(detailsLabel)}"><span class="icon" data-icon="more" aria-hidden="true"></span></summary>
+          <div class="toolItems"><small>${esc(kindName)} · ${t('minStock')} ${esc(c.min)} · ${t('warningStock')} ${esc(c.warn)}</small>
+            <button class="btn label" data-id="${id}">${lang==='de'?'QR-Etikett':'QR label'}</button>
+            ${isAdmin()?`<button class="btn editC" data-id="${id}">${lang==='de'?'Bearbeiten':'Edit'}</button><button class="btn red deleteC" data-id="${id}">${lang==='de'?'Löschen':'Delete'}</button>`:''}
+          </div></details></div></td></tr>`;
+  }).join('')||`<tr><td colspan="5"><div class="empty"><b>${S.cartons.length?(lang==='de'?'Keine passenden Artikel':'No matching articles'):t('noCartons')}</b></div></td></tr>`;
   document.querySelectorAll('[data-article-filter]').forEach(b=>{const selected=b.dataset.articleFilter===filter;b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));b.onclick=()=>{S.articleFilter=b.dataset.articleFilter;renderCartons();};});
   document.querySelectorAll('.book').forEach(b=>b.onclick=()=>openBook(b.dataset.id));
   document.querySelectorAll('.units').forEach(b=>b.onclick=()=>openUnits(b.dataset.id));
@@ -926,7 +592,13 @@ function calcPlan(){
   if(i.kind==='container'){
     try{
       const result=ArticleModel.calculateConfiguration(i,S.cartons,quantity);
-      out.innerHTML=`<span class="status ${result.canFulfill?'ok':'crit'}">${result.canFulfill?t('possible'):t('notPossible')}</span> <b>${esc(reference||i.name)}</b><p class="configCapacity">${lang==='de'?'Maximal':'Maximum'} <strong>${result.capacity}</strong> Container</p><p class="note">${lang==='de'?'Bedarfsplanung: Container und Plates werden separat gebucht.':'Planning only: containers and plates are booked separately.'}</p><div class="reqgrid">${result.lines.map(line=>`<div class="req" data-article-id="${esc(line.id)}"><b>${esc(line.article)}</b><small>${esc(line.name)} · ${esc(ArticleModel.kindLabel(line.kind,lang))}</small><div>${t('needed')}: <b>${line.required}</b></div><div>${t('available')}: <b>${line.available}</b></div>${line.missing?`<div class="red">${t('missing')}: ${line.missing}</div>`:''}</div>`).join('')}</div>`;
+      const fulfillable=Math.min(result.capacity,quantity);
+      const shortage=result.lines.filter(line=>line.missing).map(line=>`${line.missing} × ${esc(line.article)}`);
+      const headline=lang==='de'?`${fulfillable} von ${quantity} Container${quantity===1?'':'n'} bereit`:`${fulfillable} of ${quantity} container${quantity===1?'':'s'} ready`;
+      out.innerHTML=`<div class="planSummary ${result.canFulfill?'':'short'}"><small>${esc(reference||i.name)}</small>
+        <h4>${headline}</h4><div class="configCapacity">${lang==='de'?'Maximale Kapazität':'Maximum capacity'} · <strong>${result.capacity}</strong> Container</div>
+        ${shortage.length?`<div>${lang==='de'?'Es fehlen':'Short by'} <b>${shortage.join(', ')}</b></div>`:''}</div>
+        <p class="note">${lang==='de'?'Container und Plates werden separat gebucht.':'Containers and plates are booked separately.'}</p><div class="reqgrid">${result.lines.map(line=>`<div class="req" data-article-id="${esc(line.id)}"><b>${esc(line.article)}</b><small>${esc(line.name)} · ${esc(ArticleModel.kindLabel(line.kind,lang))}</small><div>${t('needed')}: <b>${line.required}</b></div><div>${t('available')}: <b>${line.available}</b></div>${line.missing?`<div class="red">${t('missing')}: ${line.missing}</div>`:''}</div>`).join('')}</div>`;
     }catch(e){out.textContent=e.message;}
     return;
   }
@@ -973,7 +645,11 @@ function bookPreview(){
   const type=$('bookType').value,quantity=Math.max(0,Number($('bookQty').value)||0),next=Math.max(0,Number(bookCarton.stock)+(type==='in'?quantity:-quantity));
   $('reasonWrap').style.display=type==='shrink'?'grid':'none';
   $('bookPartnerLabel').textContent=type==='in'?(lang==='de'?'Herkunft / Gegenstelle':'Origin / partner'):(lang==='de'?'Empfänger / Ziel':'Recipient / destination');
-  $('bookPreview').innerHTML=`${t('stock')}: <b>${bookCarton.stock}</b> → <b>${next}</b>${ArticleModel.articleKind(bookCarton)==='container'?`<p class="note">${lang==='de'?'Diese Buchung verändert nur den Containerbestand.':'This transaction changes container stock only.'}</p>`:''}`;
+  const valid=Number.isSafeInteger(quantity)&&quantity>0&&!$('bookSerialError').textContent&&(type==='in'||quantity<=Number(bookCarton.stock));
+  const label=lang==='de'?{in:'Eingang buchen',out:'Abgang buchen',shrink:'Schwund buchen'}:{in:'Receive stock',out:'Dispatch stock',shrink:'Post loss'};
+  const units=bookCarton.kind==='container'?(lang==='de'?'Container':quantity===1?'container':'containers'):(lang==='de'?'Stk.':'pcs');
+  $('confirmBook').textContent=valid?`${label[type]} · ${quantity} ${units}`:label[type];
+  $('bookPreview').innerHTML=`<small>${t('stock')}</small><b>${esc(bookCarton.stock)} → ${valid?next:'—'}</b>`;
 }
 
 async function confirmBook(){

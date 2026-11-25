@@ -1,0 +1,26 @@
+.nativeScannerOverlay{position:fixed;inset:0;z-index:9999;display:none;background:transparent;color:#fff;pointer-events:none}
+.nativeScannerOverlay.open{display:block}
+.nativeScannerShade{position:absolute;inset:0;background:linear-gradient(rgba(1,8,12,.46),rgba(1,8,12,.2) 24%,rgba(1,8,12,.2) 76%,rgba(1,8,12,.56));pointer-events:none}
+.nativeScannerTop{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;padding:max(18px,var(--zs-safe-top)) 18px 12px;pointer-events:auto}
+.nativeScannerTop button,.nativeScannerBottom button{width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(4,18,18,.58);backdrop-filter:blur(14px);color:#fff;font-size:22px}
+.nativeScannerTitle{text-align:center}
+.nativeScannerTitle b{display:block;font-size:15px;letter-spacing:.12em}
+.nativeScannerTitle small{display:block;color:#c9e9df;margin-top:3px}
+.nativeScannerFrame{position:absolute;left:50%;top:48%;width:min(74vw,330px);height:min(42vw,210px);transform:translate(-50%,-50%);border-radius:22px;box-shadow:0 0 0 9999px rgba(0,0,0,.18);pointer-events:none}
+.nativeScannerFrame:before,.nativeScannerFrame:after{content:"";position:absolute;inset:0;border-radius:22px}
+.nativeScannerFrame:before{border:2px solid rgba(32,227,178,.38)}
+.nativeScannerCorners{position:absolute;inset:0;background:linear-gradient(var(--brand),var(--brand)) left top/42px 4px no-repeat,linear-gradient(var(--brand),var(--brand)) left top/4px 42px no-repeat,linear-gradient(var(--brand),var(--brand)) right top/42px 4px no-repeat,linear-gradient(var(--brand),var(--brand)) right top/4px 42px no-repeat,linear-gradient(var(--brand),var(--brand)) left bottom/42px 4px no-repeat,linear-gradient(var(--brand),var(--brand)) left bottom/4px 42px no-repeat,linear-gradient(var(--brand),var(--brand)) right bottom/42px 4px no-repeat,linear-gradient(var(--brand),var(--brand)) right bottom/4px 42px no-repeat;border-radius:22px;filter:drop-shadow(0 0 10px rgba(32,227,178,.45))}
+.nativeScannerLine{position:absolute;left:8%;right:8%;top:50%;height:2px;background:linear-gradient(90deg,transparent,var(--brand),transparent);box-shadow:0 0 14px var(--brand);animation:zsScanLine 2s ease-in-out infinite}
+@keyframes zsScanLine{0%,100%{transform:translateY(-62px);opacity:.45}
+50%{transform:translateY(62px);opacity:1}
+}
+.nativeScannerBottom{position:absolute;left:18px;right:18px;bottom:max(24px,var(--zs-safe-bottom));display:flex;align-items:center;justify-content:center;gap:18px;pointer-events:auto}
+.nativeScannerHint{position:absolute;left:18px;right:18px;bottom:96px;text-align:center;color:#e7fff8;font-size:13px;text-shadow:0 2px 8px #000}
+.nativeScannerOverlay .torchOn{background:var(--brand);color:#032018;border-color:#7fffe0}
+.native-app.native-scanning body{background:transparent!important}
+.native-app.native-scanning #appShell,.native-app.native-scanning .gate,.native-app.native-scanning .mobileBottom,.native-app.native-scanning .fabScan,.native-app.native-scanning .installbar,.native-app.native-scanning .toast{visibility:hidden!important}
+.native-app.native-scanning .nativeScannerOverlay{visibility:visible!important}
+
+html.native-scanning, html.native-scanning body { background: transparent !important; }
+html.native-scanning body .modal.open, html.native-scanning .mobilehead { display: none !important; }
+.nativeScannerOverlay { --brand: #9ae6b4; }

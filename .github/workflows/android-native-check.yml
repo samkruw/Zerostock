@@ -39,6 +39,7 @@ jobs:
           npm run web:build
           npx cap add android
           npm run android:configure
+          npm run assets:android
           npx cap sync android
           test "$ZEROSTOCK_VERSION_CODE" -gt 29
           node scripts/configure-release.mjs

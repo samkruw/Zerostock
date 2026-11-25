@@ -2,7 +2,7 @@ name: ZeroStock V5 Android APK
 
 on:
   push:
-    branches: [main, v5-cloud-build, feat/plates-container-quantities, feat/container-serials]
+    branches: [main, v5-cloud-build, feat/plates-container-quantities, feat/container-serials, feat/business-ui]
     tags: ['v*']
     paths:
       - cloud-build/**
@@ -19,7 +19,7 @@ permissions:
   contents: read
 
 env:
-  ZEROSTOCK_RELEASE_VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '5.2.0' }}
+  ZEROSTOCK_RELEASE_VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '5.3.0' }}
 
 concurrency:
   group: zerostock-android-${{ github.ref }}
@@ -33,7 +33,7 @@ jobs:
     if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
     uses: ./.github/workflows/android-native-check.yml
     with:
-      version: '5.2.0'
+      version: '5.3.0'
       version_code: ${{ fromJSON(github.run_number) }}
 
   verify-source:
@@ -122,6 +122,7 @@ jobs:
           npm ci --no-audit --no-fund
           npx cap add android
           npm run android:configure
+          npm run assets:android
           npx cap sync android
       - name: Set increasing Android version
         working-directory: ${{ env.ZS_SRC }}
