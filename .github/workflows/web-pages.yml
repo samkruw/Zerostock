@@ -9,6 +9,7 @@ on:
       - feat/container-serials
       - feat/business-ui
       - feat/brand-launch
+      - feat/smoother-start
       - main
   workflow_dispatch:
 

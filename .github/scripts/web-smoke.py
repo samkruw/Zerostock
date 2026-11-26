@@ -38,7 +38,7 @@ try:
         options = {'headless': True}
         if os.environ.get('ZS_CHROMIUM_PATH'):
             options['executable_path'] = os.environ['ZS_CHROMIUM_PATH']
-        if os.environ.get('HTTPS_PROXY'):
+        if args.url and os.environ.get('HTTPS_PROXY'):
             options['proxy'] = {'server': os.environ['HTTPS_PROXY'], 'bypass': '127.0.0.1,localhost'}
         browser = playwright.chromium.launch(**options)
         for label, viewport in [('desktop', {'width': 1440, 'height': 1000}), ('mobile', {'width': 393, 'height': 852})]:
@@ -60,8 +60,10 @@ try:
             for name, digest in expected['files'].items():
                 response = context.request.get(urljoin(url, name) + '?qa=' + expected['source_commit'])
                 assert response.ok and hashlib.sha256(response.body()).hexdigest() == digest
-            stage = label + ':firebase-bootstrap'
-            page.goto(url, wait_until='domcontentloaded')
+            stage = label + ':open-start-page'
+            document = page.goto(url, wait_until='domcontentloaded', timeout=45000)
+            assert document and document.ok
+            stage = label + ':sign-in-ready'
             page.locator('#authLogin.active').wait_for(timeout=45000)
             assert page.locator('#launchScreen .launchPart').count() == 3
             assert page.locator('#gateLoginError').inner_text() == ''
@@ -71,7 +73,7 @@ try:
             assert page.evaluate('ZeroStockUpdates.currentVersion()') == version
             assert page.evaluate('ZeroStockUpdates.isNewer("5.0.0", "5.0.0-rc.1")')
             assert page.evaluate('ZeroStockUpdates.isNewer("5.0.1", "5.0.0")')
-            assert page.evaluate("v => ZeroStockUpdates.isNewer(v, '5.3.0')", version)
+            assert page.evaluate("v => ZeroStockUpdates.isNewer(v, '5.3.2')", version)
             stage = label + ':service-worker'
             page.wait_for_function('Boolean(navigator.serviceWorker.controller)', timeout=45000)
             assert 'zerostock-v'+version in page.evaluate('caches.keys()')
