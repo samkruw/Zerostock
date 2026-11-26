@@ -22,7 +22,9 @@ class Regressions(unittest.TestCase):
         self.context=browser.new_context(viewport={'width':393,'height':852},service_workers='block')
         self.context.route('**/*',lambda r:r.continue_() if urlsplit(r.request.url).netloc==urlsplit(base).netloc else r.abort())
         self.page=self.context.new_page();self.page.goto(base,wait_until='networkidle')
-        self.page.locator('#authLogin.active').wait_for();self.page.evaluate(Path(__file__).with_name('articles-fixture.js').read_text())
+        self.page.locator('#authLogin.active').wait_for()
+        self.page.locator('#launchScreen').wait_for(state='hidden')
+        self.page.evaluate(Path(__file__).with_name('articles-fixture.js').read_text())
         self.page.evaluate("uiFixture.data.cartons.C=ArticleModel.assignContainerUnits(uiFixture.data.cartons.C,['A','B'],1);uiFixture.emit()")
     def tearDown(self):self.context.close()
     def test_rejected_note_never_changes_stock(self):

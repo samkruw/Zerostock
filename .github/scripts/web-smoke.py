@@ -61,7 +61,7 @@ try:
                 response = context.request.get(urljoin(url, name) + '?qa=' + expected['source_commit'])
                 assert response.ok and hashlib.sha256(response.body()).hexdigest() == digest
             stage = label + ':firebase-bootstrap'
-            page.goto(url, wait_until='networkidle')
+            page.goto(url, wait_until='domcontentloaded')
             page.locator('#authLogin.active').wait_for(timeout=45000)
             assert page.locator('#launchScreen .launchPart').count() == 3
             assert page.locator('#gateLoginError').inner_text() == ''

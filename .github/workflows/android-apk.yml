@@ -2,7 +2,7 @@ name: ZeroStock V5 Android APK
 
 on:
   push:
-    branches: [main, v5-cloud-build, feat/plates-container-quantities, feat/container-serials, feat/business-ui, feat/brand-launch]
+    branches: [main, v5-cloud-build, feat/plates-container-quantities, feat/container-serials, feat/business-ui, feat/brand-launch, feat/smoother-start]
     tags: ['v*']
     paths:
       - cloud-build/**
@@ -20,7 +20,7 @@ permissions:
   contents: read
 
 env:
-  ZEROSTOCK_RELEASE_VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '5.3.2' }}
+  ZEROSTOCK_RELEASE_VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '5.3.3' }}
 
 concurrency:
   group: zerostock-android-${{ github.ref }}
@@ -34,7 +34,7 @@ jobs:
     if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
     uses: ./.github/workflows/android-native-check.yml
     with:
-      version: '5.3.2'
+      version: '5.3.3'
       version_code: ${{ fromJSON(github.run_number) }}
 
   verify-source:

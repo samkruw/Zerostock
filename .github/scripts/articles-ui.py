@@ -44,6 +44,7 @@ try:
             context.route('**/*',lambda route: route.continue_() if urlsplit(route.request.url).netloc==urlsplit(base).netloc else route.abort())
             page=context.new_page();errors=[];page.on('pageerror',lambda _:errors.append(True))
             page.goto(base,wait_until='networkidle');page.locator('#authLogin.active').wait_for()
+            page.locator('#launchScreen').wait_for(state='hidden')
             page.evaluate(fixture)
             stage=label+':article-creation'
             assert page.evaluate("!('kind' in uiFixture.data.cartons.K)")

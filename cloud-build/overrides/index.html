@@ -16,62 +16,71 @@
 <link rel="stylesheet" href="../ui/launch.css">
 </head>
 <body>
-<div class="launchScreen" id="launchScreen" hidden>
+<dialog class="launchScreen" id="launchScreen" aria-label="ZeroStock" closedby="none">
   <div class="launchBackdrop" aria-hidden="true"></div>
   <div class="launchLockup" aria-hidden="true">
     <div class="launchFrame"><span class="launchGuides"></span><div class="launchMark">
       <span class="launchPart launchBase"></span><span class="launchPart launchBridge"></span><span class="launchPart launchUpper"></span>
     </div></div>
-    <div class="launchName">Zero<span>Stock</span></div><div class="launchScope" id="launchScope">Lagerverwaltung</div>
+    <div class="launchCaption">
+      <div class="launchName">Zero<span>Stock</span></div><div class="launchScope" id="launchScope">Lagerverwaltung</div>
+    </div>
   </div>
-  <button type="button" class="launchSkip" id="launchSkip">Überspringen</button>
-</div>
+</dialog>
 <script>
 (() => {
   const screen = document.getElementById('launchScreen');
-  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (motion.matches || new URLSearchParams(location.search).has('box')) return;
+  const sessionKey = 'zs-launch-complete';
   try {
-    if (sessionStorage.getItem('zs-launch-shown')) return;
-    sessionStorage.setItem('zs-launch-shown','1');
-  } catch { /* A storage restriction still permits a normal launch. */ }
+    if (sessionStorage.getItem(sessionKey) === '1') return;
+  } catch { /* Private browsing can disable session storage. */ }
   try {
     if (localStorage.getItem('zs-lang') === 'en') {
-      document.getElementById('launchSkip').textContent = 'Skip';
       document.getElementById('launchScope').textContent = 'Warehouse management';
     }
-  } catch { /* German is the default when preferences are unavailable. */ }
+  } catch { /* The default language is German. */ }
 
-  screen.hidden = false;
-  let timer;
-  function dismiss() {
-    screen.hidden = true;
-    clearTimeout(timer);
-    screen.removeEventListener('click',dismiss);
-    screen.removeEventListener('animationend',onAnimationEnd);
-    window.removeEventListener('keydown',onKey,true);
-    window.removeEventListener('pagehide',dismiss);
-    motion.removeEventListener?.('change',onMotionChange);
+  screen.addEventListener('cancel', event => event.preventDefault());
+  screen.showModal();
+
+  function finish() {
+    try { sessionStorage.setItem(sessionKey,'1'); } catch { /* The next visit can play again. */ }
+    screen.close();
   }
-  function onAnimationEnd(event) {
-    if (event.target === screen && event.animationName === 'launchExit') dismiss();
-  }
-  function onKey(event) {
-    if (event.key === 'Tab') return dismiss();
-    if (event.key === 'Escape' || event.key === 'Enter') {
-      event.preventDefault();
-      event.stopPropagation();
-      dismiss();
+
+  function play() {
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const duration = 1600;
+    const frames = () => [
+      { opacity: 1, offset: 0 },
+      { opacity: 1, offset: 0.85 },
+      { opacity: motion.matches ? 1 : 0, offset: 1 }
+    ];
+    screen.classList.add('playing');
+    if (!screen.animate) {
+      window.setTimeout(finish,duration);
+      return;
     }
+    const fade = screen.animate(frames(),{duration, fill:'forwards'});
+    const updateMotion = () => fade.effect.setKeyframes(frames());
+    motion.addEventListener?.('change',updateMotion);
+    fade.finished.then(() => {
+      motion.removeEventListener?.('change',updateMotion);
+      finish();
+    });
   }
-  function onMotionChange(event) { if (event.matches) dismiss(); }
-  screen.addEventListener('click',dismiss);
-  screen.addEventListener('animationend',onAnimationEnd);
-  window.addEventListener('keydown',onKey,true);
-  window.addEventListener('pagehide',dismiss,{once:true});
-  motion.addEventListener?.('change',onMotionChange);
-  // Also finish if the browser suspends CSS animations during startup.
-  timer = setTimeout(dismiss,1900);
+
+  // Give the local startup bundles and the first painted layers a head start.
+  // A slow resource must not keep the launch screen open indefinitely.
+  let warmup = window.setTimeout(queuePlayback,450);
+  function queuePlayback() {
+    if (!warmup) return;
+    window.clearTimeout(warmup);
+    warmup = 0;
+    window.removeEventListener('load',queuePlayback);
+    requestAnimationFrame(() => requestAnimationFrame(play));
+  }
+  window.addEventListener('load',queuePlayback,{once:true});
 })();
 </script>
 
@@ -79,9 +88,16 @@
   <div class="authPhoto"><div><p data-i18n="workspaceName">Lagerverwaltung</p><small data-i18n="loginScope">Bestand, Container und Packplanung</small></div></div>
   <div class="authCard">
 <div class="authBrand"><span class="brandMark" aria-hidden="true"></span><b class="wordmark">Zero<span>Stock</span></b></div>
-<div class="authView active" id="authLoading"><h2>ZeroStock wird gestartet</h2><p>Anmeldung wird geladen …</p></div>
+<div class="authView active" id="authLoading"><h2 role="status" data-i18n="authPreparing">Anmeldung wird vorbereitet …</h2></div>
 <div class="authView" id="authLogin"><h2 data-i18n="loginTitle">Anmelden</h2><p data-i18n="loginIntro">Melde dich mit deinem ZeroStock-Konto an.</p><div class="authForm"><label>E-Mail<input id="gateEmail" enterkeyhint="next" type="email" autocomplete="username" inputmode="email" placeholder="name@firma.ch"></label><label>Passwort<input id="gatePassword" enterkeyhint="go" type="password" autocomplete="current-password" placeholder="••••••••"></label><button class="btn primary" id="gateLogin"><span data-i18n="loginTitle">Anmelden</span><span aria-hidden="true">→</span></button><button class="authLink" id="gateReset" data-i18n="forgotPassword">Passwort vergessen?</button></div><div class="authError" id="gateLoginError" role="status"></div></div>
-<div class="authView" id="authNoRole"><h2>Firebase-Rolle konnte nicht geladen werden</h2><p>Der Login funktioniert. Dieser Bildschirm erscheint jetzt nur noch, wenn der Rollenwert selbst nicht gelesen werden kann.</p><div class="dangerbox"><div class="note"><code>/users/&lt;UID&gt;/role</code> muss <b>admin</b>, <b>employee</b> oder <b>customer</b> sein.<br><br><b>Gelesener Rollenwert:</b> <code id="gateRoleValue">—</code><br><b>Prüfung:</b> <span id="gateRoleState">—</span><br><b>Quelle:</b> <span id="gateRoleSource">—</span><br><b>Datenbank:</b> <code id="gateRoleDb">—</code></div></div><div class="authForm" style="margin-top:14px"><button class="btn primary" id="gateRetryRole">Rolle erneut prüfen</button><button class="btn" id="gateLogoutRole">Abmelden</button></div><div class="authMeta"><span>UID</span><span id="gateUid">—</span></div></div>
+<div class="authView" id="authNoRole">
+  <h2 data-i18n="accessUnavailable">Zugriff derzeit nicht möglich</h2>
+  <p data-i18n="accessHelp">Versuche es erneut. Falls dein Konto weiterhin keinen Zugriff hat, wende dich an deine Lagerverwaltung.</p>
+  <div class="authForm">
+    <button class="btn primary" id="gateRetryRole" data-i18n="retryAccess">Erneut versuchen</button>
+    <button class="btn" id="gateLogoutRole" data-i18n="signOut">Abmelden</button>
+  </div>
+</div>
 <div class="authMeta authFooter"><span data-i18n="workspaceName">Lagerverwaltung</span><span class="releaseVersion"></span></div></div>
 </div></div>
 
@@ -283,6 +299,18 @@ Object.assign(D.en,{configurationLabel:'Configuration',cartons:'Articles',newCar
 
 Object.assign(D.de,{dashboard:'Lagerübersicht',homeLabel:'Übersicht',forgotPassword:'Passwort vergessen?',liveStock:'Kartons, Plates und Container',loginScope:'Bestand, Container und Packplanung',loginTitle:'Anmelden',loginIntro:'Melde dich mit deinem ZeroStock-Konto an.',workspaceName:'Lagerverwaltung',homeDispatch:'Im Lager buchen',homeScanHint:'Regalschild oder Containeretikett scannen.',openScanner:'Scanner öffnen',actionsLabel:'Artikelaktionen',signOut:'Abmelden'});
 Object.assign(D.en,{dashboard:'Warehouse overview',homeLabel:'Home',forgotPassword:'Forgot password?',liveStock:'Cartons, plates and containers',loginScope:'Inventory, containers and packing plans',loginTitle:'Sign in',loginIntro:'Sign in with your ZeroStock account.',workspaceName:'Warehouse management',homeDispatch:'Book a movement',homeScanHint:'Scan a shelf code or a container label.',openScanner:'Open scanner',actionsLabel:'Article actions',signOut:'Sign out'});
+Object.assign(D.de, {
+  authPreparing: 'Anmeldung wird vorbereitet …',
+  accessUnavailable: 'Zugriff derzeit nicht möglich',
+  accessHelp: 'Versuche es erneut. Falls dein Konto weiterhin keinen Zugriff hat, wende dich an deine Lagerverwaltung.',
+  retryAccess: 'Erneut versuchen'
+});
+Object.assign(D.en, {
+  authPreparing: 'Preparing sign-in …',
+  accessUnavailable: 'Access currently unavailable',
+  accessHelp: 'Try again. If your account still has no access, contact your warehouse administrator.',
+  retryAccess: 'Try again'
+});
 function openArticleModal(id,focusId){
   closeAll();const modal=$(id);modal.classList.add('open');modal.style.removeProperty('display');modal.setAttribute('aria-hidden','false');
   $(focusId)?.focus();
@@ -1172,7 +1200,6 @@ function applyLiveProfile(user,profile,refresh=false){
   if(S.offlineReady)window.ZeroStockOffline.cacheUser({uid:user.uid,name,email:user.email||'',role,active}).catch(e=>console.warn('cache user',e));
   if(!active){
     clearSubs();S.user=null;clearPrivateState();S.instructions=[];S.customerSummary={};S.waitForCartons=false;
-    $('gateUid').textContent=user.uid;$('gateRoleState').textContent=lang==='de'?'Kein aktiver Zugriff.':'No active access.';
     authView('authNoRole');return;
   }
   if(changed){clearSubs();clearPrivateState();S.instructions=[];S.customerSummary={};}
@@ -1215,14 +1242,13 @@ if(S.native&&S.offlineReady&&navigator.onLine===false){
 }
 
 const rolePath=`users/${user.uid}/role`;
-let role='',rawRole=null,source='Firebase SDK';
+let role='';
 
 // First: SDK read, up to 3 attempts
 for(let attempt=1;attempt<=3;attempt++){
   try{
     const roleSnap=await S.firebase.get(S.firebase.ref(S.db,rolePath));
-    rawRole=roleSnap.val();
-    role=String(rawRole??'').trim().toLowerCase();
+    role=String(roleSnap.val()??'').trim().toLowerCase();
   }catch(e){
     console.warn('Role SDK attempt',attempt,e);
   }
@@ -1233,12 +1259,9 @@ for(let attempt=1;attempt<=3;attempt++){
 // Second: authenticated REST fallback
 if(!['admin','employee','customer'].includes(role)){
   try{
-    rawRole=await readRoleViaRest(user);
-    role=String(rawRole??'').trim().toLowerCase();
-    source='Realtime Database REST';
+    const value=await readRoleViaRest(user);
+    role=String(value??'').trim().toLowerCase();
   }catch(e){
-    source='REST Fehler';
-    if($('gateRoleState'))$('gateRoleState').textContent=e.message;
     console.error('Role REST fallback:',e);
   }
 }
@@ -1248,11 +1271,6 @@ if(!['admin','employee','customer'].includes(role)){
   if(!S.transportOnline&&await startOfflineSession(user)){if(sameSession(user,epoch))watchOwnProfile(user,epoch);return;}
   if(S.transportOnline)applyLiveProfile(user,null);
   S.user=null;
-  $('gateUid').textContent=user.uid;
-  if($('gateRoleValue'))$('gateRoleValue').textContent=rawRole===null||rawRole===undefined?'(nicht vorhanden)':JSON.stringify(rawRole);
-  if($('gateRoleState')&&!$('gateRoleState').textContent)$('gateRoleState').textContent='Pfad nicht gefunden / leer';
-  if($('gateRoleSource'))$('gateRoleSource').textContent=source;
-  if($('gateRoleDb'))$('gateRoleDb').textContent=FIREBASE_BASE_CONFIG.databaseURL;
   authView('authNoRole');
   return;
 }
@@ -1295,11 +1313,6 @@ return
 if(!sameSession(user,epoch))return;
 console.error('ZeroStock database/role error:',e);
 S.user=null;
-$('gateUid').textContent=user.uid;
-if($('gateRoleValue'))$('gateRoleValue').textContent='FEHLER';
-if($('gateRoleState'))$('gateRoleState').textContent=e?.code||e?.message||String(e);
-if($('gateRoleSource'))$('gateRoleSource').textContent='connectDb';
-if($('gateRoleDb'))$('gateRoleDb').textContent=FIREBASE_BASE_CONFIG.databaseURL;
 authView('authNoRole')
 }}
 function clearSubs(){S.unsubs.forEach(u=>{try{u()}catch{}});S.unsubs=[]}
@@ -1312,8 +1325,8 @@ if(S.user.role==='customer'){S.cartons=[];S.movements=[];S.unsubs.push(F.onValue
 S.unsubs.push(F.onValue(F.ref(S.db,'cartons'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));if(!internal())return;const cached=S.offlineReady?await window.ZeroStockOffline.cacheCartons(list):list;if(!internal())return;S.cartons=cached;const first=S.waitForCartons;S.waitForCartons=false;await refreshOfflineStats();if(!internal())return;render();scheduleSummary();if(first&&S.connected)scheduleSync(50)}));
 S.unsubs.push(F.onValue(F.ref(S.db,'instructions'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));S.instructions=S.offlineReady?await window.ZeroStockOffline.cacheInstructions(list):list;render();scheduleSummary()}));
 S.unsubs.push(F.onValue(F.query(F.ref(S.db,'movements'),F.limitToLast(200)),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));if(!internal())return;const cached=S.offlineReady?await window.ZeroStockOffline.cacheMovements(list):list;if(!internal())return;S.movements=cached;await refreshOfflineStats();render()}))}
-async function loadFirebaseModules(){if(S.native&&window.ZeroStockFirebaseNative)return window.ZeroStockFirebaseNative;return{app:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-app.js`),auth:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-auth.js`),database:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-database.js`)}}
-async function initFirebase(){authView('authLoading');try{const M=await loadFirebaseModules(),A=M.app,U=M.auth,R=M.database,app=A.initializeApp(FIREBASE_BASE_CONFIG),auth=U.getAuth(app);try{await U.setPersistence(auth,U.browserLocalPersistence)}catch{}S.firebase={...U,...R,app,auth};U.onAuthStateChanged(auth,async user=>{clearSessionObservers();clearSubs();S.user=null;clearPrivateState();S.cartons=[];S.instructions=[];S.movements=[];S.users=[];S.customerSummary={};S.connected=false;S.db=null;S.offlineSession=false;if(!user){authView('authLogin');return}await connectDb(user)})}catch(e){console.error(e);if(S.native&&S.offlineReady)authError('gateLoginError',lang==='de'?'Keine gespeicherte Anmeldung verfügbar. Für die erste Anmeldung ist Internet erforderlich.':'No cached sign-in available. Internet is required for the first sign-in.');else authError('gateLoginError',lang==='de'?'Firebase konnte nicht geladen werden. Internet prüfen.':'Firebase could not be loaded. Check internet.');authView('authLogin')}}
+async function loadFirebaseModules(){if(window.ZeroStockFirebaseNative)return window.ZeroStockFirebaseNative;return{app:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-app.js`),auth:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-auth.js`),database:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-database.js`)}}
+async function initFirebase(){authView('authLoading');try{const M=await loadFirebaseModules(),A=M.app,U=M.auth,R=M.database,app=A.initializeApp(FIREBASE_BASE_CONFIG),auth=U.getAuth(app);try{await U.setPersistence(auth,U.browserLocalPersistence)}catch{}S.firebase={...U,...R,app,auth};U.onAuthStateChanged(auth,async user=>{clearSessionObservers();clearSubs();S.user=null;clearPrivateState();S.cartons=[];S.instructions=[];S.movements=[];S.users=[];S.customerSummary={};S.connected=false;S.db=null;S.offlineSession=false;if(!user){authView('authLogin');return}await connectDb(user)})}catch(e){console.error(e);if(S.native&&S.offlineReady)authError('gateLoginError',lang==='de'?'Keine gespeicherte Anmeldung verfügbar. Für die erste Anmeldung ist Internet erforderlich.':'No cached sign-in available. Internet is required for the first sign-in.');else authError('gateLoginError',lang==='de'?'Anmeldung derzeit nicht möglich. Prüfe deine Verbindung und öffne ZeroStock erneut.':'Sign-in is currently unavailable. Check your connection and reopen ZeroStock.');authView('authLogin')}}
 function safeAuthMessage(err){const c=String(err?.code||'');if(/invalid-credential|wrong-password|user-not-found|invalid-email/i.test(c))return lang==='de'?'Anmeldung fehlgeschlagen. E-Mail oder Passwort prüfen.':'Sign-in failed. Check email or password.';if(/too-many-requests/i.test(c))return lang==='de'?'Zu viele Versuche. Bitte später erneut versuchen.':'Too many attempts. Try again later.';if(/network-request-failed/i.test(c))return lang==='de'?'Keine Verbindung. Netzwerk prüfen.':'No connection. Check network.';return lang==='de'?'Anmeldung konnte nicht abgeschlossen werden.':'Sign-in could not be completed.'}
 async function login(){authError('gateLoginError','');const e=$('gateEmail').value.trim(),p=$('gatePassword').value;if(!e||!p)return authError('gateLoginError',lang==='de'?'E-Mail und Passwort eingeben.':'Enter email and password.');try{await S.firebase.signInWithEmailAndPassword(S.firebase.auth,e,p)}catch(x){authError('gateLoginError',safeAuthMessage(x))}}
 async function resetPassword(){authError('gateLoginError','');const e=$('gateEmail').value.trim();if(!e)return authError('gateLoginError',lang==='de'?'Zuerst E-Mail eingeben.':'Enter email first.');try{await S.firebase.sendPasswordResetEmail(S.firebase.auth,e);authError('gateLoginError',lang==='de'?'Reset-E-Mail wurde gesendet.':'Reset email sent.')}catch(x){authError('gateLoginError',x.message)}}
@@ -1425,7 +1438,13 @@ $('dashSearch').oninput=renderCartons;if($('quickBookSearch'))$('quickBookSearch
       window.print();
     };$('logoutBtn').onclick=async()=>{const uid=S.user?.uid;try{if(uid&&window.ZeroStockSecure)await window.ZeroStockSecure.removeUser(uid)}catch{};await S.firebase?.signOut(S.firebase.auth)};$('fabScan').onclick=()=>show('scan');
 if($('exportContainerMovesCsv'))$('exportContainerMovesCsv').onclick=exportContainerMovesCsv;if($('exportStockExcel'))$('exportStockExcel').onclick=exportStockExcel;if($('exportStockCsv'))$('exportStockCsv').onclick=exportStockCsv;if($('exportMovesCsv'))$('exportMovesCsv').onclick=exportMovesCsv;if($('exportBackupJson'))$('exportBackupJson').onclick=exportBackupJson;if($('shareLabel'))$('shareLabel').onclick=shareCurrentLabel;refreshExportMode();if($('openAddUser'))$('openAddUser').onclick=openAddUser;if($('createUserBtn'))$('createUserBtn').onclick=createZeroStockUser;if($('syncNowBtn'))$('syncNowBtn').onclick=()=>runSyncEngine({manual:true});if($('saveUpdateSource'))$('saveUpdateSource').onclick=saveUpdateSource;if($('checkUpdateBtn'))$('checkUpdateBtn').onclick=()=>checkForUpdate(true,false);loadUpdateSettings();$('gateLogin').onclick=login;$('gateReset').onclick=resetPassword;
-$('gateRetryRole').onclick=async()=>{const u=S.firebase?.auth?.currentUser;if(u){$('gateRoleState').textContent='erneute Prüfung…';$('gateRoleValue').textContent='—';$('gateRoleSource').textContent='—';$('gateRoleDb').textContent=FIREBASE_BASE_CONFIG.databaseURL;await connectDb(u)}};
+$('gateRetryRole').onclick=async()=>{
+  const user=S.firebase?.auth?.currentUser;
+  if(!user)return;
+  authView('authLoading');
+  clearSessionObservers();
+  await connectDb(user);
+};
 $('gateLogoutRole').onclick=()=>S.firebase?.signOut(S.firebase.auth);$('gatePassword').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;$('installBar').classList.add('show')});$('installBtn').onclick=async()=>{if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice}catch{}deferredInstallPrompt=null;$('installBar').classList.remove('show')};$('installDismiss').onclick=()=>$('installBar').classList.remove('show');window.addEventListener('appinstalled',()=>$('installBar').classList.remove('show'));
 

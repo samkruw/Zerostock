@@ -13,14 +13,21 @@
   z-index: 1100;
   isolation: isolate;
   overflow: hidden;
-  display: grid;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
   place-items: center;
   padding: var(--zs-safe-top) var(--zs-safe-right) var(--zs-safe-bottom) var(--zs-safe-left);
   background: #0d2522;
   color: #f3fff7;
-  --assemble: cubic-bezier(.16,.81,.23,1);
+  --assemble: cubic-bezier(.34,0,.22,1);
 }
-.launchScreen[hidden] { display: none !important; }
+.launchScreen:not([open]) { display: none; }
+.launchScreen[open] { display: grid; }
+.launchScreen::backdrop { background: transparent; }
 .launchBackdrop {
   position: absolute;
   inset: 0;
@@ -54,7 +61,7 @@
     var(--stroke) left bottom/14px 1px, var(--stroke) left bottom/1px 14px,
     var(--stroke) right bottom/14px 1px, var(--stroke) right bottom/1px 14px;
   background-repeat: no-repeat;
-  opacity: .35;
+  opacity: .23;
 }
 .launchMark {
   position: relative;
@@ -77,51 +84,24 @@
 }
 .launchName span { font-weight: 415; color: #d8f5e4; }
 .launchScope { margin-top: 9px; color: #c3ddcf; font-size: 14px; letter-spacing: .05em; }
-.launchSkip {
-  position: absolute;
-  right: calc(16px + var(--zs-safe-right));
-  bottom: calc(16px + var(--zs-safe-bottom));
-  min-height: 44px;
-  padding: 0 12px;
-  border-radius: 7px;
-  border: 1px solid #8eafa080;
-  background: #102f28cc;
-  color: #e1f2e7;
-  font-size: 13px;
-}
-.launchSkip:focus-visible { outline-color: #b5edcf; }
+/* Only the small foreground layers move. Both endpoints have zero velocity. */
 @media (prefers-reduced-motion: no-preference) {
-  .launchScreen:not([hidden]) { animation: launchExit 180ms ease-in 1510ms forwards; }
-  .launchBackdrop { animation: launchCamera 1650ms ease-out both; }
-  .launchGuides { animation: launchGuides 1180ms ease-out both; }
-  .launchBase { animation: launchBase 630ms var(--assemble) 65ms both; }
-  .launchBridge { animation: launchBridge 620ms var(--assemble) 225ms both; }
-  .launchUpper { animation: launchUpper 660ms var(--assemble) 335ms both; }
-  .launchName { animation: launchType 510ms var(--assemble) 535ms both; }
-  .launchScope { animation: launchType 430ms var(--assemble) 690ms both; }
+  .launchScreen[open] .launchPart, .launchScreen[open] .launchCaption { will-change: transform, opacity; }
+  .launchBase { --from-x: -7px; --from-y: 14px; --delay: 0ms; }
+  .launchBridge { --from-x: 11px; --from-y: -3px; --delay: 65ms; }
+  .launchUpper { --from-x: -5px; --from-y: -14px; --delay: 130ms; }
+  .launchPart { opacity: .26; transform: translate3d(var(--from-x),var(--from-y),0); }
+  .launchCaption { opacity: .32; transform: translate3d(0,5px,0); }
+  .playing .launchPart { animation: launchAssemble 790ms var(--assemble) var(--delay) both; }
+  .playing .launchCaption { animation: launchCaption 630ms var(--assemble) 155ms both; }
 }
-@keyframes launchBase {
-  from { transform: translate(-17%,18%); opacity: 0; }
-  to { transform: translate(0); opacity: 1; }
+@keyframes launchAssemble {
+  from { opacity: .26; transform: translate3d(var(--from-x),var(--from-y),0); }
+  to { opacity: 1; transform: translate3d(0,0,0); }
 }
-@keyframes launchBridge {
-  from { transform: translate(16%,-12%); opacity: 0; }
-  to { transform: translate(0); opacity: 1; }
+@keyframes launchCaption {
+  from { opacity: .32; transform: translate3d(0,5px,0); }
+  to { opacity: 1; transform: translate3d(0,0,0); }
 }
-@keyframes launchUpper {
-  from { transform: translate(-9%,-24%); opacity: 0; }
-  to { transform: translate(0); opacity: 1; }
-}
-@keyframes launchType {
-  from { transform: translateY(10px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-@keyframes launchGuides {
-  0% { opacity: 0; transform: scale(1.09); }
-  45% { opacity: .65; }
-  100% { opacity: .23; transform: scale(1); }
-}
-@keyframes launchCamera { from { transform: scale(1.045); } to { transform: scale(1); } }
-@keyframes launchExit { to { opacity: 0; visibility: hidden; } }
 @media (max-height: 425px) { .launchFrame { width: 150px; } .launchName { margin-top: 6px; font-size: 35px; } }
-@media print, (prefers-reduced-motion: reduce) { .launchScreen { display: none !important; } }
+@media print { .launchScreen { display: none !important; } }

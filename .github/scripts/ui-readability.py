@@ -76,6 +76,7 @@ try:
             page = context.new_page()
             page.goto(url, wait_until='networkidle')
             page.locator('#authLogin.active').wait_for()
+            page.locator('#launchScreen').wait_for(state='hidden')
             if label == 'android-insets':
                 page.evaluate("""() => {
                     document.documentElement.style.setProperty('--safe-area-inset-top','32px');
