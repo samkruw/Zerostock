@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="app-version" content="5.3.3">
+<meta name="app-version" content="5.3.4">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#133832">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -429,6 +429,10 @@ textarea { min-height: 66px; resize: vertical; }
   #mobileConn { color: #ebf5ed; font-size: 12px; display: flex; gap: 6px; align-items: center; }
   #mobileConn::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #e3aa59; }
   #mobileConn.online::before { background: var(--mint); }
+  .mobileAccountActions { display: flex; align-items: center; gap: 12px; }
+  .mobileLogout { min-height: 44px; padding: 7px 11px; border: 1px solid #78958a; border-radius: 8px; color: #fff; font-size: 14px; font-weight: 600; }
+  .mobileLogout:focus-visible { outline-color: #9fe6fd; }
+  .authGate:not(.hidden) ~ :is(.mobilehead,.mobileBottom,.fabScan) { display: none !important; }
   .mobileBottom { position: fixed; inset: auto 0 0; z-index: 60; display: grid !important; grid-template-columns: repeat(5,minmax(0,1fr)); align-items: stretch; padding: 6px calc(5px + var(--zs-safe-right)) calc(6px + var(--zs-safe-bottom)) calc(5px + var(--zs-safe-left)); background: #fff; border-top: 1px solid #c9d6cd; }
   .mobileBottom button { min-width: 0; min-height: 51px; display: grid; align-content: center; justify-items: center; gap: 4px; padding: 3px 0; border-radius: 8px; color: #4d6359; font-size: 11.5px; font-weight: 530; }
   .mobileBottom button.active { background: #e3f0e5; color: var(--brand); font-weight: 700; }
@@ -733,19 +737,32 @@ html.native-scanning body .modal.open, html.native-scanning .mobilehead { displa
   <div class="authCard">
 <div class="authBrand"><span class="brandMark" aria-hidden="true"></span><b class="wordmark">Zero<span>Stock</span></b></div>
 <div class="authView active" id="authLoading"><h2 role="status" data-i18n="authPreparing">Anmeldung wird vorbereitet …</h2></div>
-<div class="authView" id="authLogin"><h2 data-i18n="loginTitle">Anmelden</h2><p data-i18n="loginIntro">Melde dich mit deinem ZeroStock-Konto an.</p><div class="authForm"><label>E-Mail<input id="gateEmail" enterkeyhint="next" type="email" autocomplete="username" inputmode="email" placeholder="name@firma.ch"></label><label>Passwort<input id="gatePassword" enterkeyhint="go" type="password" autocomplete="current-password" placeholder="••••••••"></label><button class="btn primary" id="gateLogin"><span data-i18n="loginTitle">Anmelden</span><span aria-hidden="true">→</span></button><button class="authLink" id="gateReset" data-i18n="forgotPassword">Passwort vergessen?</button></div><div class="authError" id="gateLoginError" role="status"></div></div>
+<div class="authView" id="authLogin">
+  <h2 data-i18n="loginTitle">Anmelden</h2><p data-i18n="loginIntro">Melde dich mit deinem ZeroStock-Konto an.</p>
+  <form class="authForm" id="gateLoginForm" method="post" novalidate>
+    <label><span data-i18n="accountEmail">E-Mail</span><input id="gateEmail" name="email" required enterkeyhint="next" type="email" autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="name@firma.ch"></label>
+    <label><span data-i18n="accountPassword">Passwort</span><input id="gatePassword" name="password" required enterkeyhint="go" type="password" autocomplete="current-password" placeholder="••••••••"></label>
+    <button type="submit" class="btn primary" id="gateLogin"><span data-i18n="loginTitle">Anmelden</span><span aria-hidden="true">→</span></button>
+    <button type="button" class="authLink" id="gateReset" data-i18n="forgotPassword">Passwort vergessen?</button>
+  </form>
+  <div class="authError" id="gateLoginError" role="status"></div>
+</div>
 <div class="authView" id="authNoRole">
   <h2 data-i18n="accessUnavailable">Zugriff derzeit nicht möglich</h2>
   <p data-i18n="accessHelp">Versuche es erneut. Falls dein Konto weiterhin keinen Zugriff hat, wende dich an deine Lagerverwaltung.</p>
   <div class="authForm">
     <button class="btn primary" id="gateRetryRole" data-i18n="retryAccess">Erneut versuchen</button>
-    <button class="btn" id="gateLogoutRole" data-i18n="signOut">Abmelden</button>
+    <button type="button" class="btn" id="gateLogoutRole" data-account-logout data-i18n="signOut">Abmelden</button>
   </div>
+  <div class="authError" id="gateLogoutError" role="status"></div>
 </div>
 <div class="authMeta authFooter"><span data-i18n="workspaceName">Lagerverwaltung</span><span class="releaseVersion"></span></div></div>
 </div></div>
 
-<div class="mobilehead"><div class="mobileBrand"><span class="brandMark" aria-hidden="true"></span><b class="wordmark">Zero<span>Stock</span></b></div><span id="mobileConn">Login</span></div>
+<div class="mobilehead"><div class="mobileBrand"><span class="brandMark" aria-hidden="true"></span><b class="wordmark">Zero<span>Stock</span></b></div><div class="mobileAccountActions">
+  <span id="mobileConn">Login</span>
+  <button type="button" class="mobileLogout" data-account-logout><span data-i18n="signOut">Abmelden</span></button>
+</div></div>
 <div class="app locked" id="appShell">
 <aside><div class="brand"><span class="brandMark" aria-hidden="true"></span><b class="wordmark">Zero<span>Stock</span></b></div><nav id="nav" aria-label="Hauptnavigation">
 <button data-view="dashboard" class="active"><span data-i18n="dashboard">Dashboard</span><span class="icon" data-icon="dashboard" aria-hidden="true"></span></button>
@@ -759,7 +776,7 @@ html.native-scanning body .modal.open, html.native-scanning .mobilehead { displa
 <button data-view="users" data-admin><span data-i18n="users">Benutzer</span><span class="icon" data-icon="users" aria-hidden="true"></span></button>
 <button data-view="settings" data-admin><span data-i18n="settings">Einstellungen</span><span class="icon" data-icon="settings" aria-hidden="true"></span></button></nav>
 <div class="sidefoot"><div><span class="dot off" id="connDot"></span><span id="connText">Offline</span></div><strong id="roleLabel">—</strong></div></aside>
-<main><div class="top"><div><div class="eyebrow" data-i18n="workspaceName">Lagerverwaltung</div><h1 id="pageTitle">Dashboard</h1></div><div class="toolbar"><div class="lang"><button data-lang="de" class="active">DE</button><button data-lang="en">EN</button></div><button class="btn primary" data-goto="scan" data-internal><span class="icon" data-icon="scan" aria-hidden="true"></span> <span data-i18n="scan">QR scannen</span></button><button class="btn" id="logoutBtn"><span class="icon" data-icon="logout" aria-hidden="true"></span><span data-i18n="signOut">Abmelden</span></button></div></div>
+<main><div class="top"><div><div class="eyebrow" data-i18n="workspaceName">Lagerverwaltung</div><h1 id="pageTitle">Dashboard</h1></div><div class="toolbar"><div class="lang"><button data-lang="de" class="active">DE</button><button data-lang="en">EN</button></div><button class="btn primary" data-goto="scan" data-internal><span class="icon" data-icon="scan" aria-hidden="true"></span> <span data-i18n="scan">QR scannen</span></button><button type="button" class="btn" id="logoutBtn" data-account-logout><span class="icon" data-icon="logout" aria-hidden="true"></span><span data-i18n="signOut">Abmelden</span></button></div></div>
 
 <div class="installbar" id="installBar" role="region" aria-label="App installieren"><div class="installCopy"><b>ZeroStock installieren</b><small>Als App auf Desktop oder Android installieren.</small></div><div class="actions"><button class="btn primary" id="installBtn">Installieren</button><button class="btn" id="installDismiss" aria-label="Installationshinweis schliessen">×</button></div></div>
 
@@ -805,7 +822,7 @@ html.native-scanning body .modal.open, html.native-scanning .mobilehead { displa
 
 <section class="view" id="tasksView"><div class="panel"><div class="ph"><div><h3>Aufgaben</h3><small>Bestandswarnungen und offene Buchungen</small></div><span class="status" id="taskOpenBadge">0 OFFEN</span></div><div class="taskSummary"><div class="taskStat"><small>Offen</small><b id="taskStatOpen">0</b></div><div class="taskStat"><small>Kritisch</small><b id="taskStatCritical">0</b></div><div class="taskStat"><small>Bestand</small><b id="taskStatStock">0</b></div><div class="taskStat"><small>Sync</small><b id="taskStatSync">0</b></div></div><div class="taskFilters"><button data-task-filter="ALL" class="active">Alle</button><button data-task-filter="STOCK">Bestand</button><button data-task-filter="SYNC">Sync</button><button data-task-filter="DELIVERY">Lieferung</button><button data-task-filter="RETURN">Return</button></div><div id="taskList"></div></div></section>
 
-<section class="view" id="moreView"><div class="panel"><div class="ph"><div><h3>Mehr</h3><small>Weitere ZeroStock-Bereiche</small></div></div><div class="body"><div class="moreMenu" id="moreMenu"><button data-goto="instructions"><span><span class="icon" data-icon="instructions" aria-hidden="true"></span><span><b>Konfigurationen</b><small class="muted">Packing und Plate-Bedarf</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button><button data-goto="planner"><span><span class="icon" data-icon="planner" aria-hidden="true"></span><span><b>Planner</b><small class="muted">Packing-Kapazität planen</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button><button data-goto="movements" data-internal><span><span class="icon" data-icon="movements" aria-hidden="true"></span><span><b>Bewegungen</b><small class="muted">Buchungsjournal</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button><button data-goto="exports" data-internal><span><span class="icon" data-icon="exports" aria-hidden="true"></span><span><b>Export</b><small class="muted">Excel, CSV & Sicherung</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button><button data-goto="users" data-admin><span><span class="icon" data-icon="users" aria-hidden="true"></span><span><b>Benutzer</b><small class="muted">Rollen und Zugriffe</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button><button data-goto="settings" data-admin><span><span class="icon" data-icon="settings" aria-hidden="true"></span><span><b>Einstellungen</b><small class="muted">Firebase und Systemstatus</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button></div></div></div></section>
+<section class="view" id="moreView"><div class="panel"><div class="ph"><div><h3>Mehr</h3><small id="moreAccount"></small></div></div><div class="body"><div class="moreMenu" id="moreMenu"><button data-goto="instructions"><span><span class="icon" data-icon="instructions" aria-hidden="true"></span><span><b>Konfigurationen</b><small class="muted">Packing und Plate-Bedarf</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button><button data-goto="planner"><span><span class="icon" data-icon="planner" aria-hidden="true"></span><span><b>Planner</b><small class="muted">Packing-Kapazität planen</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button><button data-goto="movements" data-internal><span><span class="icon" data-icon="movements" aria-hidden="true"></span><span><b>Bewegungen</b><small class="muted">Buchungsjournal</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button><button data-goto="exports" data-internal><span><span class="icon" data-icon="exports" aria-hidden="true"></span><span><b>Export</b><small class="muted">Excel, CSV & Sicherung</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button><button data-goto="users" data-admin><span><span class="icon" data-icon="users" aria-hidden="true"></span><span><b>Benutzer</b><small class="muted">Rollen und Zugriffe</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button><button data-goto="settings" data-admin><span><span class="icon" data-icon="settings" aria-hidden="true"></span><span><b>Einstellungen</b><small class="muted">Firebase und Systemstatus</small></span></span><span class="icon" data-icon="chevron" aria-hidden="true"></span></button></div></div></div></section>
 
 <section class="view" id="settingsView"><div class="panel">
 <div class="ph"><div><h3>Firebase / Multiuser</h3><small>Produktivkonfiguration</small></div></div>
@@ -925,11 +942,16 @@ async function refreshOfflineStats(){
 }
 async function loadOfflineData(){
   if(!S.offlineReady||!S.user)return;
-  const uid=S.user.uid,internal=canWrite();
-  if(!internal){clearPrivateState();S.instructions=await window.ZeroStockOffline.getInstructions();return;}
+  const user=S.user,epoch=sessionEpoch,internal=canWrite();
+  if(!internal){
+    clearPrivateState();
+    const instructions=await window.ZeroStockOffline.getInstructions();
+    if(sameSession(user,epoch)&&S.user?.role==='customer')S.instructions=instructions;
+    return;
+  }
   try{
     const [cartons,instructions,movements]=await Promise.all([window.ZeroStockOffline.getCartons(),window.ZeroStockOffline.getInstructions(),window.ZeroStockOffline.getMovements(200)]);
-    if(!canWrite()||S.user.uid!==uid)return;
+    if(!sameSession(user,epoch)||!canWrite())return;
     S.cartons=cartons;S.instructions=instructions;S.movements=movements;await refreshOfflineStats();
   }catch(e){console.error('loadOfflineData',e)}
 }
@@ -944,12 +966,16 @@ Object.assign(D.en,{configurationLabel:'Configuration',cartons:'Articles',newCar
 Object.assign(D.de,{dashboard:'Lagerübersicht',homeLabel:'Übersicht',forgotPassword:'Passwort vergessen?',liveStock:'Kartons, Plates und Container',loginScope:'Bestand, Container und Packplanung',loginTitle:'Anmelden',loginIntro:'Melde dich mit deinem ZeroStock-Konto an.',workspaceName:'Lagerverwaltung',homeDispatch:'Im Lager buchen',homeScanHint:'Regalschild oder Containeretikett scannen.',openScanner:'Scanner öffnen',actionsLabel:'Artikelaktionen',signOut:'Abmelden'});
 Object.assign(D.en,{dashboard:'Warehouse overview',homeLabel:'Home',forgotPassword:'Forgot password?',liveStock:'Cartons, plates and containers',loginScope:'Inventory, containers and packing plans',loginTitle:'Sign in',loginIntro:'Sign in with your ZeroStock account.',workspaceName:'Warehouse management',homeDispatch:'Book a movement',homeScanHint:'Scan a shelf code or a container label.',openScanner:'Open scanner',actionsLabel:'Article actions',signOut:'Sign out'});
 Object.assign(D.de, {
+  accountEmail: 'E-Mail', accountPassword: 'Passwort',
+  accountAdmin: 'Admin', accountEmployee: 'Mitarbeiter', accountCustomer: 'Kunde',
   authPreparing: 'Anmeldung wird vorbereitet …',
   accessUnavailable: 'Zugriff derzeit nicht möglich',
   accessHelp: 'Versuche es erneut. Falls dein Konto weiterhin keinen Zugriff hat, wende dich an deine Lagerverwaltung.',
   retryAccess: 'Erneut versuchen'
 });
 Object.assign(D.en, {
+  accountEmail: 'Email', accountPassword: 'Password',
+  accountAdmin: 'Admin', accountEmployee: 'Employee', accountCustomer: 'Customer',
   authPreparing: 'Preparing sign-in …',
   accessUnavailable: 'Access currently unavailable',
   accessHelp: 'Try again. If your account still has no access, contact your warehouse administrator.',
@@ -995,13 +1021,25 @@ function capacity(i){
   return {max:Number.isFinite(max)?max:0,bottle};
 }
 
-function authView(id){document.querySelectorAll('.authView').forEach(v=>v.classList.toggle('active',v.id===id));$('authGate').classList.remove('hidden');$('appShell').classList.add('locked')}
-function unlock(){$('authGate').classList.add('hidden');$('appShell').classList.remove('locked');if(S.native)window.ZeroStockNotifications?.init?.().catch?.(()=>{})}
+function setWorkspaceLocked(locked){
+  $('appShell').classList.toggle('locked',locked);
+  document.querySelectorAll('#appShell, .mobilehead, #mobileBottom').forEach(el=>el.inert=locked);
+}
+function authView(id){
+  document.querySelectorAll('.authView').forEach(view=>view.classList.toggle('active',view.id===id));
+  $('authGate').classList.remove('hidden');
+  setWorkspaceLocked(true);
+}
+function unlock(){
+  $('authGate').classList.add('hidden');
+  setWorkspaceLocked(false);
+  if(S.native)window.ZeroStockNotifications?.init?.().catch?.(()=>{});
+}
 function authError(id,msg){const e=$(id);if(!e)return;e.textContent=msg||'';e.classList.toggle('show',!!msg)}
 function currentView(){return document.querySelector('.view.active')?.id.replace('View','')||'dashboard'}
 function show(v){if(S.user?.role==='customer'&&!['planner','instructions','more'].includes(v))v='planner';document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v+'View'));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));document.querySelectorAll('[data-mview]').forEach(b=>b.classList.toggle('active',b.dataset.mview===v));$('pageTitle').textContent={dashboard:t('dashboard'),scan:t('scan'),cartons:t('cartons'),instructions:t('configurations'),planner:t('planner'),movements:t('movements'),tasks:'Aufgaben',exports:'Export',more:'Mehr',users:t('users'),settings:t('settings')}[v]||v}
 function clearPrivateState(){unitsId=null;bookCarton=null;closeAll();$('unitList').replaceChildren();$('scanSelected').replaceChildren();$('movementRows').replaceChildren();$('cartonRows').replaceChildren();$('dashRows').replaceChildren();$('mobileRecentMoves')?.replaceChildren();for(const id of ['bookSerials','assignSerials','cSerials'])$(id).value='';S.cartons=[];S.movements=[];S.users=[];S.tasks=[];S.offlineStats={pending:0,conflicts:0,failed:0,syncing:0,cartons:0,movements:0};}
-function applyRole(){if(!canWrite())clearPrivateState();const r=S.user?.role||'';document.querySelectorAll('[data-admin]').forEach(e=>e.style.display=isAdmin()?'':'none');document.querySelectorAll('[data-internal]').forEach(e=>e.style.setProperty('display',canWrite()?'':'none',canWrite()?'':'important'));document.querySelectorAll('[data-book]').forEach(e=>e.disabled=!canWrite());if($('inventoryPanel'))$('inventoryPanel').style.display=r==='customer'?'none':'';$('roleLabel').textContent=S.user?`${S.user.name} · ${S.user.role}`:'—';$('currentUserName').textContent=S.user?.name||'—';$('currentUserEmail').textContent=S.firebase?.auth?.currentUser?.email||'—';$('currentUserRole').textContent=S.user?.role||'—'}
+function applyRole(){if(!canWrite())clearPrivateState();const r=S.user?.role||'';document.querySelectorAll('[data-admin]').forEach(e=>e.style.display=isAdmin()?'':'none');document.querySelectorAll('[data-internal]').forEach(e=>e.style.setProperty('display',canWrite()?'':'none',canWrite()?'':'important'));document.querySelectorAll('[data-book]').forEach(e=>e.disabled=!canWrite());if($('inventoryPanel'))$('inventoryPanel').style.display=r==='customer'?'none':'';const roleNames={admin:t('accountAdmin'),employee:t('accountEmployee'),customer:t('accountCustomer')};$('moreAccount').textContent=S.user?[S.firebase?.auth?.currentUser?.email||S.user.name,roleNames[r]].join(' · '):'';$('roleLabel').textContent=S.user?`${S.user.name} · ${S.user.role}`:'—';$('currentUserName').textContent=S.user?.name||'—';$('currentUserEmail').textContent=S.firebase?.auth?.currentUser?.email||'—';$('currentUserRole').textContent=S.user?.role||'—'}
 function setI18nText(el,text){
   if(!el)return;
   // Simple text-only element: normal replacement is safe.
@@ -1083,6 +1121,7 @@ function renderMobileHome(){
 async function renderTasks(){
   const root=$('taskList');if(!root)return;
   const token=++S.taskRenderToken;
+  if(!canWrite()){S.tasks=[];root.replaceChildren();return;}
   const derived=[];
   for(const c of S.cartons){
     const st=status(c);if(st.key==='ok')continue;
@@ -1094,16 +1133,18 @@ async function renderTasks(){
   if(S.native&&S.offlineReady&&window.ZeroStockOffline){
     try{
       const q=await window.ZeroStockOffline.queueDetails(100);
+      if(token!==S.taskRenderToken||!canWrite())return;
       for(const row of q){
         if(row.status==='CONFLICT')derived.push({id:`sync:${row.id}`,sourceKey:`sync:${row.id}`,type:'SYNC_CONFLICT',category:'SYNC',priority:'CRITICAL',status:'OPEN',referenceId:String(row.entity_id||row.id),title:'Sync-Konflikt',detail:`${row.entity_id} · ${row.last_error||'Manuelle Prüfung erforderlich'}`,action:'SYNC',icon:'↯'});
         else if(row.status==='FAILED')derived.push({id:`sync:${row.id}`,sourceKey:`sync:${row.id}`,type:'SYNC_ERROR',category:'SYNC',priority:'HIGH',status:'OPEN',referenceId:String(row.entity_id||row.id),title:'Synchronisierung fehlgeschlagen',detail:`${row.entity_id} · Versuch ${Number(row.attempts)||0}${row.last_error?` · ${row.last_error}`:''}`,action:'SYNC',icon:'↻'});
       }
       await window.ZeroStockOffline.reconcileSystemTasks(derived);
       const persisted=await window.ZeroStockOffline.getTasks('OPEN',250);
+      if(token!==S.taskRenderToken||!canWrite())return;
       // Keep future/manual DELIVERY and RETURN tasks while refreshing system-derived tasks.
       const manual=persisted.filter(x=>['DELIVERY','RETURN'].includes(x.category));
       S.tasks=[...derived,...manual.filter(m=>!derived.some(d=>d.sourceKey===m.sourceKey))];
-    }catch(e){console.warn('task layer',e);S.tasks=derived}
+    }catch(e){if(token!==S.taskRenderToken||!canWrite())return;console.warn('task layer',e);S.tasks=derived}
   }else S.tasks=derived;
   if(token!==S.taskRenderToken)return;
   const order={CRITICAL:0,HIGH:1,MEDIUM:2,LOW:3};
@@ -1827,14 +1868,41 @@ async function readProfileViaRest(user){
   if(!res.ok)return null;
   return await res.json();
 }
-async function startOfflineSession(user){if(!S.native||!S.offlineReady||!window.ZeroStockOffline)return false;try{const cached=await window.ZeroStockOffline.getCachedUser(user.uid);const age=Date.now()-Number(cached?.cachedAt||0);if(!cached||cached.active===false||!['admin','employee','customer'].includes(cached.role)||!Number.isFinite(age)||age<0||age>OFFLINE_AUTH_MAX_AGE_MS)return false;S.user={uid:user.uid,name:cached.name||user.email||'User',role:cached.role};S.offlineSession=true;S.connected=false;await loadOfflineData();unlock();show(S.user.role==='customer'?'planner':'dashboard');render();toast('ZeroStock Offline',lang==='de'?'Lokale Daten geladen. Ausstehende Buchungen werden bei der nächsten Verbindung automatisch synchronisiert.':'Local data loaded. Pending transactions will synchronize automatically when the connection returns.');return true}catch(e){console.error('startOfflineSession',e);return false}}
+async function startOfflineSession(user){
+  const epoch=sessionEpoch;
+  if(!S.native||!S.offlineReady||!window.ZeroStockOffline||!sameSession(user,epoch))return false;
+  try{
+    const cached=await window.ZeroStockOffline.getCachedUser(user.uid);
+    const age=Date.now()-Number(cached?.cachedAt||0);
+    if(!sameSession(user,epoch)||!cached||cached.active===false||!['admin','employee','customer'].includes(cached.role)||!Number.isFinite(age)||age<0||age>OFFLINE_AUTH_MAX_AGE_MS)return false;
+    S.user={uid:user.uid,name:cached.name||user.email||'User',role:cached.role};
+    S.offlineSession=true;S.connected=false;
+    await loadOfflineData();
+    if(!sameSession(user,epoch)||!S.user)return false;
+    unlock();show(S.user.role==='customer'?'planner':'dashboard');render();
+    toast('ZeroStock Offline',lang==='de'?'Lokale Daten geladen. Ausstehende Buchungen werden bei der nächsten Verbindung automatisch synchronisiert.':'Local data loaded. Pending transactions will synchronize automatically when the connection returns.');
+    return true;
+  }catch(e){console.error('startOfflineSession',e);return false}
+}
 let sessionObservers=[],sessionEpoch=0,profileRevision=0;
 function clearSessionObservers(){
   sessionEpoch++;profileRevision++;clearTimeout(S.profileTimer);
+  clearTimeout(S.summaryTimer);clearTimeout(S.syncTimer);clearTimeout(S.notificationTimer);
   for(const unsubscribe of sessionObservers)unsubscribe();
   sessionObservers=[];S.transportOnline=false;S.waitForCartons=false;
 }
-function sameSession(user,epoch){return epoch===sessionEpoch&&S.firebase.auth?.currentUser?.uid===user.uid;}
+function sameSession(user,epoch){return epoch===sessionEpoch&&S.firebase?.auth?.currentUser?.uid===user.uid;}
+function clearAccountWorkspace(){
+  clearPrivateState();
+  S.instructions=[];S.customerSummary={};S.lastSummary='';
+  S.taskRenderToken++;S.taskFilter='ALL';
+  for(const id of ['taskList','userList','syncQueueList','labelContent','planResult','planInstruction','mobileWarnings','instructionList']){
+    $(id).replaceChildren();
+  }
+  for(const id of ['planRef','dashSearch','cartonSearch'])$(id).value='';
+  $('planQty').value='1';
+  $('toast').classList.remove('show');
+}
 function applyLiveProfile(user,profile,refresh=false){
   const role=String(profile?.role||'').trim().toLowerCase();
   const active=profile?.active!==false&&['admin','employee','customer'].includes(role);
@@ -1843,10 +1911,10 @@ function applyLiveProfile(user,profile,refresh=false){
   S.connected=S.transportOnline;S.offlineSession=false;
   if(S.offlineReady)window.ZeroStockOffline.cacheUser({uid:user.uid,name,email:user.email||'',role,active}).catch(e=>console.warn('cache user',e));
   if(!active){
-    clearSubs();S.user=null;clearPrivateState();S.instructions=[];S.customerSummary={};S.waitForCartons=false;
+    clearSubs();S.user=null;clearAccountWorkspace();S.waitForCartons=false;
     authView('authNoRole');return;
   }
-  if(changed){clearSubs();clearPrivateState();S.instructions=[];S.customerSummary={};}
+  if(changed){clearSubs();clearAccountWorkspace();}
   S.user={uid:user.uid,name,role};
   if(changed||refresh){subscribe();unlock();if(changed)show(role==='customer'?'planner':'dashboard');}
   render();
@@ -1883,6 +1951,7 @@ sessionObservers.push(S.firebase.onValue(S.firebase.ref(S.db,'.info/connected'),
 }));
 if(S.native&&S.offlineReady&&navigator.onLine===false){
   if(await startOfflineSession(user)){if(sameSession(user,epoch)){watchOwnProfile(user,epoch);if(S.transportOnline)await refreshLiveProfile(user,epoch);}return;}
+  if(!sameSession(user,epoch))return;
 }
 
 const rolePath=`users/${user.uid}/role`;
@@ -1913,6 +1982,7 @@ if(!['admin','employee','customer'].includes(role)){
 if(!sameSession(user,epoch))return;
 if(!['admin','employee','customer'].includes(role)){
   if(!S.transportOnline&&await startOfflineSession(user)){if(sameSession(user,epoch))watchOwnProfile(user,epoch);return;}
+  if(!sameSession(user,epoch))return;
   if(S.transportOnline)applyLiveProfile(user,null);
   S.user=null;
   authView('authNoRole');
@@ -1933,18 +2003,18 @@ if(profile.active===false){applyLiveProfile(user,profile);watchOwnProfile(user,e
 S.user={uid:user.uid,name:String(profile.name||user.email||'User'),role};
 S.offlineSession=false;S.connected=S.transportOnline;
 if(S.offlineReady)try{await window.ZeroStockOffline.cacheUser({uid:user.uid,name:S.user.name,email:user.email||'',role,active:profile.active!==false})}catch(e){console.warn('cache user',e)}
+if(!sameSession(user,epoch)||S.user?.uid!==user.uid)return;
 
 // From this point onward the Firebase role is VALID.
 // UI startup errors must never be reported as a role error.
-unlock();
 try{
   if(S.offlineReady)await loadOfflineData();
-  if(!sameSession(user,epoch))return;
+  if(!sameSession(user,epoch)||S.user?.uid!==user.uid)return;
   subscribe();watchOwnProfile(user,epoch);
   const deep=new URLSearchParams(location.search).get('box');
-  if(deep&&S.user.role!=='customer')setTimeout(()=>handleScan(deep),120);
+  if(deep&&S.user.role!=='customer')setTimeout(()=>{if(sameSession(user,epoch)&&canWrite())handleScan(deep)},120);
   else show(S.user.role==='customer'?'planner':'dashboard');
-  render();
+  render();unlock();
 }catch(uiErr){
   console.error('ZeroStock UI startup error:',uiErr);
   if(!sameSession(user,epoch)||!S.user)return;
@@ -1959,20 +2029,70 @@ console.error('ZeroStock database/role error:',e);
 S.user=null;
 authView('authNoRole')
 }}
-function clearSubs(){S.unsubs.forEach(u=>{try{u()}catch{}});S.unsubs=[]}
 let subscriptionRevision=0;
-function subscribe(){clearSubs();const revision=++subscriptionRevision,F=S.firebase,uid=S.user.uid;
-const current=()=>revision===subscriptionRevision&&S.user?.uid===uid;
+function clearSubs(){subscriptionRevision++;S.unsubs.forEach(u=>{try{u()}catch{}});S.unsubs=[]}
+function subscribe(){clearSubs();const revision=subscriptionRevision,F=S.firebase,uid=S.user.uid;
+const current=()=>revision===subscriptionRevision&&S.user?.uid===uid&&F.auth?.currentUser?.uid===uid;
 const internal=()=>current()&&canWrite();S.waitForCartons=canWrite();
 if(isAdmin())S.unsubs.push(F.onValue(F.ref(S.db,'users'),s=>{if(!current()||!isAdmin())return;S.users=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));renderUsers()},e=>{console.error('users subscription',e);renderUsers()}));else S.users=[];
-if(S.user.role==='customer'){S.cartons=[];S.movements=[];S.unsubs.push(F.onValue(F.ref(S.db,'instructions'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));S.instructions=S.offlineReady?await window.ZeroStockOffline.cacheInstructions(list):list;render()}));S.unsubs.push(F.onValue(F.ref(S.db,'customerSummary'),s=>{S.customerSummary=s.val()||{};render()}));return}
+S.unsubs.push(F.onValue(F.ref(S.db,'instructions'),async snapshot=>{
+  if(!current())return;
+  const list=Object.entries(snapshot.val()||{}).map(([id,value])=>({id,...value}));
+  const instructions=S.offlineReady?await window.ZeroStockOffline.cacheInstructions(list):list;
+  if(!current())return;
+  S.instructions=instructions;render();if(canWrite())scheduleSummary();
+}));
+if(S.user.role==='customer'){
+  S.cartons=[];S.movements=[];
+  S.unsubs.push(F.onValue(F.ref(S.db,'customerSummary'),s=>{if(current()){S.customerSummary=s.val()||{};render()}}));
+  return;
+}
 S.unsubs.push(F.onValue(F.ref(S.db,'cartons'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));if(!internal())return;const cached=S.offlineReady?await window.ZeroStockOffline.cacheCartons(list):list;if(!internal())return;S.cartons=cached;const first=S.waitForCartons;S.waitForCartons=false;await refreshOfflineStats();if(!internal())return;render();scheduleSummary();if(first&&S.connected)scheduleSync(50)}));
-S.unsubs.push(F.onValue(F.ref(S.db,'instructions'),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));S.instructions=S.offlineReady?await window.ZeroStockOffline.cacheInstructions(list):list;render();scheduleSummary()}));
 S.unsubs.push(F.onValue(F.query(F.ref(S.db,'movements'),F.limitToLast(200)),async s=>{const list=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));if(!internal())return;const cached=S.offlineReady?await window.ZeroStockOffline.cacheMovements(list):list;if(!internal())return;S.movements=cached;await refreshOfflineStats();render()}))}
 async function loadFirebaseModules(){if(window.ZeroStockFirebaseNative)return window.ZeroStockFirebaseNative;return{app:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-app.js`),auth:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-auth.js`),database:await import(`https://www.gstatic.com/firebasejs/${FVER}/firebase-database.js`)}}
-async function initFirebase(){authView('authLoading');try{const M=await loadFirebaseModules(),A=M.app,U=M.auth,R=M.database,app=A.initializeApp(FIREBASE_BASE_CONFIG),auth=U.getAuth(app);try{await U.setPersistence(auth,U.browserLocalPersistence)}catch{}S.firebase={...U,...R,app,auth};U.onAuthStateChanged(auth,async user=>{clearSessionObservers();clearSubs();S.user=null;clearPrivateState();S.cartons=[];S.instructions=[];S.movements=[];S.users=[];S.customerSummary={};S.connected=false;S.db=null;S.offlineSession=false;if(!user){authView('authLogin');return}await connectDb(user)})}catch(e){console.error(e);if(S.native&&S.offlineReady)authError('gateLoginError',lang==='de'?'Keine gespeicherte Anmeldung verfügbar. Für die erste Anmeldung ist Internet erforderlich.':'No cached sign-in available. Internet is required for the first sign-in.');else authError('gateLoginError',lang==='de'?'Anmeldung derzeit nicht möglich. Prüfe deine Verbindung und öffne ZeroStock erneut.':'Sign-in is currently unavailable. Check your connection and reopen ZeroStock.');authView('authLogin')}}
+async function handleAuthStateChange(user){
+  if((user?.uid??null)!==(S.firebase.auth.currentUser?.uid??null))return;
+  authView(user?'authLoading':'authLogin');
+  clearSessionObservers();
+  clearSubs();
+  S.user=null;S.connected=false;S.db=null;S.offlineSession=false;
+  clearAccountWorkspace();
+  if(user)await connectDb(user);
+}
+async function initFirebase(){authView('authLoading');try{const M=await loadFirebaseModules(),A=M.app,U=M.auth,R=M.database,app=A.initializeApp(FIREBASE_BASE_CONFIG),auth=U.getAuth(app);try{await U.setPersistence(auth,U.browserLocalPersistence)}catch{}S.firebase={...U,...R,app,auth};U.onAuthStateChanged(auth,handleAuthStateChange)}catch(e){console.error(e);if(S.native&&S.offlineReady)authError('gateLoginError',lang==='de'?'Keine gespeicherte Anmeldung verfügbar. Für die erste Anmeldung ist Internet erforderlich.':'No cached sign-in available. Internet is required for the first sign-in.');else authError('gateLoginError',lang==='de'?'Anmeldung derzeit nicht möglich. Prüfe deine Verbindung und öffne ZeroStock erneut.':'Sign-in is currently unavailable. Check your connection and reopen ZeroStock.');authView('authLogin')}}
 function safeAuthMessage(err){const c=String(err?.code||'');if(/invalid-credential|wrong-password|user-not-found|invalid-email/i.test(c))return lang==='de'?'Anmeldung fehlgeschlagen. E-Mail oder Passwort prüfen.':'Sign-in failed. Check email or password.';if(/too-many-requests/i.test(c))return lang==='de'?'Zu viele Versuche. Bitte später erneut versuchen.':'Too many attempts. Try again later.';if(/network-request-failed/i.test(c))return lang==='de'?'Keine Verbindung. Netzwerk prüfen.':'No connection. Check network.';return lang==='de'?'Anmeldung konnte nicht abgeschlossen werden.':'Sign-in could not be completed.'}
-async function login(){authError('gateLoginError','');const e=$('gateEmail').value.trim(),p=$('gatePassword').value;if(!e||!p)return authError('gateLoginError',lang==='de'?'E-Mail und Passwort eingeben.':'Enter email and password.');try{await S.firebase.signInWithEmailAndPassword(S.firebase.auth,e,p)}catch(x){authError('gateLoginError',safeAuthMessage(x))}}
+async function login(event){
+  event.preventDefault();
+  const submit=$('gateLogin');
+  if(submit.disabled)return;
+  authError('gateLoginError','');
+  const email=$('gateEmail').value.trim(),password=$('gatePassword').value;
+  if(!email||!password)return authError('gateLoginError',lang==='de'?'E-Mail und Passwort eingeben.':'Enter email and password.');
+  submit.disabled=true;
+  try{
+    await S.firebase.signInWithEmailAndPassword(S.firebase.auth,email,password);
+    $('gatePassword').value='';
+  }catch(error){authError('gateLoginError',safeAuthMessage(error))}
+  finally{submit.disabled=false}
+}
+async function logout(){
+  const buttons=document.querySelectorAll('[data-account-logout]');
+  buttons.forEach(button=>button.disabled=true);
+  const uid=S.firebase?.auth?.currentUser?.uid||S.user?.uid;
+  authError('gateLogoutError','');
+  try{
+    if(uid&&window.ZeroStockSecure){
+      try{await window.ZeroStockSecure.removeUser(uid)}catch(error){console.warn('Remove local account',error)}
+    }
+    $('gateLoginForm').reset();
+    authError('gateLoginError','');
+    await S.firebase.signOut(S.firebase.auth);
+  }catch(error){
+    const message=lang==='de'?'Abmelden fehlgeschlagen. Bitte erneut versuchen.':'Sign-out failed. Please try again.';
+    if($('authNoRole').classList.contains('active'))authError('gateLogoutError',message);
+    else toast('ZeroStock',message);
+  }finally{buttons.forEach(button=>button.disabled=false)}
+}
 async function resetPassword(){authError('gateLoginError','');const e=$('gateEmail').value.trim();if(!e)return authError('gateLoginError',lang==='de'?'Zuerst E-Mail eingeben.':'Enter email first.');try{await S.firebase.sendPasswordResetEmail(S.firebase.auth,e);authError('gateLoginError',lang==='de'?'Reset-E-Mail wurde gesendet.':'Reset email sent.')}catch(x){authError('gateLoginError',x.message)}}
 
 
@@ -2080,8 +2200,8 @@ $('dashSearch').oninput=renderCartons;if($('quickBookSearch'))$('quickBookSearch
         return toast('QR',lang==='de'?'QR-Code ist noch nicht bereit.':'QR code is not ready yet.');
       }
       window.print();
-    };$('logoutBtn').onclick=async()=>{const uid=S.user?.uid;try{if(uid&&window.ZeroStockSecure)await window.ZeroStockSecure.removeUser(uid)}catch{};await S.firebase?.signOut(S.firebase.auth)};$('fabScan').onclick=()=>show('scan');
-if($('exportContainerMovesCsv'))$('exportContainerMovesCsv').onclick=exportContainerMovesCsv;if($('exportStockExcel'))$('exportStockExcel').onclick=exportStockExcel;if($('exportStockCsv'))$('exportStockCsv').onclick=exportStockCsv;if($('exportMovesCsv'))$('exportMovesCsv').onclick=exportMovesCsv;if($('exportBackupJson'))$('exportBackupJson').onclick=exportBackupJson;if($('shareLabel'))$('shareLabel').onclick=shareCurrentLabel;refreshExportMode();if($('openAddUser'))$('openAddUser').onclick=openAddUser;if($('createUserBtn'))$('createUserBtn').onclick=createZeroStockUser;if($('syncNowBtn'))$('syncNowBtn').onclick=()=>runSyncEngine({manual:true});if($('saveUpdateSource'))$('saveUpdateSource').onclick=saveUpdateSource;if($('checkUpdateBtn'))$('checkUpdateBtn').onclick=()=>checkForUpdate(true,false);loadUpdateSettings();$('gateLogin').onclick=login;$('gateReset').onclick=resetPassword;
+    };document.querySelectorAll('[data-account-logout]').forEach(button=>button.onclick=logout);$('fabScan').onclick=()=>show('scan');
+if($('exportContainerMovesCsv'))$('exportContainerMovesCsv').onclick=exportContainerMovesCsv;if($('exportStockExcel'))$('exportStockExcel').onclick=exportStockExcel;if($('exportStockCsv'))$('exportStockCsv').onclick=exportStockCsv;if($('exportMovesCsv'))$('exportMovesCsv').onclick=exportMovesCsv;if($('exportBackupJson'))$('exportBackupJson').onclick=exportBackupJson;if($('shareLabel'))$('shareLabel').onclick=shareCurrentLabel;refreshExportMode();if($('openAddUser'))$('openAddUser').onclick=openAddUser;if($('createUserBtn'))$('createUserBtn').onclick=createZeroStockUser;if($('syncNowBtn'))$('syncNowBtn').onclick=()=>runSyncEngine({manual:true});if($('saveUpdateSource'))$('saveUpdateSource').onclick=saveUpdateSource;if($('checkUpdateBtn'))$('checkUpdateBtn').onclick=()=>checkForUpdate(true,false);loadUpdateSettings();$('gateLoginForm').onsubmit=login;$('gateReset').onclick=resetPassword;
 $('gateRetryRole').onclick=async()=>{
   const user=S.firebase?.auth?.currentUser;
   if(!user)return;
@@ -2089,7 +2209,6 @@ $('gateRetryRole').onclick=async()=>{
   clearSessionObservers();
   await connectDb(user);
 };
-$('gateLogoutRole').onclick=()=>S.firebase?.signOut(S.firebase.auth);$('gatePassword').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;$('installBar').classList.add('show')});$('installBtn').onclick=async()=>{if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice}catch{}deferredInstallPrompt=null;$('installBar').classList.remove('show')};$('installDismiss').onclick=()=>$('installBar').classList.remove('show');window.addEventListener('appinstalled',()=>$('installBar').classList.remove('show'));
 
 (async()=>{const nativeCap=!!window.Capacitor?.isNativePlatform?.();S.native=nativeCap;document.documentElement.classList.toggle('native-app',nativeCap);applyLang();if(nativeCap)await initOfflineCore();await initFirebase();if(nativeCap)setTimeout(()=>checkForUpdate(false,true),2500);if(!nativeCap&&'serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(console.warn)})();

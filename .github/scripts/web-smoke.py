@@ -73,7 +73,7 @@ try:
             assert page.evaluate('ZeroStockUpdates.currentVersion()') == version
             assert page.evaluate('ZeroStockUpdates.isNewer("5.0.0", "5.0.0-rc.1")')
             assert page.evaluate('ZeroStockUpdates.isNewer("5.0.1", "5.0.0")')
-            assert page.evaluate("v => ZeroStockUpdates.isNewer(v, '5.3.2')", version)
+            assert page.evaluate("v => ZeroStockUpdates.isNewer(v, '5.3.3')", version)
             stage = label + ':service-worker'
             page.wait_for_function('Boolean(navigator.serviceWorker.controller)', timeout=45000)
             assert 'zerostock-v'+version in page.evaluate('caches.keys()')
