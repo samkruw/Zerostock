@@ -1,10 +1,16 @@
-# ZeroStock V5.3.3
+# ZeroStock V5.3.4
 
-ZeroStock verwaltet Kartons, Plates und Container. Website und Android-App arbeiten mit demselben Firebase-Projekt. Die Website verwendet die 18 Anwendungsdateien aus der signierten Android-APK. [Website](https://samkruw.github.io/Zerostock/) · [Android-Release](https://github.com/samkruw/Zerostock/releases/tag/v5.3.3) · [Dateiprüfsummen](web-release.json)
+ZeroStock verwaltet Kartons, Plates und Container. Website und Android-App arbeiten mit demselben Firebase-Projekt. Die Versionsdatei der Website nennt die signierte APK, aus der ihre 18 Anwendungsdateien stammen. [Website](https://samkruw.github.io/Zerostock/) · [Aktueller Android-Release](https://github.com/samkruw/Zerostock/releases/latest) · [Web-Version und Prüfsummen](web-release.json)
 
 ## Start und Navigation
 
 Beim ersten Öffnen einer Sitzung setzt sich das ZeroStock-Z vor dem ruhenden Lagerbild zusammen. Die Animation dauert 1,6 Sekunden und läuft vollständig durch. Bei reduzierter Bewegung bleibt das fertige Z für dieselbe Dauer sichtbar. Die Anmeldung wird im Hintergrund vorbereitet. Ein Regaletikett führt anschließend zum gescannten Artikel.
+
+## Konto wechseln
+
+Tippe auf dem Handy oben rechts auf **Abmelden**. Am Desktop steht **Abmelden** ebenfalls in der oberen Leiste. Die nächste Person meldet sich mit ihrer eigenen E-Mail-Adresse und ihrem Passwort an. Auf dem Handy zeigt **Mehr** das aktive Konto und seine Rolle.
+
+Als Admin legst du weitere Konten unter **Benutzer → + Benutzer** an. Auf dem Handy findest du **Benutzer** unter **Mehr**. Wähle bei der Anlage die passende Rolle. Mitarbeiter können Lagerbewegungen buchen, Kunden haben Zugriff auf Konfigurationen und den Planner.
 
 ## Arbeiten mit der neuen Oberfläche
 
@@ -36,7 +42,7 @@ Installiere die neue APK als Update über der vorhandenen ZeroStock-App. Die Pak
 
 Die Änderungsquellen liegen unter `cloud-build/overrides`. `cloud-build/restore-source.mjs` stellt das geprüfte Originalarchiv, die Lesbarkeitskorrektur und die Änderungen in einem neuen Verzeichnis wieder her. Nach der Signaturprüfung der APK stammen die Website-Dateien direkt aus `assets/public`. GitHub Pages veröffentlicht das Stammverzeichnis von `main`.
 
-Die automatisierten Prüfungen umfassen Lagerberechnung, SQLite, Web- und Android-Ansichten sowie die mitgelieferten Firebase-Regeln im Emulator. Für V5.3.3 steht der Test auf einem physischen Android-Gerät mit einem freigegebenen Konto noch aus. Für die Aktivierung der mitgelieferten Datenbankregeln ist ein Administratorzugang zum Firebase-Projekt erforderlich. [Firebase-Regeln](database.rules.json)
+Die automatisierten Prüfungen umfassen Lagerberechnung, SQLite, Web- und Android-Ansichten sowie die mitgelieferten Firebase-Regeln im Emulator. Für V5.3.4 steht der Test auf einem physischen Android-Gerät mit einem freigegebenen Konto noch aus. Für die Aktivierung der mitgelieferten Datenbankregeln ist ein Administratorzugang zum Firebase-Projekt erforderlich. [Firebase-Regeln](database.rules.json)
 
 ## Bisherige Funktionsdokumentation
 

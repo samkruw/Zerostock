@@ -135,6 +135,51 @@ def test_sign_in_messages(browser, base):
     context.close()
 
 
+def test_account_switch(browser, base, viewport, phone):
+    context = browser.new_context(viewport=viewport, is_mobile=phone, has_touch=phone, service_workers='block')
+    try:
+        context.route('**/*', lambda r: r.continue_() if urlsplit(r.request.url).netloc == urlsplit(base).netloc else r.abort())
+        fixture = Path(__file__).with_name('account-fixture.js')
+        context.route(base + 'native-firebase.js', lambda r: r.fulfill(path=str(fixture), content_type='text/javascript'))
+        page = context.new_page()
+        page.goto(base, wait_until='domcontentloaded')
+        page.locator('#launchScreen').wait_for(state='hidden')
+        email, password = page.locator('#gateEmail'), page.locator('#gatePassword')
+        for uid, role in [('supervisor', 'admin'), ('worker', 'employee'), ('client', 'customer')]:
+            email.fill(uid + '@example.invalid')
+            if role == 'employee':
+                password.fill('incorrect')
+                page.locator('#gateLogin').click()
+                page.locator('#gateLoginError:visible').wait_for()
+                assert page.locator('#appShell.locked').count() == 1
+                assert page.evaluate('S.user === null && !S.users.length')
+            password.fill('fixture-only')
+            if phone:
+                page.locator('#gateLogin').click()
+            else:
+                password.press('Enter')
+            page.wait_for_function("uid => S.user?.uid === uid && !document.querySelector('#appShell.locked')", arg=uid)
+            assert page.evaluate('S.user.role') == role
+            paths = page.evaluate('fixtureSubscriptions()')
+            assert ('users' in paths) == (role == 'admin')
+            assert ('cartons' in paths) == (role != 'customer')
+            assert ('movements' in paths) == (role != 'customer')
+            assert page.evaluate('S.cartons.length') == (0 if role == 'customer' else 1)
+            if role == 'customer':
+                assert page.locator('#plannerView').is_visible()
+                assert 'PRIVATE-TEST-ARTICLE' not in page.locator('body').inner_text()
+            logout = page.locator('[data-account-logout]:visible')
+            assert logout.count() == 1 and 'Abmelden' in logout.inner_text()
+            logout.click()
+            page.locator('#authLogin:visible').wait_for()
+            assert page.locator('#appShell.locked').count() == 1
+            assert email.input_value() == '' and password.input_value() == ''
+            assert page.evaluate('S.user === null && !S.cartons.length && !S.users.length')
+            assert page.evaluate('fixtureSubscriptions()') == []
+    finally:
+        context.close()
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', type=Path, required=True)
@@ -144,9 +189,11 @@ if __name__ == '__main__':
         threading.Thread(target=server.serve_forever, daemon=True).start()
         browser = p.chromium.launch(executable_path=os.environ.get('ZS_CHROMIUM_PATH'), headless=True)
         for width, height in [(360, 780), (1440, 960)]:
-            test_launch(browser, f'http://127.0.0.1:{server.server_port}/',
-                        {'width': width, 'height': height}, width < 500)
+            base = f'http://127.0.0.1:{server.server_port}/'
+            viewport = {'width': width, 'height': height}
+            test_launch(browser, base, viewport, width < 500)
+            test_account_switch(browser, base, viewport, width < 500)
         test_sign_in_messages(browser, f'http://127.0.0.1:{server.server_port}/')
         browser.close()
         server.shutdown()
-    print('Startup, input isolation, label links, reduced motion and sign-in messages passed.')
+    print('Startup, sign-in and account changes across admin, employee and customer roles passed on mobile and desktop.')

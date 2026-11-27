@@ -188,6 +188,7 @@ class Regressions(unittest.TestCase):
     def test_cached_customer_session_does_not_load_employee_inventory(self):
         result=self.page.evaluate("""async()=>{
             const cache=JSON.parse(JSON.stringify(uiFixture.data.cartons));let privateReads=0;
+            S.firebase.auth.currentUser={uid:'customer'};
             S.native=true;S.offlineReady=true;
             window.ZeroStockOffline={getCachedUser:async()=>({name:'Customer',role:'customer',active:true,cachedAt:Date.now()}),
                 getCartons:async()=>{privateReads++;return Object.values(cache)},getMovements:async()=>{privateReads++;return [{id:'private',article:'CONFIDENTIAL',qty:99,type:'out',userName:'PRIVATE PARTNER'}]},getInstructions:async()=>[],stats:async()=>({pending:0})};
@@ -196,6 +197,32 @@ class Regressions(unittest.TestCase):
         }""")
         self.assertEqual(result['privateReads'],0);self.assertEqual(result['cartons'],0);self.assertEqual(result['movements'],0)
         self.assertEqual(result['view'],'planner');self.assertNotIn('CONFIDENTIAL',result['recent'])
+
+    def test_late_native_profile_read_cannot_unlock_after_sign_out(self):
+        result = self.page.evaluate("""async () => {
+            const originalUser = S.firebase.auth.currentUser;
+            let finishLookup;
+            S.native = true;
+            S.offlineReady = true;
+            window.ZeroStockOffline = {
+                getCachedUser: () => new Promise(resolve => { finishLookup = resolve; }),
+                getCartons: async () => Object.values(uiFixture.data.cartons),
+                getInstructions: async () => [],
+                getMovements: async () => [],
+                stats: async () => ({pending: 0})
+            };
+            const login = startOfflineSession(originalUser);
+            S.firebase.auth.currentUser = null;
+            clearSessionObservers();
+            S.user = null;
+            clearPrivateState();
+            authView('authLogin');
+            finishLookup({role: 'employee', name: 'Former employee', cachedAt: Date.now(), active: true});
+            await login;
+            return [S.user?.uid ?? null, S.cartons.length, document.querySelector('#appShell').classList.contains('locked')];
+        }""")
+        self.assertEqual(result, [None, 0, True])
+
 try:
     result=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(Regressions))
 finally:browser.close();p.stop();server.shutdown()

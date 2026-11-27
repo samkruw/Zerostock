@@ -11,6 +11,7 @@ on:
       - .github/workflows/database-rules.yml
       - .github/scripts/articles*.py
       - .github/scripts/articles-fixture.js
+      - .github/scripts/account-fixture.js
       - .github/scripts/ui-readability.py
       - .github/scripts/brand-start.py
       - icon-*.png
@@ -20,7 +21,7 @@ permissions:
   contents: read
 
 env:
-  ZEROSTOCK_RELEASE_VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '5.3.3' }}
+  ZEROSTOCK_RELEASE_VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '5.3.4' }}
 
 concurrency:
   group: zerostock-android-${{ github.ref }}
@@ -34,7 +35,7 @@ jobs:
     if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
     uses: ./.github/workflows/android-native-check.yml
     with:
-      version: '5.3.3'
+      version: '5.3.4'
       version_code: ${{ fromJSON(github.run_number) }}
 
   verify-source:
